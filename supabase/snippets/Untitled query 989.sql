@@ -1,0 +1,1 @@
+select distinct cash_accounts.name, quarter from cash_account_snapshots, cash_accounts where cash_accounts.id = cash_account_snapshots.account_id order by name

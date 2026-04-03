@@ -1,0 +1,1 @@
+SELECT  * FROM asset_prices where asset_id = (select id from assets where name = 'ADM Shares');
