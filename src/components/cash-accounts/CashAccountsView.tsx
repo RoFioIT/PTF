@@ -411,12 +411,12 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
   const selectedQuarterLabel = quarterLabel(selectedQuarter)
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6">
 
       {/* ── Header ────────────────────────────────────────────── */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Cash Accounts</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Cash Accounts</h1>
           <p className="text-gray-500 text-sm mt-1">{activeAccounts.length} accounts · Quarterly snapshot tracker</p>
         </div>
         <div className="flex items-center gap-2">
@@ -644,7 +644,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
               </div>
             </div>
 
-            <table className="w-full">
+            <div className="overflow-x-auto"><table className="w-full">
               <thead>
                 <tr className="border-b border-[#1a1a28]">
                   {[
@@ -733,7 +733,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
                   })()
                 )}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )
       })()}
@@ -773,7 +773,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
             <p className="text-gray-600 text-sm">No accounts yet — click Add account to get started.</p>
           </div>
         ) : (
-          <table className="w-full">
+          <div className="overflow-x-auto"><table className="w-full">
             <thead>
               <tr className="border-b border-[#1a1a28]">
                 {[
@@ -808,7 +808,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
                 </tr>
               )}
             </tbody>
-          </table>
+          </table></div>
         )}
       </div>
 

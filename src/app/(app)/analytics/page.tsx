@@ -56,9 +56,9 @@ export default async function AnalyticsPage() {
   const totalDividends = sumDividends(allFinDivs)
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Analytics</h1>
+    <div className="p-4 md:p-8">
+      <div className="mb-6 md:mb-8">
+        <h1 className="text-xl md:text-2xl font-bold text-white">Analytics</h1>
         <p className="text-gray-400 text-sm mt-1">
           Advanced risk metrics and performance analysis
         </p>

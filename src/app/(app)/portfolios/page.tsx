@@ -168,11 +168,11 @@ export default async function PortfoliosPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
+      <div className="flex items-start justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Portfolios</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Portfolios</h1>
           <p className="text-gray-400 text-sm mt-1">
             {portfolios.length} portfolio{portfolios.length !== 1 ? 's' : ''} · All values in EUR
           </p>

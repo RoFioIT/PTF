@@ -151,55 +151,103 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
             No transactions yet.
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#1e1e2e]">
-                {['Date', 'Type', 'Asset', 'Portfolio', 'Quantity', 'Price', 'Fees', 'Total', ''].map((h) => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e1e2e]">
+          <>
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-[#1e1e2e]">
               {rows.map((tx) => {
                 const isBuy = tx.type === 'BUY'
                 const total = Number(tx.quantity) * Number(tx.price)
                 return (
-                  <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
-                    <td className="px-6 py-4 text-sm text-gray-400">{fmtDate(tx.date)}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${isBuy ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'}`}>
-                        {isBuy ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                        {tx.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium text-white">{tx.asset_name}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-400">{tx.portfolio_name}</span>
-                        <Badge variant={tx.portfolio_type === 'PEA' ? 'purple' : 'info'}>{tx.portfolio_type}</Badge>
+                  <div key={tx.id} className="px-4 py-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${isBuy ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'}`}>
+                            {isBuy ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
+                            {tx.type}
+                          </span>
+                          <span className="text-xs text-gray-500">{fmtDate(tx.date)}</span>
+                        </div>
+                        <div className="text-sm font-medium text-white truncate">{tx.asset_name}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {tx.portfolio_name} · {Number(tx.quantity).toFixed(4)} @ {fmt(Number(tx.price), tx.currency)}
+                        </div>
                       </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{Number(tx.quantity).toFixed(4)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{fmt(Number(tx.price), tx.currency)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500 tabular-nums">{fmt(Number(tx.fees), tx.currency)}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-white tabular-nums">{fmt(total, tx.currency)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => openEdit(tx)} className="text-gray-500 hover:text-indigo-400 transition-colors">
-                          <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button onClick={() => handleDelete(tx)} className="text-gray-500 hover:text-red-400 transition-colors">
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                      <div className="flex items-center gap-3 flex-shrink-0">
+                        <div className="text-right">
+                          <div className="text-sm font-semibold text-white tabular-nums">{fmt(total, tx.currency)}</div>
+                          {Number(tx.fees) > 0 && (
+                            <div className="text-xs text-gray-600 tabular-nums mt-0.5">fees {fmt(Number(tx.fees), tx.currency)}</div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-400 hover:bg-indigo-400/10 transition-colors">
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+                          <button onClick={() => handleDelete(tx)} className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
                 )
               })}
-            </tbody>
-          </table>
+            </div>
+
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#1e1e2e]">
+                    {['Date', 'Type', 'Asset', 'Portfolio', 'Quantity', 'Price', 'Fees', 'Total', ''].map((h) => (
+                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#1e1e2e]">
+                  {rows.map((tx) => {
+                    const isBuy = tx.type === 'BUY'
+                    const total = Number(tx.quantity) * Number(tx.price)
+                    return (
+                      <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
+                        <td className="px-6 py-4 text-sm text-gray-400">{fmtDate(tx.date)}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${isBuy ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'}`}>
+                            {isBuy ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                            {tx.type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm font-medium text-white">{tx.asset_name}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-400">{tx.portfolio_name}</span>
+                            <Badge variant={tx.portfolio_type === 'PEA' ? 'purple' : 'info'}>{tx.portfolio_type}</Badge>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{Number(tx.quantity).toFixed(4)}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{fmt(Number(tx.price), tx.currency)}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 tabular-nums">{fmt(Number(tx.fees), tx.currency)}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-white tabular-nums">{fmt(total, tx.currency)}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button onClick={() => openEdit(tx)} className="text-gray-500 hover:text-indigo-400 transition-colors">
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button onClick={() => handleDelete(tx)} className="text-gray-500 hover:text-red-400 transition-colors">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

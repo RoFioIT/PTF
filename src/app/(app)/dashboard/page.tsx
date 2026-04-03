@@ -158,30 +158,42 @@ export default async function DashboardPage() {
 
   const pnlPositive = snapshot.totalPnL >= 0
 
+  const openPositions = snapshot.positions
+    .filter((p) => p.totalShares > 0)
+    .sort((a, b) => b.currentValue - a.currentValue)
+
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            {investmentPortfolios.length} portfolio{investmentPortfolios.length > 1 ? 's' : ''} ·{' '}
-            {snapshot.positions.filter((p) => p.totalShares > 0).length} open positions
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex gap-2">
-            {investmentPortfolios.map((p) => (
-              <Badge key={p.id} variant={p.type === 'PEA' ? 'purple' : 'info'}>{p.type}</Badge>
-            ))}
+      <div className="mb-6 md:mb-8">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
+            <p className="text-gray-400 text-sm mt-1">
+              {investmentPortfolios.length} portfolio{investmentPortfolios.length > 1 ? 's' : ''} ·{' '}
+              {openPositions.length} open positions
+            </p>
           </div>
-          <DividendImportButton />
-          <RefreshButton />
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="hidden sm:flex gap-2">
+              {investmentPortfolios.map((p) => (
+                <Badge key={p.id} variant={p.type === 'PEA' ? 'purple' : 'info'}>{p.type}</Badge>
+              ))}
+            </div>
+            <DividendImportButton />
+            <RefreshButton />
+          </div>
+        </div>
+        {/* Portfolio badges on mobile */}
+        <div className="flex gap-2 mt-2 sm:hidden">
+          {investmentPortfolios.map((p) => (
+            <Badge key={p.id} variant={p.type === 'PEA' ? 'purple' : 'info'}>{p.type}</Badge>
+          ))}
         </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
         <MetricCard
           label="Portfolio Value"
           value={fmt(snapshot.currentValue)}
@@ -215,13 +227,14 @@ export default async function DashboardPage() {
           subvalue="across all portfolios"
           trend={totalAvailableCash >= 0 ? 'up' : 'down'}
           icon={<Banknote className="w-4 h-4" />}
+          className="col-span-2 lg:col-span-1"
         />
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
         {/* Performance chart — 2/3 width */}
-        <div className="lg:col-span-2 bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6">
+        <div className="lg:col-span-2 bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-white text-sm">Portfolio Performance</h2>
             <span className="text-xs text-gray-500">{history.length} data points</span>
@@ -230,7 +243,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Allocation pie — 1/3 width */}
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6">
+        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 md:p-6">
           <h2 className="font-semibold text-white text-sm mb-4">Allocation</h2>
           <AllocationChart
             allocations={snapshot.allocations}
@@ -242,33 +255,64 @@ export default async function DashboardPage() {
 
       {/* Monthly Performance Recap */}
       <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
+        <div className="px-4 md:px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
           <h2 className="font-semibold text-white text-sm">Monthly Performance</h2>
           <span className="text-xs text-gray-500">{monthly.length} months</span>
         </div>
         <MonthlyRecap data={monthly} currency="EUR" />
       </div>
 
-      {/* Positions Table */}
+      {/* Positions */}
       <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
+        <div className="px-4 md:px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
           <h2 className="font-semibold text-white text-sm">Open Positions</h2>
           <a href="/portfolios" className="text-xs text-indigo-400 hover:text-indigo-300">View all →</a>
         </div>
 
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-[#1e1e2e]">
-              {['Asset', 'Shares', 'PRU', 'Price', 'Invested', 'Value', 'P&L', '%', 'Alloc'].map((h) => (
-                <th key={h} className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#1e1e2e]">
-            {snapshot.positions
-              .filter((p) => p.totalShares > 0)
-              .sort((a, b) => b.currentValue - a.currentValue)
-              .map((pos) => {
+        {/* Mobile card list */}
+        <div className="md:hidden divide-y divide-[#1e1e2e]">
+          {openPositions.map((pos) => {
+            const name = assetNames.get(pos.assetId) ?? pos.assetId.slice(0, 8)
+            const pnlPos = pos.totalPnL >= 0
+            const hasPrice = pos.currentPrice > 0
+            return (
+              <a
+                key={pos.assetId}
+                href={`/assets/${pos.assetId}`}
+                className="flex items-center justify-between px-4 py-3.5 hover:bg-white/[0.02] active:bg-white/[0.04] transition-colors"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-medium text-white truncate">{name}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">
+                    {pos.totalShares.toFixed(3)} shares
+                    {pos.allocationPct != null && ` · ${pos.allocationPct.toFixed(1)}%`}
+                  </div>
+                </div>
+                <div className="text-right ml-4 flex-shrink-0">
+                  <div className="text-sm font-semibold text-white tabular-nums">
+                    {hasPrice ? fmt(pos.currentValue) : '—'}
+                  </div>
+                  <div className={`text-xs font-medium mt-0.5 tabular-nums ${pnlPos ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {hasPrice ? fmtPct(pos.performancePct) : '—'}
+                  </div>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[#1e1e2e]">
+                {['Asset', 'Shares', 'PRU', 'Price', 'Invested', 'Value', 'P&L', '%', 'Alloc'].map((h) => (
+                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1e1e2e]">
+              {openPositions.map((pos) => {
                 const name = assetNames.get(pos.assetId) ?? pos.assetId.slice(0, 8)
                 const pnlPos = pos.totalPnL >= 0
                 const hasPrice = pos.currentPrice > 0
@@ -296,8 +340,9 @@ export default async function DashboardPage() {
                   </tr>
                 )
               })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   )

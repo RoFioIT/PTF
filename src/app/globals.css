@@ -39,3 +39,15 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
 }
+
+/* Mobile safe area for bottom nav (iPhone notch/home bar) */
+.safe-area-inset-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Tap highlight removal for mobile nav items */
+@media (max-width: 768px) {
+  a, button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

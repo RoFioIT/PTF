@@ -46,15 +46,16 @@ export default async function DividendsPage() {
   const byYear = dividendsByYear(finDivs)
 
   return (
-    <div className="p-8">
-      <div className="flex items-center justify-between mb-8">
+    <div className="p-4 md:p-8">
+      <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Dividends</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-white">Dividends</h1>
           <p className="text-gray-400 text-sm mt-1">{allDivRows.length} payments recorded</p>
         </div>
         <button className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors">
           <Plus className="w-4 h-4" />
-          Record dividend
+          <span className="hidden sm:inline">Record dividend</span>
+          <span className="sm:hidden">Record</span>
         </button>
       </div>
 
@@ -84,7 +85,7 @@ export default async function DividendsPage() {
           <div className="px-6 py-4 border-b border-[#1e1e2e]">
             <h2 className="font-semibold text-white text-sm">By Year</h2>
           </div>
-          <table className="w-full">
+          <div className="overflow-x-auto"><table className="w-full">
             <thead>
               <tr className="border-b border-[#1e1e2e]">
                 {['Year', 'Gross', 'Tax', 'Net'].map((h) => (
@@ -111,7 +112,7 @@ export default async function DividendsPage() {
                   </tr>
                 ))}
             </tbody>
-          </table>
+          </table></div>
         </div>
       )}
 
@@ -126,47 +127,49 @@ export default async function DividendsPage() {
             No dividends recorded yet.
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#1e1e2e]">
-                {['Date', 'Asset', 'Portfolio', 'Gross', 'Tax', 'Net'].map((h) => (
-                  <th
-                    key={h}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e1e2e]">
-              {allDivRows.map((d) => (
-                <tr key={d.id} className="hover:bg-white/[0.02] transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-400">{fmtDate(d.date)}</td>
-                  <td className="px-6 py-4 text-sm font-medium text-white">
-                    {(d.asset as { name: string })?.name ?? d.asset_id}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-400">{d.portfolio_name}</span>
-                      <Badge variant={d.portfolio_type === 'PEA' ? 'purple' : 'info'}>
-                        {d.portfolio_type}
-                      </Badge>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
-                    {fmt(Number(d.amount), d.currency)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-red-400 tabular-nums">
-                    -{fmt(Number(d.tax), d.currency)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-emerald-400 font-medium tabular-nums">
-                    {fmt(Number(d.amount) - Number(d.tax), d.currency)}
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#1e1e2e]">
+                  {['Date', 'Asset', 'Portfolio', 'Gross', 'Tax', 'Net'].map((h) => (
+                    <th
+                      key={h}
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      {h}
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#1e1e2e]">
+                {allDivRows.map((d) => (
+                  <tr key={d.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-400 whitespace-nowrap">{fmtDate(d.date)}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-white whitespace-nowrap">
+                      {(d.asset as { name: string })?.name ?? d.asset_id}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-400 whitespace-nowrap">{d.portfolio_name}</span>
+                        <Badge variant={d.portfolio_type === 'PEA' ? 'purple' : 'info'}>
+                          {d.portfolio_type}
+                        </Badge>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums whitespace-nowrap">
+                      {fmt(Number(d.amount), d.currency)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-red-400 tabular-nums whitespace-nowrap">
+                      -{fmt(Number(d.tax), d.currency)}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-emerald-400 font-medium tabular-nums whitespace-nowrap">
+                      {fmt(Number(d.amount) - Number(d.tax), d.currency)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

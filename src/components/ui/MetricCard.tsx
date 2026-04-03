@@ -21,7 +21,7 @@ export function MetricCard({
   return (
     <div
       className={clsx(
-        'bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 flex flex-col gap-3',
+        'bg-[#12121a] border border-[#1e1e2e] rounded-xl p-3.5 md:p-5 flex flex-col gap-2 md:gap-3',
         className
       )}
     >
@@ -35,7 +35,7 @@ export function MetricCard({
       </div>
 
       <div>
-        <div className="text-2xl font-bold text-white tabular-nums">{value}</div>
+        <div className="text-xl md:text-2xl font-bold text-white tabular-nums">{value}</div>
         {subvalue && (
           <div
             className={clsx(
