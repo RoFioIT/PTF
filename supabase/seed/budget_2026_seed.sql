@@ -6,7 +6,7 @@
 
 DO $$
 DECLARE
-  v_uid uuid := '268dbb82-ef5d-4a89-b0f7-9de1081d86e8';
+  v_uid uuid := 'b32a689f-bf4e-48ad-8ada-999e98060684';
 
   -- category IDs
   c_income   uuid; c_savings  uuid; c_home     uuid; c_daily    uuid;
