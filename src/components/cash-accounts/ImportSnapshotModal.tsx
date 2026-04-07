@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { X, Upload, Image as ImageIcon, CheckCircle2, AlertCircle, Loader2, ChevronRight } from 'lucide-react'
+import { X, Upload, Image as ImageIcon, CheckCircle2, AlertCircle, Loader2, ChevronRight, RotateCcw } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount, CashAccountSnapshot } from '@/types/database'
 import type { ExtractedItem } from '@/lib/import/parseBankinText'
@@ -169,6 +169,20 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
     } finally {
       setProcessing(false)
     }
+  }
+
+  // ── Reload saved mappings ─────────────────────────────────────
+
+  function reloadMappings() {
+    const current = loadMapping()
+    setRows((prev) => prev.map((row) => {
+      const key = mappingKey(row.extracted)
+      const saved = current[key]
+      if (!saved) return row
+      if (saved.accountId === '__skip__') return { ...row, accountId: '__skip__' }
+      const exists = accounts.find((a) => a.id === saved.accountId && a.is_active)
+      return exists ? { ...row, accountId: saved.accountId } : row
+    }))
   }
 
   // ── Row updates ───────────────────────────────────────────────
@@ -391,6 +405,13 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
                 )}>
                   {validRows.length}/{rows.filter((r) => r.accountId !== '__skip__').length} mapped
                 </span>
+                <button
+                  onClick={reloadMappings}
+                  title="Reload saved mappings"
+                  className="ml-auto flex items-center gap-1 text-[10px] text-gray-500 hover:text-indigo-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+                >
+                  <RotateCcw className="w-3 h-3" /> Reload saved
+                </button>
               </div>
 
               {rows.map((row, idx) => (
