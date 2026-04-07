@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { createWorker, PSM } from 'tesseract.js'
 import { parseBankinText } from '@/lib/import/parseBankinText'
 
 export const runtime = 'nodejs'
@@ -22,23 +21,21 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(arrayBuffer)
 
   let rawText = ''
-  let worker
   try {
-    worker = await createWorker('fra', 1, {
-      logger: () => {},
-    })
-    await worker.setParameters({
-      tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
-    })
-    const result = await worker.recognize(buffer)
-    rawText = result.data.text
+    // Dynamic import so a module-level crash is catchable and returns JSON
+    const { createWorker, PSM } = await import('tesseract.js')
+
+    const worker = await createWorker('fra', 1, { logger: () => {} })
+    try {
+      await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_BLOCK })
+      const result = await worker.recognize(buffer)
+      rawText = result.data.text
+    } finally {
+      await worker.terminate().catch(() => {})
+    }
   } catch (err) {
-    return NextResponse.json(
-      { error: `OCR failed: ${(err as Error).message}` },
-      { status: 500 }
-    )
-  } finally {
-    if (worker) await worker.terminate().catch(() => {})
+    const message = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: `OCR failed: ${message}` }, { status: 500 })
   }
 
   const items = parseBankinText(rawText)
