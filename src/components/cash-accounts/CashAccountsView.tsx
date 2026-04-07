@@ -7,10 +7,11 @@ import {
 } from 'recharts'
 import {
   Plus, Pencil, Check, X, Trash2, PiggyBank, TrendingUp, TrendingDown,
-  ArrowUpRight, ArrowDownRight, Minus,
+  ArrowUpRight, ArrowDownRight, Minus, Upload,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount, CashAccountSnapshot } from '@/types/database'
+import { ImportSnapshotModal } from './ImportSnapshotModal'
 
 // ── Constants ─────────────────────────────────────────────────
 
@@ -240,6 +241,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
   const [pending, setPending] = useState<Map<string, string>>(new Map())
   const [saving, setSaving] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [summaryMode, setSummaryMode] = useState<'year' | 'quarter'>('year')
 
@@ -437,6 +439,11 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
               <button onClick={enterEditMode}
                 className="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 border border-indigo-500/30 hover:border-indigo-500/60 px-4 py-2 rounded-lg transition-all">
                 <Pencil className="w-3.5 h-3.5" /> Edit {selectedQuarterLabel}
+              </button>
+              <button onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-1.5 text-sm text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-4 py-2 rounded-lg transition-all">
+                <Upload className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Import</span>
               </button>
               <button onClick={() => setShowAddModal(true)}
                 className="flex items-center gap-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-colors font-medium">
@@ -821,6 +828,30 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
             setShowAddModal(false)
           }}
           onClose={() => setShowAddModal(false)}
+        />
+      )}
+
+      {showImportModal && (
+        <ImportSnapshotModal
+          accounts={accounts}
+          onDone={(newSnapshots, newAccounts) => {
+            // Merge new snapshots
+            setSnapshots((prev) => {
+              const map = new Map(prev.map((s) => [`${s.account_id}|${s.quarter}`, s]))
+              for (const snap of newSnapshots) map.set(`${snap.account_id}|${snap.quarter}`, snap)
+              return [...map.values()]
+            })
+            // Merge any newly created accounts
+            if (newAccounts.length > 0) {
+              setAccounts((prev) =>
+                [...prev, ...newAccounts].sort((a, b) =>
+                  a.category.localeCompare(b.category) || a.owner.localeCompare(b.owner) || a.name.localeCompare(b.name)
+                )
+              )
+            }
+            setShowImportModal(false)
+          }}
+          onClose={() => setShowImportModal(false)}
         />
       )}
     </div>
