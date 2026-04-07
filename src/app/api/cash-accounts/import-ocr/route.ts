@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createWorker, PSM } from 'tesseract.js'
 import { parseBankinText } from '@/lib/import/parseBankinText'
-import type { ExtractedItem } from '@/lib/import/parseBankinText'
 
 export const runtime = 'nodejs'
-// Tesseract can take a few seconds on large images
 export const maxDuration = 60
 
 export async function POST(request: Request) {
@@ -24,22 +22,25 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(arrayBuffer)
 
   let rawText = ''
-  const worker = await createWorker('fra', 1, {
-    // Suppress verbose Tesseract logs in production
-    logger: () => {},
-  })
-
+  let worker
   try {
+    worker = await createWorker('fra', 1, {
+      logger: () => {},
+    })
     await worker.setParameters({
       tessedit_pageseg_mode: PSM.SINGLE_BLOCK,
     })
     const result = await worker.recognize(buffer)
     rawText = result.data.text
+  } catch (err) {
+    return NextResponse.json(
+      { error: `OCR failed: ${(err as Error).message}` },
+      { status: 500 }
+    )
   } finally {
-    await worker.terminate()
+    if (worker) await worker.terminate().catch(() => {})
   }
 
-  const items: ExtractedItem[] = parseBankinText(rawText)
-
+  const items = parseBankinText(rawText)
   return NextResponse.json({ items, rawText })
 }
