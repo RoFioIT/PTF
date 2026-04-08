@@ -31,6 +31,7 @@
     "recharts": "^3.8.1",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "yahoo-finance2": "^3.14.0"
   }
 }

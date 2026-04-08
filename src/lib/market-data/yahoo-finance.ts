@@ -1,11 +1,13 @@
 // ============================================================
 // Market Data — Yahoo Finance Provider
 //
-// Uses Yahoo Finance's public chart API (no API key required).
+// Uses the `yahoo-finance2` npm package which handles the
+// crumb/cookie authentication required since 2023.
 // Converts Google Finance symbols (EPA:MC, NASDAQ:AMZN) to Yahoo
 // Finance tickers (MC.PA, AMZN) automatically.
 // ============================================================
 
+import yahooFinance from 'yahoo-finance2'
 import type { MarketDataProvider, AssetIdentifierQuery, Quote, PricePoint } from './types'
 import { MarketDataError } from './types'
 import type { IdentifierType } from '@/types/database'
@@ -61,42 +63,18 @@ export function googleToYahoo(googleSymbol: string): string | null {
 }
 
 /**
- * Fetch JSON from Yahoo Finance with a timeout.
- */
-async function yahooFetch(url: string): Promise<Response> {
-  const controller = new AbortController()
-  const timeout = setTimeout(() => controller.abort(), 10_000)
-
-  try {
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        // Yahoo sometimes blocks without a User-Agent
-        'User-Agent': 'Mozilla/5.0 (compatible; PTF-tracker/1.0)',
-      },
-    })
-    return res
-  } finally {
-    clearTimeout(timeout)
-  }
-}
-
-/**
  * fetchFxRate — returns how many units of `to` equal 1 unit of `from`.
  * e.g. fetchFxRate('USD', 'EUR') → ~0.92
- * Uses Yahoo Finance FX tickers like USDEUR=X.
  * Returns 1 if from === to, or if the fetch fails (safe fallback).
  */
 export async function fetchFxRate(from: string, to: string): Promise<number> {
   if (from === to) return 1
   const ticker = `${from}${to}=X`
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=5d`
 
   try {
-    const res = await yahooFetch(url)
-    if (!res.ok) return 1
-    const json = await res.json()
-    const price: number | undefined = json?.chart?.result?.[0]?.meta?.regularMarketPrice
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const quote: any = await yahooFinance.quote(ticker)
+    const price = quote?.regularMarketPrice
     return price && price > 0 ? price : 1
   } catch {
     return 1
@@ -128,40 +106,34 @@ export class YahooFinanceProvider implements MarketDataProvider {
 
   async getQuote(identifier: AssetIdentifierQuery): Promise<Quote> {
     const ticker = this.resolveYahooTicker(identifier)
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`
 
-    const res = await yahooFetch(url)
-    if (!res.ok) {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const quote: any = await yahooFinance.quote(ticker)
+
+      const price: number = quote?.regularMarketPrice ?? quote?.previousClose ?? 0
+      const currency: string = quote?.currency ?? 'USD'
+      const prevClose: number = quote?.regularMarketPreviousClose ?? quote?.previousClose ?? price
+
+      return {
+        price,
+        currency,
+        timestamp: quote?.regularMarketTime ? new Date(quote.regularMarketTime) : new Date(),
+        source: this.name,
+        change: price - prevClose,
+        changePct: prevClose !== 0 ? ((price - prevClose) / prevClose) * 100 : 0,
+      }
+    } catch (err) {
       throw new MarketDataError(
-        `Yahoo Finance returned ${res.status} for ${ticker}`,
+        err instanceof Error ? err.message : String(err),
         this.name,
         identifier
       )
     }
-
-    const json = await res.json()
-    const result = json?.chart?.result?.[0]
-    if (!result) {
-      throw new MarketDataError(`No data returned for ${ticker}`, this.name, identifier)
-    }
-
-    const meta = result.meta
-    const price: number = meta.regularMarketPrice ?? meta.previousClose
-    const currency: string = meta.currency ?? 'USD'
-
-    return {
-      price,
-      currency,
-      timestamp: new Date(meta.regularMarketTime * 1000),
-      source: this.name,
-      change: meta.regularMarketPrice - meta.previousClose,
-      changePct: ((meta.regularMarketPrice - meta.previousClose) / meta.previousClose) * 100,
-    }
   }
 
   /**
-   * Fetch historical daily or monthly closing prices.
-   * Yahoo Finance valid intervals: 1d, 1wk, 1mo
+   * Fetch historical monthly closing prices using yahoo-finance2.
    */
   async getHistoricalPrices(
     identifier: AssetIdentifierQuery,
@@ -171,54 +143,46 @@ export class YahooFinanceProvider implements MarketDataProvider {
   ): Promise<PricePoint[]> {
     const ticker = this.resolveYahooTicker(identifier)
 
-    const fromTs = Math.floor(new Date(from).getTime() / 1000)
-    const toTs = Math.floor(new Date(to).getTime() / 1000)
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: any = await yahooFinance.chart(ticker, {
+        period1: from,
+        period2: to,
+        interval,
+      })
 
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}` +
-      `?interval=${interval}&period1=${fromTs}&period2=${toTs}&includePrePost=false`
+      const quotes: any[] = result?.quotes ?? []
+      const currency: string = result?.meta?.currency ?? 'USD'
 
-    const res = await yahooFetch(url)
-    if (!res.ok) {
+      const points: PricePoint[] = []
+      for (const q of quotes) {
+        const close = q.close
+        if (close === null || close === undefined || isNaN(close)) continue
+
+        let date: string
+        if (interval === '1mo') {
+          // Yahoo monthly bar timestamps = last trading day of the PREVIOUS month.
+          // Shift forward one month so the date belongs to the correct period.
+          const d = new Date(q.date)
+          const y = d.getUTCFullYear()
+          const m = d.getUTCMonth() // 0-indexed
+          const nextM = m === 11 ? 0 : m + 1
+          const nextY = m === 11 ? y + 1 : y
+          date = `${nextY}-${String(nextM + 1).padStart(2, '0')}-01`
+        } else {
+          date = new Date(q.date).toISOString().slice(0, 10)
+        }
+
+        points.push({ date, close, currency })
+      }
+
+      return points
+    } catch (err) {
       throw new MarketDataError(
-        `Yahoo Finance returned ${res.status} for ${ticker}`,
+        err instanceof Error ? err.message : String(err),
         this.name,
         identifier
       )
     }
-
-    const json = await res.json()
-    const result = json?.chart?.result?.[0]
-    if (!result) {
-      throw new MarketDataError(`No historical data for ${ticker}`, this.name, identifier)
-    }
-
-    const timestamps: number[] = result.timestamp ?? []
-    const closes: (number | null)[] = result.indicators?.quote?.[0]?.close ?? []
-    const currency: string = result.meta?.currency ?? 'USD'
-
-    const points: PricePoint[] = []
-    for (let i = 0; i < timestamps.length; i++) {
-      const close = closes[i]
-      if (close === null || close === undefined || isNaN(close)) continue
-
-      let date: string
-      if (interval === '1mo') {
-        // Yahoo monthly bar timestamps = last trading day of the PREVIOUS month.
-        // e.g. timestamp Dec 27 carries January's closing price.
-        // Shift to the next calendar month so the date belongs to the correct period.
-        const d = new Date(timestamps[i] * 1000)
-        const y = d.getUTCFullYear()
-        const m = d.getUTCMonth() // 0-indexed
-        const nextM = m === 11 ? 0 : m + 1
-        const nextY = m === 11 ? y + 1 : y
-        date = `${nextY}-${String(nextM + 1).padStart(2, '0')}-01`
-      } else {
-        date = new Date(timestamps[i] * 1000).toISOString().slice(0, 10)
-      }
-
-      points.push({ date, close, currency })
-    }
-
-    return points
   }
 }
