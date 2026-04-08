@@ -7,7 +7,7 @@ import {
 } from 'recharts'
 import {
   Plus, Pencil, Check, X, Trash2, PiggyBank, TrendingUp, TrendingDown,
-  ArrowUpRight, ArrowDownRight, Minus, Upload,
+  ArrowUpRight, ArrowDownRight, Minus, Upload, FileDown,
 } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount, CashAccountSnapshot } from '@/types/database'
@@ -242,7 +242,18 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
   const [saving, setSaving] = useState(false)
   const [showAddModal, setShowAddModal] = useState(false)
   const [showImportModal, setShowImportModal] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  async function handleExportPdf() {
+    setExportingPdf(true)
+    try {
+      const { generateCashReport } = await import('@/lib/report/generateCashReport')
+      generateCashReport(accounts, snapshots)
+    } finally {
+      setExportingPdf(false)
+    }
+  }
   const [summaryMode, setSummaryMode] = useState<'year' | 'quarter'>('year')
 
   // Toggleable chart lines
@@ -444,6 +455,11 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
                 className="flex items-center gap-1.5 text-sm text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-500/60 px-4 py-2 rounded-lg transition-all">
                 <Upload className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Import</span>
+              </button>
+              <button onClick={handleExportPdf} disabled={exportingPdf}
+                className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-200 border border-[#2e2e3e] hover:border-[#3e3e5e] disabled:opacity-50 px-4 py-2 rounded-lg transition-all">
+                <FileDown className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{exportingPdf ? 'Exporting…' : 'Export PDF'}</span>
               </button>
               <button onClick={() => setShowAddModal(true)}
                 className="flex items-center gap-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-colors font-medium">
