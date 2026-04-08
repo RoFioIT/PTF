@@ -7,7 +7,8 @@
 // Finance tickers (MC.PA, AMZN) automatically.
 // ============================================================
 
-import yahooFinance from 'yahoo-finance2'
+import YahooFinance from 'yahoo-finance2'
+const yahooFinance = new YahooFinance()
 import type { MarketDataProvider, AssetIdentifierQuery, Quote, PricePoint } from './types'
 import { MarketDataError } from './types'
 import type { IdentifierType } from '@/types/database'
