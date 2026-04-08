@@ -16,6 +16,7 @@ import { upsertPriceBatch } from '@/lib/db/prices'
 import type { IdentifierType } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
+export const maxDuration = 60   // Vercel: allow up to 60s for batch price fetches
 
 const HISTORY_MONTHS = 36
 
@@ -29,14 +30,41 @@ function today(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-// Provider map: identifier type → provider instance
-const PROVIDERS = {
-  GOOGLE_SYMBOL: new YahooFinanceProvider(),
-  BOURSORAMA: new BoursoramaProvider(),
-} as const
+// ── GET — diagnostic endpoint ─────────────────────────────────
+// Quickly checks env vars and DB connectivity without fetching prices.
+export async function GET() {
+  const checks: Record<string, string> = {}
 
-type SupportedType = keyof typeof PROVIDERS
+  checks.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'MISSING'
+  checks.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ? 'set' : 'MISSING'
 
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ ok: false, checks }, { status: 500 })
+  }
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { persistSession: false } }
+  )
+
+  const { data, error } = await supabase
+    .from('asset_identifiers')
+    .select('type, value')
+    .in('type', ['GOOGLE_SYMBOL', 'BOURSORAMA'])
+
+  if (error) {
+    checks.db = `ERROR: ${error.message}`
+    return NextResponse.json({ ok: false, checks }, { status: 500 })
+  }
+
+  checks.db = 'ok'
+  checks.identifiers = `${data?.length ?? 0} found`
+
+  return NextResponse.json({ ok: true, checks, identifiers: data })
+}
+
+// ── POST — fetch and store prices ─────────────────────────────
 export async function POST() {
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -44,61 +72,53 @@ export async function POST() {
     { auth: { persistSession: false } }
   )
 
-  // Fetch all identifiers we know how to price
-  const supportedTypes = Object.keys(PROVIDERS) as SupportedType[]
+  const yahoo = new YahooFinanceProvider()
+  const boursorama = new BoursoramaProvider()
+
+  const PROVIDERS = {
+    GOOGLE_SYMBOL: yahoo,
+    BOURSORAMA: boursorama,
+  } as const
+
+  type SupportedType = keyof typeof PROVIDERS
 
   const { data: identifiers, error } = await supabase
     .from('asset_identifiers')
     .select('asset_id, type, value, assets(name, currency)')
-    .in('type', supportedTypes)
+    .in('type', Object.keys(PROVIDERS) as SupportedType[])
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  if (!identifiers || identifiers.length === 0) {
+    return NextResponse.json({ ok: true, fetched: 0, totalPricePoints: 0, failed: 0, results: [] })
+  }
+
   const from = startDate()
   const to = today()
 
-  const results: Array<{
-    assetId: string
-    name: string
-    symbol: string
-    provider: string
-    points: number
-    error?: string
-  }> = []
+  // Fetch all assets in parallel
+  const settled = await Promise.allSettled(
+    identifiers.map(async (row) => {
+      const assetId: string = row.asset_id
+      const identifierType = row.type as SupportedType
+      const symbol: string = row.value
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const assetName: string = (row.assets as any)?.name ?? assetId
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const assetCurrency: string = (row.assets as any)?.currency ?? 'EUR'
+      const provider = PROVIDERS[identifierType]
 
-  for (const row of identifiers ?? []) {
-    const assetId: string = row.asset_id
-    const identifierType = row.type as SupportedType
-    const symbol: string = row.value
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const assetName: string = (row.assets as any)?.name ?? assetId
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const assetCurrency: string = (row.assets as any)?.currency ?? 'EUR'
+      const prices = identifierType === 'GOOGLE_SYMBOL'
+        ? await (provider as YahooFinanceProvider).getHistoricalPrices(
+            { type: identifierType as IdentifierType, value: symbol }, from, to, '1mo'
+          )
+        : await provider.getHistoricalPrices(
+            { type: identifierType as IdentifierType, value: symbol }, from, to
+          )
 
-    const provider = PROVIDERS[identifierType]
-
-    try {
-      // Yahoo: fetch monthly candles. Boursorama: fetch daily then we store each point.
-      let prices
-      if (identifierType === 'GOOGLE_SYMBOL') {
-        prices = await (provider as YahooFinanceProvider).getHistoricalPrices(
-          { type: identifierType as IdentifierType, value: symbol },
-          from, to,
-          '1mo'  // monthly interval
-        )
-      } else {
-        prices = await provider.getHistoricalPrices(
-          { type: identifierType as IdentifierType, value: symbol },
-          from, to
-        )
-      }
-
-      if (prices.length === 0) {
-        results.push({ assetId, name: assetName, symbol, provider: provider.name, points: 0, error: 'No data returned' })
-        continue
-      }
+      if (prices.length === 0) throw new Error('No data returned')
 
       const rows = prices.map((p) => ({
         asset_id: assetId,
@@ -109,18 +129,27 @@ export async function POST() {
       }))
 
       await upsertPriceBatch(supabase, rows)
-      results.push({ assetId, name: assetName, symbol, provider: provider.name, points: prices.length })
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      results.push({ assetId, name: assetName, symbol, provider: provider.name, points: 0, error: msg })
-    }
+      return { assetId, name: assetName, symbol, provider: provider.name, points: prices.length }
+    })
+  )
 
-    // Polite delay between requests
-    await new Promise((r) => setTimeout(r, 300))
-  }
+  const results = settled.map((s, i) => {
+    const row = identifiers[i]
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const name: string = (row.assets as any)?.name ?? row.asset_id
+    if (s.status === 'fulfilled') return s.value
+    return {
+      assetId: row.asset_id,
+      name,
+      symbol: row.value,
+      provider: row.type === 'BOURSORAMA' ? 'boursorama' : 'yahoo-finance',
+      points: 0,
+      error: s.reason instanceof Error ? s.reason.message : String(s.reason),
+    }
+  })
 
   const total = results.reduce((s, r) => s + r.points, 0)
-  const failed = results.filter((r) => r.error)
+  const failed = results.filter((r) => 'error' in r && r.error)
 
   return NextResponse.json({
     ok: true,
