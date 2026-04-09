@@ -48,20 +48,35 @@ export async function GET() {
     { auth: { persistSession: false } }
   )
 
-  const { data, error } = await supabase
+  // All identifiers (no type filter)
+  const { data: allIds, error: idsError } = await supabase
     .from('asset_identifiers')
     .select('type, value')
-    .in('type', ['GOOGLE_SYMBOL', 'BOURSORAMA'])
 
-  if (error) {
-    checks.db = `ERROR: ${error.message}`
+  if (idsError) {
+    checks.db = `ERROR: ${idsError.message}`
     return NextResponse.json({ ok: false, checks }, { status: 500 })
   }
 
-  checks.db = 'ok'
-  checks.identifiers = `${data?.length ?? 0} found`
+  // All assets
+  const { data: assets, error: assetsError } = await supabase
+    .from('assets')
+    .select('id, name')
+    .limit(20)
 
-  return NextResponse.json({ ok: true, checks, identifiers: data })
+  if (assetsError) {
+    checks.assets = `ERROR: ${assetsError.message}`
+  }
+
+  checks.db = 'ok'
+  checks.all_identifiers = `${allIds?.length ?? 0} total rows`
+  checks.assets = `${assets?.length ?? 0} assets found`
+  const byType: Record<string, number> = {}
+  for (const row of allIds ?? []) {
+    byType[row.type] = (byType[row.type] ?? 0) + 1
+  }
+
+  return NextResponse.json({ ok: true, checks, byType, assets, allIdentifiers: allIds })
 }
 
 // ── POST — fetch and store prices ─────────────────────────────
