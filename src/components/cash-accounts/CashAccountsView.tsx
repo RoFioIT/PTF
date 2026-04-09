@@ -249,7 +249,7 @@ export function CashAccountsView({ initialAccounts, initialSnapshots }: {
     setExportingPdf(true)
     try {
       const { generateCashReport } = await import('@/lib/report/generateCashReport')
-      generateCashReport(accounts, snapshots)
+      generateCashReport(accounts, snapshots, selectedQuarter)
     } finally {
       setExportingPdf(false)
     }

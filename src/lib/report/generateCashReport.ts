@@ -29,16 +29,15 @@ function fmt(v: number): string {
   }).format(v)
 }
 
-function latestBalance(snapshots: CashAccountSnapshot[], accountId: string): number {
-  const rows = snapshots
-    .filter((s) => s.account_id === accountId)
-    .sort((a, b) => b.quarter.localeCompare(a.quarter))
-  return rows.length > 0 ? Number(rows[0].balance) : 0
+function balanceAt(snapshots: CashAccountSnapshot[], accountId: string, quarter: string): number {
+  const s = snapshots.find((x) => x.account_id === accountId && x.quarter === quarter)
+  return s != null ? Number(s.balance) : 0
 }
 
 export function generateCashReport(
   accounts: CashAccount[],
   snapshots: CashAccountSnapshot[],
+  quarter?: string,
 ): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   const MARGIN = 14
@@ -46,8 +45,8 @@ export function generateCashReport(
   const PAGE_H = 297
 
   const active = accounts.filter((a) => a.is_active)
-  const latestQ = [...new Set(snapshots.map((s) => s.quarter))].sort().at(-1) ?? '—'
-  const grandTotal = active.reduce((s, a) => s + latestBalance(snapshots, a.id), 0)
+  const latestQ = quarter ?? [...new Set(snapshots.map((s) => s.quarter))].sort().at(-1) ?? '—'
+  const grandTotal = active.reduce((s, a) => s + balanceAt(snapshots, a.id, latestQ), 0)
   const generatedAt = new Date().toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
@@ -89,7 +88,7 @@ export function generateCashReport(
   const catRows = CATEGORIES.map((cat) => {
     const total = active
       .filter((a) => a.category === cat)
-      .reduce((s, a) => s + latestBalance(snapshots, a.id), 0)
+      .reduce((s, a) => s + balanceAt(snapshots, a.id, latestQ), 0)
     const pct = grandTotal > 0 ? ((total / grandTotal) * 100).toFixed(1) + '%' : '—'
     return [cat, fmt(total), pct]
   })
@@ -142,7 +141,7 @@ export function generateCashReport(
   })
 
   const accountRows = sorted.map((a) => {
-    const bal = latestBalance(snapshots, a.id)
+    const bal = balanceAt(snapshots, a.id, latestQ)
     return [a.category, a.owner, a.name, a.currency, bal > 0 ? fmt(bal) : '—']
   })
 
