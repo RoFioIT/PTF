@@ -81,8 +81,15 @@ BEGIN
     (v_race,   'GOOGLE_SYMBOL', 'BIT:RACE')
   ON CONFLICT (type, value) DO NOTHING;
 
-  -- ── ADM asset (created by migration 004) ────────────────────
-  SELECT id INTO v_adm FROM assets WHERE name = 'ADM Shares' LIMIT 1;
+  -- ── ADM asset (created by migration 004, or here if missing) ──
+  SELECT asset_id INTO v_adm FROM asset_identifiers WHERE value = 'GB00B02J6398' LIMIT 1;
+  IF v_adm IS NULL THEN
+    INSERT INTO assets (name, asset_type, currency, country)
+      VALUES ('ADM Shares', 'stock', 'GBP', 'GB')
+      RETURNING id INTO v_adm;
+    INSERT INTO asset_identifiers (asset_id, type, value)
+      VALUES (v_adm, 'ISIN', 'GB00B02J6398');
+  END IF;
   INSERT INTO asset_identifiers (asset_id, type, value)
     VALUES (v_adm, 'GOOGLE_SYMBOL', 'LON:ADM') ON CONFLICT DO NOTHING;
 
