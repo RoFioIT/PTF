@@ -2,30 +2,25 @@ import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import type { CashAccount, CashAccountSnapshot } from '@/types/database'
 
-// ── Constants ─────────────────────────────────────────────────
-const CATEGORIES = ['Cash', 'Cash Risparmio', 'Investimenti - Assurance', 'Investimenti - Borsa'] as const
-
 const COLORS = {
-  bg:           [10,  10,  15]  as [number, number, number],
-  card:         [18,  18,  26]  as [number, number, number],
-  border:       [30,  30,  46]  as [number, number, number],
-  accent:       [99,  102, 241] as [number, number, number],  // indigo-500
-  accentLight:  [199, 210, 254] as [number, number, number],  // indigo-200
-  white:        [232, 232, 240] as [number, number, number],
-  muted:        [107, 114, 128] as [number, number, number],
-  emerald:      [16,  185, 129] as [number, number, number],
-  red:          [239, 68,  68]  as [number, number, number],
-  amber:        [245, 158, 11]  as [number, number, number],
-
-  catColors: {
-    'Cash':                     [156, 163, 175] as [number, number, number],
-    'Cash Risparmio':           [56,  189, 248] as [number, number, number],
-    'Investimenti - Assurance': [167, 139, 250] as [number, number, number],
-    'Investimenti - Borsa':     [129, 140, 248] as [number, number, number],
-  } as Record<string, [number, number, number]>,
+  bg:      [255, 255, 255] as [number, number, number],
+  heading: [30,  30,  46]  as [number, number, number],
+  row:     [248, 248, 252] as [number, number, number],
+  alt:     [255, 255, 255] as [number, number, number],
+  border:  [220, 220, 230] as [number, number, number],
+  text:    [30,  30,  46]  as [number, number, number],
+  muted:   [120, 120, 140] as [number, number, number],
+  accent:  [99,  102, 241] as [number, number, number],
+  emerald: [16,  185, 129] as [number, number, number],
+  red:     [239, 68,  68]  as [number, number, number],
 }
 
-// ── Helpers ───────────────────────────────────────────────────
+const CATEGORIES = [
+  'Cash',
+  'Cash Risparmio',
+  'Investimenti - Assurance',
+  'Investimenti - Borsa',
+] as const
 
 function fmt(v: number): string {
   return new Intl.NumberFormat('fr-FR', {
@@ -34,323 +29,154 @@ function fmt(v: number): string {
   }).format(v)
 }
 
-function fmtPct(v: number): string {
-  return `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`
+function latestBalance(snapshots: CashAccountSnapshot[], accountId: string): number {
+  const rows = snapshots
+    .filter((s) => s.account_id === accountId)
+    .sort((a, b) => b.quarter.localeCompare(a.quarter))
+  return rows.length > 0 ? Number(rows[0].balance) : 0
 }
-
-function quarterLabel(q: string): string { return q.replace('-Q', ' Q') }
-function yearOf(q: string): string { return q.slice(0, 4) }
-
-function getBalance(snapshots: CashAccountSnapshot[], accountId: string, quarter: string): number {
-  const s = snapshots.find((x) => x.account_id === accountId && x.quarter === quarter)
-  return s != null ? Number(s.balance) : 0
-}
-
-function totalForQuarter(accounts: CashAccount[], snapshots: CashAccountSnapshot[], quarter: string): number {
-  return accounts.reduce((sum, a) => sum + getBalance(snapshots, a.id, quarter), 0)
-}
-
-function categoryTotal(accounts: CashAccount[], snapshots: CashAccountSnapshot[], cat: string, quarter: string): number {
-  return accounts.filter((a) => a.category === cat).reduce((s, a) => s + getBalance(snapshots, a.id, quarter), 0)
-}
-
-// ── Main generator ────────────────────────────────────────────
 
 export function generateCashReport(
   accounts: CashAccount[],
   snapshots: CashAccountSnapshot[],
 ): void {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const MARGIN = 14
   const PAGE_W = 210
   const PAGE_H = 297
-  const MARGIN = 14
-  const CONTENT_W = PAGE_W - MARGIN * 2
 
-  // All quarters that have at least one snapshot, sorted
-  const allQuarters = [...new Set(snapshots.map((s) => s.quarter))].sort()
-  const activeAccounts = accounts.filter((a) => a.is_active)
-
-  if (allQuarters.length === 0) {
-    doc.text('No data available.', MARGIN, 30)
-    doc.save('PTF_Cash_Report.pdf')
-    return
-  }
-
-  const latestQ = allQuarters[allQuarters.length - 1]
-  const grandTotal = totalForQuarter(activeAccounts, snapshots, latestQ)
+  const active = accounts.filter((a) => a.is_active)
+  const latestQ = [...new Set(snapshots.map((s) => s.quarter))].sort().at(-1) ?? '—'
+  const grandTotal = active.reduce((s, a) => s + latestBalance(snapshots, a.id), 0)
   const generatedAt = new Date().toLocaleDateString('fr-FR', {
     day: 'numeric', month: 'long', year: 'numeric',
   })
 
-  // ── Page background ───────────────────────────────────────────
-  function fillPage() {
-    doc.setFillColor(...COLORS.bg)
-    doc.rect(0, 0, PAGE_W, PAGE_H, 'F')
-  }
-  fillPage()
-
-  // ── Section heading helper ────────────────────────────────────
-  let curY = 0
-  function sectionHeading(title: string, y: number): number {
-    doc.setFillColor(...COLORS.accent)
-    doc.rect(MARGIN, y, 2, 5, 'F')
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.setTextColor(...COLORS.accentLight)
-    doc.text(title.toUpperCase(), MARGIN + 5, y + 4)
-    return y + 10
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // COVER / HEADER BLOCK
-  // ═══════════════════════════════════════════════════════════════
-
-  // Accent bar top
+  // ── Header ────────────────────────────────────────────────────
   doc.setFillColor(...COLORS.accent)
   doc.rect(0, 0, PAGE_W, 1.5, 'F')
 
-  // Title area
-  doc.setFillColor(...COLORS.card)
-  doc.rect(0, 1.5, PAGE_W, 46, 'F')
-
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(22)
-  doc.setTextColor(...COLORS.white)
-  doc.text('Cash Accounts', MARGIN, 22)
+  doc.setFontSize(18)
+  doc.setTextColor(...COLORS.heading)
+  doc.text('Cash Accounts Report', MARGIN, 18)
 
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(...COLORS.muted)
-  doc.text('Portfolio Evolution Report', MARGIN, 30)
-
   doc.setFontSize(8)
-  doc.text(`Generated ${generatedAt}  ·  ${allQuarters.length} quarters  ·  ${activeAccounts.length} accounts`, MARGIN, 37)
+  doc.setTextColor(...COLORS.muted)
+  doc.text(`Generated ${generatedAt}  ·  as of ${latestQ.replace('-Q', ' Q')}`, MARGIN, 25)
 
-  // Grand total chip
-  doc.setFillColor(...COLORS.accent)
-  doc.roundedRect(PAGE_W - MARGIN - 52, 14, 52, 22, 3, 3, 'F')
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(13)
-  doc.setTextColor(...COLORS.white)
-  doc.text(fmt(grandTotal), PAGE_W - MARGIN - 4, 24, { align: 'right' })
+  doc.setFontSize(14)
+  doc.setTextColor(...COLORS.accent)
+  doc.text(fmt(grandTotal), PAGE_W - MARGIN, 18, { align: 'right' })
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(7)
-  doc.setTextColor(...COLORS.accentLight)
-  doc.text(`as of ${quarterLabel(latestQ)}`, PAGE_W - MARGIN - 4, 31, { align: 'right' })
+  doc.setTextColor(...COLORS.muted)
+  doc.text('Total', PAGE_W - MARGIN, 25, { align: 'right' })
 
-  curY = 56
+  // Divider
+  doc.setDrawColor(...COLORS.border)
+  doc.setLineWidth(0.3)
+  doc.line(MARGIN, 29, PAGE_W - MARGIN, 29)
 
-  // ═══════════════════════════════════════════════════════════════
-  // SECTION 1 — ANNUAL SUMMARY
-  // ═══════════════════════════════════════════════════════════════
-  curY = sectionHeading('Annual Summary', curY)
+  // ── Section 1: Summary by category ───────────────────────────
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(...COLORS.heading)
+  doc.text('BY CATEGORY', MARGIN, 37)
 
-  // For each year: use last available quarter of that year
-  const years = [...new Set(allQuarters.map(yearOf))].sort()
-  const annualRows: (string | number)[][] = []
-
-  years.forEach((year, i) => {
-    const quartersOfYear = allQuarters.filter((q) => yearOf(q) === year)
-    const lastQ = quartersOfYear[quartersOfYear.length - 1]
-    const total = totalForQuarter(activeAccounts, snapshots, lastQ)
-
-    // Previous year last quarter total
-    const prevYearQuarters = i > 0
-      ? allQuarters.filter((q) => yearOf(q) === years[i - 1])
-      : []
-    const prevTotal = prevYearQuarters.length > 0
-      ? totalForQuarter(activeAccounts, snapshots, prevYearQuarters[prevYearQuarters.length - 1])
-      : null
-
-    const delta = prevTotal !== null ? total - prevTotal : null
-    const pct = delta !== null && prevTotal !== null && prevTotal !== 0 ? (delta / Math.abs(prevTotal)) * 100 : null
-
-    annualRows.push([
-      year,
-      quarterLabel(lastQ),
-      fmt(total),
-      delta !== null ? fmt(delta) : '—',
-      pct !== null ? fmtPct(pct) : '—',
-    ])
+  const catRows = CATEGORIES.map((cat) => {
+    const total = active
+      .filter((a) => a.category === cat)
+      .reduce((s, a) => s + latestBalance(snapshots, a.id), 0)
+    const pct = grandTotal > 0 ? ((total / grandTotal) * 100).toFixed(1) + '%' : '—'
+    return [cat, fmt(total), pct]
   })
 
   autoTable(doc, {
-    startY: curY,
-    head: [['Year', 'Ref. Quarter', 'Total', 'Change vs prev year', '% Change']],
-    body: annualRows,
+    startY: 40,
+    head: [['Category', 'Balance', '% of total']],
+    body: catRows,
+    foot: [['Total', fmt(grandTotal), '100%']],
+    margin: { left: MARGIN, right: MARGIN },
+    tableWidth: 120,
+    styles: {
+      font: 'helvetica', fontSize: 8.5, cellPadding: 3.5,
+      textColor: COLORS.text, lineColor: COLORS.border, lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: COLORS.heading, textColor: [255, 255, 255],
+      fontStyle: 'bold', fontSize: 7.5,
+    },
+    footStyles: {
+      fillColor: COLORS.row, textColor: COLORS.heading,
+      fontStyle: 'bold', fontSize: 8.5,
+    },
+    alternateRowStyles: { fillColor: COLORS.alt },
+    bodyStyles: { fillColor: COLORS.row },
+    columnStyles: {
+      0: { cellWidth: 70 },
+      1: { halign: 'right', cellWidth: 30, fontStyle: 'bold' },
+      2: { halign: 'right', cellWidth: 20, textColor: COLORS.muted },
+    },
+  })
+
+  const afterCat = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY
+
+  // ── Section 2: Account list ───────────────────────────────────
+  const listStartY = afterCat + 12
+
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(9)
+  doc.setTextColor(...COLORS.heading)
+  doc.text('ACCOUNT LIST', MARGIN, listStartY - 3)
+
+  // Sort: by category then owner then name
+  const sorted = [...active].sort((a, b) => {
+    const catA = CATEGORIES.indexOf(a.category as typeof CATEGORIES[number])
+    const catB = CATEGORIES.indexOf(b.category as typeof CATEGORIES[number])
+    if (catA !== catB) return catA - catB
+    if (a.owner !== b.owner) return a.owner.localeCompare(b.owner)
+    return a.name.localeCompare(b.name)
+  })
+
+  const accountRows = sorted.map((a) => {
+    const bal = latestBalance(snapshots, a.id)
+    return [a.category, a.owner, a.name, a.currency, bal > 0 ? fmt(bal) : '—']
+  })
+
+  autoTable(doc, {
+    startY: listStartY,
+    head: [['Category', 'Owner', 'Account', 'Ccy', 'Balance']],
+    body: accountRows,
     margin: { left: MARGIN, right: MARGIN },
     styles: {
       font: 'helvetica', fontSize: 8, cellPadding: 3,
-      fillColor: COLORS.card, textColor: COLORS.white,
-      lineColor: COLORS.border, lineWidth: 0.1,
+      textColor: COLORS.text, lineColor: COLORS.border, lineWidth: 0.1,
     },
     headStyles: {
-      fillColor: COLORS.border, textColor: COLORS.muted,
-      fontStyle: 'bold', fontSize: 7,
+      fillColor: COLORS.heading, textColor: [255, 255, 255],
+      fontStyle: 'bold', fontSize: 7.5,
     },
+    alternateRowStyles: { fillColor: COLORS.alt },
+    bodyStyles: { fillColor: COLORS.row },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 18 },
-      1: { cellWidth: 28, textColor: COLORS.muted },
-      2: { halign: 'right', fontStyle: 'bold', cellWidth: 38 },
-      3: { halign: 'right', cellWidth: 38 },
-      4: { halign: 'right', cellWidth: 28 },
+      0: { cellWidth: 45, textColor: COLORS.muted, fontSize: 7.5 },
+      1: { cellWidth: 30 },
+      2: { cellWidth: 65, fontStyle: 'bold' },
+      3: { cellWidth: 12, halign: 'center', textColor: COLORS.muted },
+      4: { halign: 'right', fontStyle: 'bold' },
     },
-    didParseCell: (data) => {
-      if (data.section === 'body' && data.column.index === 3) {
-        const val = String(data.cell.raw)
-        if (val.startsWith('+') || (val !== '—' && !val.startsWith('-'))) {
-          data.cell.styles.textColor = COLORS.emerald
-        } else if (val.startsWith('-')) {
-          data.cell.styles.textColor = COLORS.red
-        }
-      }
+    didParseCell: (data: Parameters<NonNullable<Parameters<typeof autoTable>[1]['didParseCell']>>[0]) => {
       if (data.section === 'body' && data.column.index === 4) {
         const val = String(data.cell.raw)
-        if (val.startsWith('+')) data.cell.styles.textColor = COLORS.emerald
-        else if (val.startsWith('-')) data.cell.styles.textColor = COLORS.red
+        if (val === '—') data.cell.styles.textColor = COLORS.border
       }
     },
   })
 
-  curY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10
-
-  // ═══════════════════════════════════════════════════════════════
-  // SECTION 2 — QUARTERLY EVOLUTION (category breakdown)
-  // ═══════════════════════════════════════════════════════════════
-  curY = sectionHeading('Quarterly Evolution by Category', curY)
-
-  const quarterlyRows: (string | number)[][] = allQuarters.map((q, i) => {
-    const total = totalForQuarter(activeAccounts, snapshots, q)
-    const prevTotal = i > 0 ? totalForQuarter(activeAccounts, snapshots, allQuarters[i - 1]) : null
-    const delta = prevTotal !== null ? total - prevTotal : null
-
-    return [
-      quarterLabel(q),
-      ...CATEGORIES.map((cat) => fmt(categoryTotal(activeAccounts, snapshots, cat, q))),
-      fmt(total),
-      delta !== null ? fmt(delta) : '—',
-    ]
-  }).reverse()  // Most recent first
-
-  const catHeaders = CATEGORIES.map((c) => c.replace('Investimenti - ', 'Inv. '))
-
-  autoTable(doc, {
-    startY: curY,
-    head: [['Quarter', ...catHeaders, 'Total', 'Δ Quarter']],
-    body: quarterlyRows,
-    margin: { left: MARGIN, right: MARGIN },
-    styles: {
-      font: 'helvetica', fontSize: 7.5, cellPadding: 2.5,
-      fillColor: COLORS.card, textColor: COLORS.white,
-      lineColor: COLORS.border, lineWidth: 0.1,
-    },
-    headStyles: {
-      fillColor: COLORS.border, textColor: COLORS.muted,
-      fontStyle: 'bold', fontSize: 6.5,
-    },
-    columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 20 },
-      1: { halign: 'right', cellWidth: 22 },
-      2: { halign: 'right', cellWidth: 24 },
-      3: { halign: 'right', cellWidth: 30 },
-      4: { halign: 'right', cellWidth: 28 },
-      5: { halign: 'right', fontStyle: 'bold', cellWidth: 28 },
-      6: { halign: 'right', cellWidth: 22 },
-    },
-    didParseCell: (data) => {
-      if (data.section === 'body' && data.column.index === 6) {
-        const val = String(data.cell.raw)
-        if (val.startsWith('+')) data.cell.styles.textColor = COLORS.emerald
-        else if (val.startsWith('-')) data.cell.styles.textColor = COLORS.red
-        else if (val !== '—') data.cell.styles.textColor = COLORS.muted
-      }
-    },
-    didDrawPage: () => { fillPage() },
-  })
-
-  curY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 10
-
-  // ═══════════════════════════════════════════════════════════════
-  // SECTION 3 — ACCOUNT DETAIL (one block per account, grouped by owner)
-  // ═══════════════════════════════════════════════════════════════
-
-  // Check if we need a new page
-  if (curY > PAGE_H - 60) {
-    doc.addPage()
-    fillPage()
-    curY = 14
-  }
-
-  curY = sectionHeading('Account Detail', curY)
-
-  const owners = [...new Set(activeAccounts.map((a) => a.owner))].sort()
-
-  for (const owner of owners) {
-    const ownerAccounts = activeAccounts.filter((a) => a.owner === owner)
-
-    // Owner label
-    if (curY > PAGE_H - 30) { doc.addPage(); fillPage(); curY = 14 }
-
-    doc.setFillColor(...COLORS.border)
-    doc.rect(MARGIN, curY, CONTENT_W, 6, 'F')
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(...COLORS.muted)
-    doc.text(owner.toUpperCase(), MARGIN + 3, curY + 4.2)
-    curY += 8
-
-    // Table: rows = quarters (most recent first), cols = accounts for this owner
-    const quarterRows = allQuarters.slice().reverse().map((q) => {
-      const rowTotal = ownerAccounts.reduce((s, a) => s + getBalance(snapshots, a.id, q), 0)
-      return [
-        quarterLabel(q),
-        ...ownerAccounts.map((a) => {
-          const bal = getBalance(snapshots, a.id, q)
-          return bal > 0 ? fmt(bal) : '—'
-        }),
-        fmt(rowTotal),
-      ]
-    })
-
-    const accountHeaders = ownerAccounts.map((a) => {
-      const name = a.name.length > 20 ? a.name.slice(0, 18) + '…' : a.name
-      return `${name}\n(${a.category.replace('Investimenti - ', 'Inv.')})`
-    })
-
-    autoTable(doc, {
-      startY: curY,
-      head: [['Quarter', ...accountHeaders, 'Owner Total']],
-      body: quarterRows,
-      margin: { left: MARGIN, right: MARGIN },
-      styles: {
-        font: 'helvetica', fontSize: 7, cellPadding: 2.5,
-        fillColor: COLORS.card, textColor: COLORS.white,
-        lineColor: COLORS.border, lineWidth: 0.1,
-      },
-      headStyles: {
-        fillColor: COLORS.border, textColor: COLORS.muted,
-        fontStyle: 'bold', fontSize: 6.5, minCellHeight: 10,
-      },
-      columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: 20 },
-        [ownerAccounts.length + 1]: { halign: 'right', fontStyle: 'bold' },
-      },
-      didParseCell: (data) => {
-        if (data.section === 'body' && data.column.index > 0) {
-          if (String(data.cell.raw) === '—') {
-            data.cell.styles.textColor = COLORS.border
-          } else {
-            data.cell.styles.halign = 'right'
-          }
-        }
-      },
-      willDrawPage: () => { fillPage() },
-    })
-
-    curY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8
-  }
-
-  // ── Footer on each page ───────────────────────────────────────
+  // ── Footer ────────────────────────────────────────────────────
   const pageCount = doc.getNumberOfPages()
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
@@ -363,7 +189,6 @@ export function generateCashReport(
     doc.text(`${i} / ${pageCount}`, PAGE_W - MARGIN, PAGE_H - 4, { align: 'right' })
   }
 
-  // ── Save ──────────────────────────────────────────────────────
   const filename = `PTF_Cash_${latestQ.replace('-', '_')}_${new Date().toISOString().slice(0, 10)}.pdf`
   doc.save(filename)
 }
