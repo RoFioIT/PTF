@@ -5,6 +5,21 @@
 -- Run AFTER all 6 migrations. Run BEFORE cash_accounts_seed.sql.
 -- ============================================================
 
+-- Ensure the seed user exists in auth.users (local dev only)
+INSERT INTO auth.users (
+  id, email, encrypted_password, email_confirmed_at,
+  created_at, updated_at, raw_app_meta_data, raw_user_meta_data, role, aud
+) VALUES (
+  'b32a689f-bf4e-48ad-8ada-999e98060684',
+  'roberto@ptf.local',
+  crypt('password', gen_salt('bf')),
+  now(), now(), now(),
+  '{"provider":"email","providers":["email"]}',
+  '{}',
+  'authenticated',
+  'authenticated'
+) ON CONFLICT (id) DO NOTHING;
+
 DO $$
 DECLARE
   v_uid uuid := 'b32a689f-bf4e-48ad-8ada-999e98060684';
