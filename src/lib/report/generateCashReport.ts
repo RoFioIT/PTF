@@ -344,7 +344,7 @@ export function generateCashReport(
           }
         }
       },
-      didDrawPage: () => { fillPage() },
+      willDrawPage: () => { fillPage() },
     })
 
     curY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8
