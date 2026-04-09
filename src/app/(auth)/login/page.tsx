@@ -25,7 +25,16 @@ export default function LoginPage() {
     if (error) {
       setError(error.message)
     } else {
-      router.push('/dashboard')
+      // Check MFA assurance level — redirect to challenge if needed
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+      if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+        router.push('/mfa/verify')
+      } else if (aal?.nextLevel === 'aal1') {
+        // No MFA enrolled yet — enforce setup
+        router.push('/mfa/setup')
+      } else {
+        router.push('/dashboard')
+      }
       router.refresh()
     }
     setLoading(false)

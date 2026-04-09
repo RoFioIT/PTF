@@ -10,9 +10,12 @@ export default async function AppLayout({
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
+
+  // Enforce MFA: user must have completed AAL2 challenge
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
+  if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') redirect('/mfa/verify')
+  if (aal?.nextLevel === 'aal1') redirect('/mfa/setup')
 
   return (
     <div className="flex h-screen overflow-hidden">
