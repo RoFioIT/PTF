@@ -76,7 +76,7 @@ BEGIN
     (v_race,   'GOOGLE_SYMBOL', 'BIT:RACE');
 
   -- ── ADM asset (created by migration 004) ────────────────────
-  SELECT asset_id INTO v_adm FROM asset_identifiers WHERE value = 'GB00B02J6398' LIMIT 1;
+  SELECT id INTO v_adm FROM assets WHERE name = 'ADM Shares' LIMIT 1;
   INSERT INTO asset_identifiers (asset_id, type, value)
     VALUES (v_adm, 'GOOGLE_SYMBOL', 'LON:ADM') ON CONFLICT DO NOTHING;
 
