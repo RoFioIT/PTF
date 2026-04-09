@@ -30,6 +30,11 @@ DECLARE
 
 BEGIN
 
+  -- Abort if data already exists for this user (seed is not idempotent for transactions)
+  IF EXISTS (SELECT 1 FROM portfolios WHERE user_id = v_uid LIMIT 1) THEN
+    RAISE EXCEPTION 'Seed already applied for user %. Truncate tables first if you want to re-seed.', v_uid;
+  END IF;
+
   -- ── Portfolios ──────────────────────────────────────────────
   INSERT INTO portfolios (id, user_id, name, type, base_currency, accounting_method) VALUES
     (v_pea_id, v_uid, 'PEA', 'PEA', 'EUR', 'PRU'),
@@ -73,7 +78,8 @@ BEGIN
     (v_sgo,    'ISIN',          'FR0000125007'),
     (v_sgo,    'GOOGLE_SYMBOL', 'EPA:SGO'),
     (v_race,   'ISIN',          'NL0011585146'),
-    (v_race,   'GOOGLE_SYMBOL', 'BIT:RACE');
+    (v_race,   'GOOGLE_SYMBOL', 'BIT:RACE')
+  ON CONFLICT (type, value) DO NOTHING;
 
   -- ── ADM asset (created by migration 004) ────────────────────
   SELECT id INTO v_adm FROM assets WHERE name = 'ADM Shares' LIMIT 1;

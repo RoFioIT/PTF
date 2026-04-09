@@ -11,6 +11,8 @@ DECLARE
 BEGIN
 
   -- ── Cash Accounts ─────────────────────────────────────────
+  -- Skip if accounts already exist for this user
+  IF NOT EXISTS (SELECT 1 FROM cash_accounts WHERE user_id = v_uid LIMIT 1) THEN
   INSERT INTO cash_accounts (user_id, owner, category, name) VALUES
     (v_uid, 'Roberto', 'Investimenti - Assurance', 'Assurance Roberto'),
     (v_uid, 'Roberto', 'Investimenti - Assurance', 'BoursoBank Assurance Vie'),
@@ -42,6 +44,7 @@ BEGIN
     (v_uid, 'Silvia', 'Cash', 'LDDS Silvia'),
     (v_uid, 'Silvia', 'Cash Risparmio', 'Livret A Silvia'),
     (v_uid, 'Studio', 'Cash', 'CCF Studio');
+  END IF;
 
   -- ── Quarterly Snapshots (530 rows) ───────────────────────
   -- Inserts by joining on owner+name to get the new account_id
@@ -579,7 +582,8 @@ BEGIN
     ('Roberto', 'Livret A Roberto', '2026-Q1', 23998.0::numeric),
     ('Silvia', 'CCF equilibre Silvia', '2026-Q1', 10150.0::numeric)
   ) AS v(owner, name, quarter, balance)
-  JOIN cash_accounts ca ON ca.owner = v.owner AND ca.name = v.name AND ca.user_id = v_uid;
+  JOIN cash_accounts ca ON ca.owner = v.owner AND ca.name = v.name AND ca.user_id = v_uid
+  ON CONFLICT (account_id, quarter) DO UPDATE SET balance = EXCLUDED.balance;
 
   RAISE NOTICE 'Cash accounts + snapshots seed completed.';
 END;
