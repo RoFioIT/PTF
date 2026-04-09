@@ -10,6 +10,7 @@
 
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createClient as createServerClient } from '@/lib/supabase/server'
 import { YahooFinanceProvider } from '@/lib/market-data/yahoo-finance'
 import { BoursoramaProvider } from '@/lib/market-data/boursorama'
 import { upsertPriceBatch } from '@/lib/db/prices'
@@ -33,6 +34,9 @@ function today(): string {
 // ── GET — diagnostic endpoint ─────────────────────────────────
 // Quickly checks env vars and DB connectivity without fetching prices.
 export async function GET() {
+  const auth = await createServerClient()
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const checks: Record<string, string> = {}
 
   checks.NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ? 'set' : 'MISSING'
@@ -81,6 +85,9 @@ export async function GET() {
 
 // ── POST — fetch and store prices ─────────────────────────────
 export async function POST() {
+  const auth = await createServerClient()
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,

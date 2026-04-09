@@ -11,6 +11,9 @@ const VALID_TYPES: CashMovementType[] = ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER_IN',
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const portfolioId = request.nextUrl.searchParams.get('portfolio_id')
 
   if (!portfolioId) {
@@ -27,6 +30,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   let body: unknown
   try { body = await request.json() }
@@ -65,6 +70,9 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const id = request.nextUrl.searchParams.get('id')
 
   if (!id) {
