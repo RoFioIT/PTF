@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { X, Trash2, GitMerge, Search } from 'lucide-react'
+import { useState, useMemo, useRef } from 'react'
+import { X, Trash2, GitMerge, Search, Upload } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount } from '@/types/database'
 import { loadMapping, saveMapping, type MappingStore } from '@/lib/import/bankinMapping'
@@ -36,6 +36,44 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
   const [store, setStore] = useState<MappingStore>(() => loadMapping())
   const [search, setSearch] = useState('')
   const [confirmClear, setConfirmClear] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const [importSuccess, setImportSuccess] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  function handleImportCSV(file: File) {
+    setImportError(null)
+    setImportSuccess(null)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string
+        const lines = text.trim().split('\n')
+        const header = lines[0].split(',')
+        const keyIdx = header.indexOf('mapping_key')
+        if (keyIdx === -1) throw new Error('No mapping_key column found')
+
+        const next = { ...store }
+        let added = 0
+        for (let i = 1; i < lines.length; i++) {
+          // parse CSV respecting quoted fields
+          const cols = lines[i].match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g) ?? []
+          const raw = cols[keyIdx]?.replace(/^"|"$/g, '').trim()
+          if (!raw) continue
+          if (!next[raw]) {
+            next[raw] = { accountId: '__skip__' }
+            added++
+          }
+        }
+
+        setStore(next)
+        saveMapping(next)
+        setImportSuccess(`${added} new rule${added !== 1 ? 's' : ''} added — assign accounts below`)
+      } catch (err) {
+        setImportError(err instanceof Error ? err.message : 'Parse error')
+      }
+    }
+    reader.readAsText(file)
+  }
 
   const activeAccounts = accounts.filter((a) => a.is_active)
   const byOwner = groupByOwner(activeAccounts)
@@ -192,27 +230,58 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
           )}
         </div>
 
+        {/* Import feedback */}
+        {(importError || importSuccess) && (
+          <div className={clsx(
+            'mx-5 mb-0 mt-0 px-3 py-2 rounded-lg text-xs flex-shrink-0',
+            importError ? 'bg-red-400/10 text-red-400' : 'bg-emerald-400/10 text-emerald-400'
+          )}>
+            {importError ?? importSuccess}
+          </div>
+        )}
+
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-4 border-t border-[#2a2a3e] flex-shrink-0">
-          {Object.keys(store).length > 0 ? (
-            confirmClear ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-red-400">Delete all {Object.keys(store).length} mappings?</span>
-                <button onClick={clearAll} className="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-400/10 transition-colors">
-                  Yes, clear all
+          <div className="flex items-center gap-2">
+            {/* Import CSV */}
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) handleImportCSV(f)
+                e.target.value = ''
+              }}
+            />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="text-xs text-gray-500 hover:text-indigo-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+              title="Import mapping keys from a Bankin' CSV"
+            >
+              <Upload className="w-3.5 h-3.5" /> Import CSV
+            </button>
+
+            {/* Clear all */}
+            {Object.keys(store).length > 0 && (
+              confirmClear ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-red-400">Delete all {Object.keys(store).length} mappings?</span>
+                  <button onClick={clearAll} className="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-400/10 transition-colors">
+                    Yes, clear all
+                  </button>
+                  <button onClick={() => setConfirmClear(false)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-white/5 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmClear(true)} className="text-xs text-gray-600 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-red-400/10">
+                  <Trash2 className="w-3.5 h-3.5" /> Clear all
                 </button>
-                <button onClick={() => setConfirmClear(false)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-white/5 transition-colors">
-                  Cancel
-                </button>
-              </div>
-            ) : (
-              <button onClick={() => setConfirmClear(true)} className="text-xs text-gray-600 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-red-400/10">
-                <Trash2 className="w-3.5 h-3.5" /> Clear all
-              </button>
-            )
-          ) : (
-            <div />
-          )}
+              )
+            )}
+          </div>
 
           <button onClick={onClose} className="text-sm text-white bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-lg transition-colors font-medium">
             Done
