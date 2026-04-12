@@ -91,7 +91,9 @@ export async function POST(request: Request) {
   }
 
   // Resolve each account
-  const toUpsert: Array<{ account_id: string; quarter: string; balance: number }> = []
+  // Use a Map to deduplicate by account_id — if two Bankin' rows resolve to the
+  // same PTF account (e.g. duplicate entries in scrape), keep the larger balance.
+  const upsertMap = new Map<string, number>()
   const skipped: string[] = []
   const unmapped: string[] = []
 
@@ -105,8 +107,15 @@ export async function POST(request: Request) {
       skipped.push(acc.mappingKey)
       continue
     }
-    toUpsert.push({ account_id: accountId!, quarter, balance: acc.balance })
+    const existing = upsertMap.get(accountId!) ?? 0
+    upsertMap.set(accountId!, Math.max(existing, acc.balance))
   }
+
+  const toUpsert = Array.from(upsertMap.entries()).map(([account_id, balance]) => ({
+    account_id,
+    quarter,
+    balance,
+  }))
 
   // Upsert snapshots
   if (toUpsert.length > 0) {
