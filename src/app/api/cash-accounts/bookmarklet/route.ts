@@ -3,7 +3,10 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
-const ALLOWED_ORIGINS = ['https://app.bankin.com']
+const ALLOWED_ORIGINS = [
+  'https://app.bankin.com',
+  'https://app2.bankin.com',
+]
 
 function corsHeaders(origin: string | null): Record<string, string> {
   const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : null
