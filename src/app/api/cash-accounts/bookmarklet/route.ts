@@ -108,7 +108,7 @@ export async function POST(request: Request) {
       continue
     }
     const existing = upsertMap.get(accountId!) ?? 0
-    upsertMap.set(accountId!, Math.max(existing, acc.balance))
+    upsertMap.set(accountId!, existing + acc.balance)
   }
 
   const toUpsert = Array.from(upsertMap.entries()).map(([account_id, balance]) => ({
