@@ -1,12 +1,11 @@
 'use client'
 
 import { useState, useMemo, useRef } from 'react'
-import { X, Trash2, GitMerge, Search, Upload } from 'lucide-react'
+import { X, Trash2, GitMerge, Search, Upload, CloudUpload, Copy, Check } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount } from '@/types/database'
 import { loadMapping, saveMapping, type MappingStore } from '@/lib/import/bankinMapping'
-
-const OWNERS = ['Roberto', 'Silvia', 'Studio'] as const
+import { createClient } from '@/lib/supabase/client'
 
 function groupByOwner(accounts: CashAccount[]): Map<string, CashAccount[]> {
   const map = new Map<string, CashAccount[]>()
@@ -17,14 +16,10 @@ function groupByOwner(accounts: CashAccount[]): Map<string, CashAccount[]> {
   return map
 }
 
-// Split "BOURSOBANK::compte courant roberto" → { section, name }
 function splitKey(key: string): { section: string; name: string } {
   const idx = key.indexOf('::')
   if (idx === -1) return { section: '', name: key }
-  return {
-    section: key.slice(0, idx).toUpperCase(),
-    name: key.slice(idx + 2),
-  }
+  return { section: key.slice(0, idx).toUpperCase(), name: key.slice(idx + 2) }
 }
 
 interface Props {
@@ -38,42 +33,10 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
   const [confirmClear, setConfirmClear] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
   const [importSuccess, setImportSuccess] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncMsg, setSyncMsg] = useState<{ text: string; ok: boolean } | null>(null)
+  const [copied, setCopied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
-
-  function handleImportCSV(file: File) {
-    setImportError(null)
-    setImportSuccess(null)
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      try {
-        const text = e.target?.result as string
-        const lines = text.trim().split('\n')
-        const header = lines[0].split(',')
-        const keyIdx = header.indexOf('mapping_key')
-        if (keyIdx === -1) throw new Error('No mapping_key column found')
-
-        const next = { ...store }
-        let added = 0
-        for (let i = 1; i < lines.length; i++) {
-          // parse CSV respecting quoted fields
-          const cols = lines[i].match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g) ?? []
-          const raw = cols[keyIdx]?.replace(/^"|"$/g, '').trim()
-          if (!raw) continue
-          if (!next[raw]) {
-            next[raw] = { accountId: '__skip__' }
-            added++
-          }
-        }
-
-        setStore(next)
-        saveMapping(next)
-        setImportSuccess(`${added} new rule${added !== 1 ? 's' : ''} added — assign accounts below`)
-      } catch (err) {
-        setImportError(err instanceof Error ? err.message : 'Parse error')
-      }
-    }
-    reader.readAsText(file)
-  }
 
   const activeAccounts = accounts.filter((a) => a.is_active)
   const byOwner = groupByOwner(activeAccounts)
@@ -85,6 +48,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
     return all.filter((k) => k.includes(q))
   }, [store, search])
 
+  // ── Mapping CRUD ─────────────────────────────────────────────────
   function setAccountId(key: string, accountId: string) {
     const next = { ...store, [key]: { accountId } }
     setStore(next)
@@ -104,10 +68,83 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
     setConfirmClear(false)
   }
 
-  function accountName(accountId: string): string {
-    if (accountId === '__skip__') return 'Skip'
-    const acc = activeAccounts.find((a) => a.id === accountId)
-    return acc ? acc.name : '⚠ Account not found'
+  // ── Import CSV ────────────────────────────────────────────────────
+  function handleImportCSV(file: File) {
+    setImportError(null)
+    setImportSuccess(null)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      try {
+        const text = e.target?.result as string
+        const lines = text.trim().split('\n')
+        const header = lines[0].split(',')
+        const keyIdx = header.indexOf('mapping_key')
+        if (keyIdx === -1) throw new Error('No mapping_key column found')
+
+        const next = { ...store }
+        let added = 0
+        for (let i = 1; i < lines.length; i++) {
+          const cols = lines[i].match(/(".*?"|[^,]+|(?<=,)(?=,)|(?<=,)$|^(?=,))/g) ?? []
+          const raw = cols[keyIdx]?.replace(/^"|"$/g, '').trim()
+          if (!raw) continue
+          if (!next[raw]) {
+            next[raw] = { accountId: '__skip__' }
+            added++
+          }
+        }
+        setStore(next)
+        saveMapping(next)
+        setImportSuccess(`${added} new rule${added !== 1 ? 's' : ''} added — assign accounts below`)
+      } catch (err) {
+        setImportError(err instanceof Error ? err.message : 'Parse error')
+      }
+    }
+    reader.readAsText(file)
+  }
+
+  // ── Sync to cloud ─────────────────────────────────────────────────
+  async function syncToCloud() {
+    setSyncing(true)
+    setSyncMsg(null)
+    try {
+      // Convert localStorage format → flat {key: accountId} for the API
+      const payload: Record<string, string> = {}
+      for (const [key, entry] of Object.entries(store)) {
+        payload[key] = entry.accountId
+      }
+      const res = await fetch('/api/cash-accounts/mapping', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'Sync failed')
+      setSyncMsg({ text: `${json.count} rules synced to cloud`, ok: true })
+    } catch (err) {
+      setSyncMsg({ text: err instanceof Error ? err.message : 'Sync failed', ok: false })
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  // ── Copy sync config ──────────────────────────────────────────────
+  async function copySyncConfig() {
+    try {
+      const supabase = createClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) throw new Error('Not logged in')
+      const config = {
+        ptfUrl: window.location.origin,
+        anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+        accessToken: session.access_token,
+        refreshToken: session.refresh_token,
+      }
+      await navigator.clipboard.writeText(JSON.stringify(config))
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      alert('Could not copy — check browser clipboard permissions')
+    }
   }
 
   return (
@@ -124,7 +161,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               Bankin&apos; account mapping
             </h2>
             <p className="text-xs text-gray-500 mt-0.5">
-              {keys.length} rule{keys.length !== 1 ? 's' : ''} saved — controls how bookmarklet data maps to PTF accounts
+              {Object.keys(store).length} rule{Object.keys(store).length !== 1 ? 's' : ''} saved — controls how bookmarklet data maps to PTF accounts
             </p>
           </div>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-white/5">
@@ -158,7 +195,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               </p>
               <p className="text-xs text-gray-600">
                 {Object.keys(store).length === 0
-                  ? 'Use the Import screenshot feature or the bookmarklet to create mappings automatically.'
+                  ? 'Import a Bankin\' CSV below to create mapping rules automatically.'
                   : 'Try a different search term.'}
               </p>
             </div>
@@ -172,7 +209,6 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
 
                 return (
                   <div key={key} className="px-5 py-3.5 flex items-center gap-3">
-                    {/* Source */}
                     <div className="flex-1 min-w-0">
                       <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-gray-600 bg-[#1e1e2e] px-1.5 py-0.5 rounded mb-1">
                         {section || '—'}
@@ -180,7 +216,6 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
                       <p className="text-sm text-white truncate capitalize">{name}</p>
                     </div>
 
-                    {/* Arrow + mapping select */}
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <span className="text-gray-700 text-xs">→</span>
                       <select
@@ -199,22 +234,18 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
                         {[...byOwner.entries()].map(([owner, accs]) => (
                           <optgroup key={owner} label={owner}>
                             {accs.map((acc) => (
-                              <option key={acc.id} value={acc.id}>
-                                {acc.name}
-                              </option>
+                              <option key={acc.id} value={acc.id}>{acc.name}</option>
                             ))}
                           </optgroup>
                         ))}
                       </select>
 
-                      {/* Missing badge */}
                       {isMissing && (
                         <span className="text-[10px] text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded" title={`Saved ID: ${entry.accountId}`}>
                           missing
                         </span>
                       )}
 
-                      {/* Delete */}
                       <button
                         onClick={() => deleteKey(key)}
                         className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-red-400/10"
@@ -230,20 +261,22 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
           )}
         </div>
 
-        {/* Import feedback */}
-        {(importError || importSuccess) && (
+        {/* Feedback bar */}
+        {(importError || importSuccess || syncMsg) && (
           <div className={clsx(
-            'mx-5 mb-0 mt-0 px-3 py-2 rounded-lg text-xs flex-shrink-0',
-            importError ? 'bg-red-400/10 text-red-400' : 'bg-emerald-400/10 text-emerald-400'
+            'mx-5 mb-0 mt-0 px-3 py-2 rounded-lg text-xs flex-shrink-0 border',
+            importError || syncMsg?.ok === false
+              ? 'bg-red-400/10 text-red-400 border-red-400/20'
+              : 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20'
           )}>
-            {importError ?? importSuccess}
+            {syncMsg?.text ?? importError ?? importSuccess}
           </div>
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-[#2a2a3e] flex-shrink-0">
+        <div className="px-5 py-4 border-t border-[#2a2a3e] flex-shrink-0 space-y-3">
+          {/* Top row: import + clear */}
           <div className="flex items-center gap-2">
-            {/* Import CSV */}
             <input
               ref={fileRef}
               type="file"
@@ -263,7 +296,6 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               <Upload className="w-3.5 h-3.5" /> Import CSV
             </button>
 
-            {/* Clear all */}
             {Object.keys(store).length > 0 && (
               confirmClear ? (
                 <div className="flex items-center gap-2">
@@ -283,9 +315,35 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
             )}
           </div>
 
-          <button onClick={onClose} className="text-sm text-white bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-lg transition-colors font-medium">
-            Done
-          </button>
+          {/* Bottom row: cloud sync + copy config + done */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {/* Sync to cloud */}
+              <button
+                onClick={syncToCloud}
+                disabled={syncing || Object.keys(store).length === 0}
+                className="text-xs text-gray-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+                title="Push all mapping rules to the database so the bookmarklet can sync directly"
+              >
+                <CloudUpload className="w-3.5 h-3.5" />
+                {syncing ? 'Syncing…' : 'Sync to cloud'}
+              </button>
+
+              {/* Copy sync config */}
+              <button
+                onClick={copySyncConfig}
+                className="text-xs text-gray-500 hover:text-amber-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-amber-400/10"
+                title="Copy your PTF sync config — paste it into the bookmarklet on first use"
+              >
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? 'Copied!' : 'Copy sync config'}
+              </button>
+            </div>
+
+            <button onClick={onClose} className="text-sm text-white bg-indigo-600 hover:bg-indigo-500 px-5 py-2 rounded-lg transition-colors font-medium">
+              Done
+            </button>
+          </div>
         </div>
       </div>
     </div>
