@@ -2,13 +2,15 @@ import { createClient } from '@/lib/supabase/server'
 import { getPortfolios } from '@/lib/db/portfolios'
 import { getTransactionsByPortfolio, toFinTransaction } from '@/lib/db/transactions'
 import { getDividendsByPortfolio, toFinDividend } from '@/lib/db/dividends'
-import { buildAllPositions, buildPortfolioSnapshot } from '@/lib/finance/portfolio'
+import { buildAllPositions, buildPortfolioSnapshot, reconstructHistory } from '@/lib/finance/portfolio'
 import {
   computeMaxDrawdown,
   computeVolatility,
   computeCurrentDrawdown,
 } from '@/lib/finance/metrics'
-import { sumDividends, projectAnnualDividend, dividendsByYear } from '@/lib/finance/dividends'
+import { getPriceHistory, toFinPricePoint } from '@/lib/db/prices'
+import type { FinPricePoint } from '@/lib/finance/types'
+import { sumDividends, projectAnnualDividend } from '@/lib/finance/dividends'
 import { MetricCard } from '@/components/ui/MetricCard'
 import { AlertTriangle, BarChart3, TrendingUp } from 'lucide-react'
 
@@ -40,13 +42,31 @@ export default async function AnalyticsPage() {
     allFinDivs = allFinDivs.concat(divs.map(toFinDividend))
   }
 
+  // Fetch price history for all assets and build the historical data points
+  const assetIds = [...new Set(allFinTxs.map((tx) => tx.assetId))]
+  const earliestDate = allFinTxs.length > 0
+    ? [...allFinTxs].sort((a, b) => a.date.localeCompare(b.date))[0].date
+    : '2020-01-01'
+  const today = new Date().toISOString().slice(0, 10)
+
+  const priceHistory = new Map<string, FinPricePoint[]>()
+  await Promise.all(
+    assetIds.map(async (assetId) => {
+      const rows = await getPriceHistory(supabase, assetId, earliestDate, today)
+      if (rows.length > 0) priceHistory.set(assetId, rows.map(toFinPricePoint))
+    })
+  )
+
+  // Build price map (latest price per asset) for current snapshot
   const priceMap = new Map<string, number>()
+  for (const [assetId, points] of priceHistory) {
+    priceMap.set(assetId, points[points.length - 1].price)
+  }
+
   const positions = buildAllPositions(allFinTxs, priceMap)
   const snapshot = buildPortfolioSnapshot(positions, [])
 
-  // Historical metrics require historical data — these are stubs until
-  // market data is wired in and asset_prices table is populated.
-  const historicalDataPoints: never[] = []
+  const historicalDataPoints = reconstructHistory(allFinTxs, priceHistory, [])
 
   const maxDrawdown = computeMaxDrawdown(historicalDataPoints)
   const currentDrawdown = computeCurrentDrawdown(historicalDataPoints)
