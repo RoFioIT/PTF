@@ -12,6 +12,7 @@ import {
   DollarSign,
   Landmark,
   PiggyBank,
+  Home,
   LogOut,
   MoreHorizontal,
   X,
@@ -31,6 +32,7 @@ const secondaryNavItems = [
   { href: '/dividends', label: 'Dividends', icon: DollarSign },
   { href: '/cash-accounts', label: 'Cash Accounts', icon: Landmark },
   { href: '/budget', label: 'Budget', icon: PiggyBank },
+  { href: '/properties', label: 'Properties', icon: Home },
 ]
 
 const allNavItems = [...primaryNavItems, ...secondaryNavItems]

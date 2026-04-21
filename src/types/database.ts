@@ -155,6 +155,52 @@ export interface BudgetEntry {
   updated_at: string
 }
 
+// ── Real Estate / Properties ────────────────────────────────────
+export type PropertyType    = 'home' | 'investment'
+export type PropertyCountry = 'france' | 'italy'
+
+export interface Property {
+  id: string
+  user_id: string
+  name: string
+  type: PropertyType
+  country: PropertyCountry
+  address: string | null
+  current_value: number
+  purchase_price: number | null
+  purchase_date: string | null  // 'YYYY-MM-DD'
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface Mortgage {
+  id: string
+  property_id: string
+  bank_name: string
+  start_date: string      // 'YYYY-MM-DD'
+  initial_amount: number
+  notes: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface MortgagePayment {
+  id: string
+  mortgage_id: string
+  month_number: number
+  payment_date: string    // 'YYYY-MM-DD'
+  total_payment: number
+  principal: number
+  interest: number
+  insurance: number
+  remaining_balance: number
+}
+
+export interface PropertyWithMortgage extends Property {
+  mortgage: Mortgage | null
+}
+
 // Joined/enriched types used in the UI
 export interface TransactionWithAsset extends Transaction {
   asset: Asset
@@ -251,6 +297,24 @@ export type Database = {
         Update: Partial<Omit<BudgetEntry, 'id' | 'item_id' | 'year' | 'month' | 'created_at' | 'updated_at'>>
         Relationships: []
       }
+      properties: {
+        Row: Property
+        Insert: Omit<Property, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Property, 'id' | 'user_id' | 'created_at' | 'updated_at'>>
+        Relationships: []
+      }
+      mortgages: {
+        Row: Mortgage
+        Insert: Omit<Mortgage, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Mortgage, 'id' | 'property_id' | 'created_at' | 'updated_at'>>
+        Relationships: []
+      }
+      mortgage_payments: {
+        Row: MortgagePayment
+        Insert: Omit<MortgagePayment, 'id'>
+        Update: Partial<Omit<MortgagePayment, 'id' | 'mortgage_id'>>
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: Record<string, never>
@@ -261,6 +325,8 @@ export type Database = {
       identifier_type: IdentifierType
       transaction_type: TransactionType
       cash_movement_type: CashMovementType
+      property_type: PropertyType
+      property_country: PropertyCountry
     }
     CompositeTypes: Record<string, never>
   }
