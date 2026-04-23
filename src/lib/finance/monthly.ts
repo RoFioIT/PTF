@@ -18,7 +18,8 @@ export interface MonthlyPerf {
   value: number        // total portfolio value at month-end (securities + cash)
   invested: number     // cumulative cost basis at month-end
   pnl: number          // value − invested
-  monthReturn: number  // absolute Δ vs previous month-end
+  monthReturn: number  // absolute Δ vs previous month-end (includes deposits)
+  depositsThisMonth: number // net external cash flows (deposits − withdrawals) this month
   monthTWRPct: number  // Time-Weighted Return for the month (%)
   ytdTWRPct: number    // chain-linked TWR from Jan 1 of same year (%)
   monthMWRPct: number  // Modified Dietz MWR for the month (%)
@@ -109,6 +110,14 @@ export function aggregateMonthly(
     ytdMWRFactors.set(year, ytdMWRFactors.get(year)! * (1 + monthMWR))
     const ytdMWRPct = (ytdMWRFactors.get(year)! - 1) * 100
 
+    const depositsThisMonth = cashMovements
+      .filter((m) => m.date.slice(0, 7) === month)
+      .reduce((sum, mv) =>
+        mv.type === 'DEPOSIT' || mv.type === 'TRANSFER_IN'
+          ? sum + mv.amount
+          : sum - mv.amount,
+        0)
+
     prevEndDate = endPoint.date
 
     return {
@@ -120,6 +129,7 @@ export function aggregateMonthly(
       invested: endPoint.invested,
       pnl: endPoint.value - endPoint.invested,
       monthReturn: prevEndValue > 0 ? endPoint.value - prevEndValue : 0,
+      depositsThisMonth,
       monthTWRPct: monthTWR * 100,
       ytdTWRPct,
       monthMWRPct: monthMWR * 100,

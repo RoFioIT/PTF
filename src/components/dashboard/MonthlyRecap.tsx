@@ -48,6 +48,14 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
                 <div className="text-xs text-gray-500 mt-0.5 tabular-nums">{fmtCcy(row.value, currency)}</div>
               </div>
               <div className="flex items-center gap-3 flex-shrink-0">
+                {row.depositsThisMonth !== 0 && (
+                  <div className="text-right">
+                    <div className="text-xs font-medium tabular-nums text-gray-400">
+                      {fmtCcy(row.depositsThisMonth, currency)}
+                    </div>
+                    <div className="text-[10px] text-gray-600 mt-0.5">Dep.</div>
+                  </div>
+                )}
                 <div className="text-right">
                   <div className={`text-xs font-medium tabular-nums ${pctColor(row.monthTWRPct)}`}>
                     {noData ? '—' : fmtPct(row.monthTWRPct)}
@@ -83,7 +91,7 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              {['Month', 'Value', 'Invested', 'P&L', 'Month Δ', 'TWR Mo%', 'TWR YTD%', 'MWR Mo%', 'MWR YTD%'].map((h) => (
+              {['Month', 'Value', 'Invested', 'P&L', 'Value Δ', 'Deposits', 'TWR Mo%', 'TWR YTD%', 'MWR Mo%', 'MWR YTD%'].map((h) => (
                 <th
                   key={h}
                   className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -106,6 +114,9 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
                   </td>
                   <td className={`px-5 py-3 tabular-nums ${pctColor(row.monthReturn)}`}>
                     {noData ? '—' : fmtCcy(row.monthReturn, currency)}
+                  </td>
+                  <td className="px-5 py-3 tabular-nums text-gray-400">
+                    {row.depositsThisMonth !== 0 ? fmtCcy(row.depositsThisMonth, currency) : '—'}
                   </td>
                   <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.monthTWRPct)}`}>
                     {noData ? '—' : fmtPct(row.monthTWRPct)}
