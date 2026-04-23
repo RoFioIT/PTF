@@ -156,6 +156,7 @@ export default async function DashboardPage() {
   // ── Available cash across all portfolios ──────────────────────
   const totalAvailableCash = computeAvailableCash(allFinCash, allFinTxs, allFinDivs)
 
+  const totalPortfolioValue = snapshot.currentValue + Math.max(0, totalAvailableCash)
   const pnlPositive = snapshot.totalPnL >= 0
 
   const openPositions = snapshot.positions
@@ -196,8 +197,8 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4 mb-6">
         <MetricCard
           label="Portfolio Value"
-          value={fmt(snapshot.currentValue)}
-          subvalue={`Invested: ${fmt(snapshot.totalInvested)}`}
+          value={fmt(totalPortfolioValue)}
+          subvalue={`Securities: ${fmt(snapshot.currentValue)} · Cash: ${fmt(Math.max(0, totalAvailableCash))}`}
           icon={<Wallet className="w-4 h-4" />}
         />
         <MetricCard

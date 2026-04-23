@@ -137,7 +137,7 @@ async function computePortfolioMetrics(
 
   return {
     portfolio,
-    valueEUR: snapshot.currentValue,
+    valueEUR: snapshot.currentValue + Math.max(0, cashEUR),
     pnlEUR: snapshot.totalPnL,
     pnlPct: snapshot.performancePct,
     ytdPct,
