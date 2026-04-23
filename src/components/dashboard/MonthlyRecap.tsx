@@ -42,21 +42,27 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
         {rows.map((row) => {
           const noData = row.monthReturn === 0 && row.invested === 0
           return (
-            <div key={row.month} className="px-4 py-3 flex items-center justify-between gap-4">
+            <div key={row.month} className="px-4 py-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-sm font-medium text-white whitespace-nowrap">{row.label}</div>
                 <div className="text-xs text-gray-500 mt-0.5 tabular-nums">{fmtCcy(row.value, currency)}</div>
               </div>
-              <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 <div className="text-right">
-                  <div className={`text-xs font-medium tabular-nums ${pctColor(row.monthPct)}`}>
-                    {noData ? '—' : fmtPct(row.monthPct)}
+                  <div className={`text-xs font-medium tabular-nums ${pctColor(row.monthTWRPct)}`}>
+                    {noData ? '—' : fmtPct(row.monthTWRPct)}
                   </div>
-                  <div className="text-[10px] text-gray-600 mt-0.5">Month</div>
+                  <div className="text-[10px] text-gray-600 mt-0.5">TWR Mo</div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xs font-medium tabular-nums ${pctColor(row.ytdPct)}`}>
-                    {fmtPct(row.ytdPct)}
+                  <div className={`text-xs font-medium tabular-nums ${pctColor(row.monthMWRPct)}`}>
+                    {noData ? '—' : fmtPct(row.monthMWRPct)}
+                  </div>
+                  <div className="text-[10px] text-gray-600 mt-0.5">MWR Mo</div>
+                </div>
+                <div className="text-right">
+                  <div className={`text-xs font-medium tabular-nums ${pctColor(row.ytdTWRPct)}`}>
+                    {fmtPct(row.ytdTWRPct)}
                   </div>
                   <div className="text-[10px] text-gray-600 mt-0.5">YTD</div>
                 </div>
@@ -77,7 +83,7 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              {['Month', 'Value', 'Invested', 'P&L', 'Month Δ', 'Month %', 'YTD %'].map((h) => (
+              {['Month', 'Value', 'Invested', 'P&L', 'Month Δ', 'TWR Mo%', 'TWR YTD%', 'MWR Mo%', 'MWR YTD%'].map((h) => (
                 <th
                   key={h}
                   className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -88,25 +94,34 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#1e1e2e]">
-            {rows.map((row) => (
-              <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
-                <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{row.label}</td>
-                <td className="px-5 py-3 tabular-nums text-gray-300">{fmtCcy(row.value, currency)}</td>
-                <td className="px-5 py-3 tabular-nums text-gray-300">{fmtCcy(row.invested, currency)}</td>
-                <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.pnl)}`}>
-                  {fmtCcy(row.pnl, currency)}
-                </td>
-                <td className={`px-5 py-3 tabular-nums ${pctColor(row.monthReturn)}`}>
-                  {row.monthReturn === 0 && row.invested === 0 ? '—' : fmtCcy(row.monthReturn, currency)}
-                </td>
-                <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.monthPct)}`}>
-                  {row.monthReturn === 0 && row.invested === 0 ? '—' : fmtPct(row.monthPct)}
-                </td>
-                <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.ytdPct)}`}>
-                  {fmtPct(row.ytdPct)}
-                </td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const noData = row.monthReturn === 0 && row.invested === 0
+              return (
+                <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{row.label}</td>
+                  <td className="px-5 py-3 tabular-nums text-gray-300">{fmtCcy(row.value, currency)}</td>
+                  <td className="px-5 py-3 tabular-nums text-gray-300">{fmtCcy(row.invested, currency)}</td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.pnl)}`}>
+                    {fmtCcy(row.pnl, currency)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums ${pctColor(row.monthReturn)}`}>
+                    {noData ? '—' : fmtCcy(row.monthReturn, currency)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.monthTWRPct)}`}>
+                    {noData ? '—' : fmtPct(row.monthTWRPct)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.ytdTWRPct)}`}>
+                    {fmtPct(row.ytdTWRPct)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.monthMWRPct)}`}>
+                    {noData ? '—' : fmtPct(row.monthMWRPct)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${pctColor(row.ytdMWRPct)}`}>
+                    {fmtPct(row.ytdMWRPct)}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

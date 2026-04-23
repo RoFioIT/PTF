@@ -198,3 +198,53 @@ export function computeYTD(dataPoints: HistoricalDataPoint[]): number | null {
 
   return (current.value - ytdStart.value) / ytdStart.value
 }
+
+// ── Helpers ───────────────────────────────────────────────────
+
+function daysBetween(dateA: string, dateB: string): number {
+  return Math.round(
+    (new Date(dateB).getTime() - new Date(dateA).getTime()) / 86_400_000
+  )
+}
+
+/**
+ * computeModifiedDietz — Monthly MWR approximation (industry standard).
+ *
+ * Weights each external cash flow by how early in the period it occurred:
+ *   W_i = (D − d_i) / D   where D = period length in days, d_i = day of CF
+ *
+ * Formula:
+ *   MWR = (V_end − V_start − ΣCF_i) / (V_start + Σ(CF_i × W_i))
+ *
+ * Pass only EXTERNAL flows (deposits/withdrawals). Buy/sell transactions
+ * are internal reallocations and must NOT appear here — they are already
+ * reflected in the change from V_start to V_end.
+ *
+ * @param startValue  Portfolio total value at period start (securities + cash)
+ * @param endValue    Portfolio total value at period end
+ * @param cashFlows   External flows with signed amounts (+deposit, −withdrawal) and dates
+ * @param periodStart ISO date of period start (= last day of previous period)
+ * @param periodEnd   ISO date of period end
+ * @returns MWR as a decimal (e.g. 0.05 = +5%)
+ */
+export function computeModifiedDietz(
+  startValue: number,
+  endValue: number,
+  cashFlows: Array<{ amount: number; date: string }>,
+  periodStart: string,
+  periodEnd: string,
+): number {
+  const D = daysBetween(periodStart, periodEnd)
+  if (D <= 0 || startValue <= 0) return 0
+
+  const netCF = cashFlows.reduce((s, cf) => s + cf.amount, 0)
+  const weightedCF = cashFlows.reduce((s, cf) => {
+    const d = Math.min(Math.max(daysBetween(periodStart, cf.date), 0), D)
+    const W = (D - d) / D
+    return s + cf.amount * W
+  }, 0)
+
+  const denom = startValue + weightedCF
+  if (denom <= 0) return 0
+  return (endValue - startValue - netCF) / denom
+}

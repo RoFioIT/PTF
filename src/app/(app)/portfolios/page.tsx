@@ -122,14 +122,14 @@ async function computePortfolioMetrics(
     })
   )
 
-  const history = reconstructHistory(finTxs, priceHistory, finCash, method)
-  const monthly = aggregateMonthly(history)
+  const history = reconstructHistory(finTxs, priceHistory, finCash, finDivs, method)
+  const monthly = aggregateMonthly(history, finCash)
 
   // YTD: last available month of the current year
   const currentYear = new Date().getFullYear().toString()
   const thisYearMonths = monthly.filter((m) => m.month.startsWith(currentYear))
   const ytdPct = thisYearMonths.length > 0
-    ? thisYearMonths[thisYearMonths.length - 1].ytdPct
+    ? thisYearMonths[thisYearMonths.length - 1].ytdTWRPct
     : null
 
   // Sparkline: this year's monthly portfolio values (in EUR)

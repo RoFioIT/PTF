@@ -115,6 +115,7 @@ export function reconstructHistory(
   transactions: FinTransaction[],
   priceHistory: Map<string, FinPricePoint[]>,
   cashMovements: FinCashMovement[],
+  dividends: FinDividend[] = [],
   method: 'PRU' | 'FIFO' = 'PRU'
 ): HistoricalDataPoint[] {
   if (transactions.length === 0) return []
@@ -157,7 +158,7 @@ export function reconstructHistory(
     if (txsUpToDate.length === 0) continue
 
     const grouped = groupTransactionsByAsset(txsUpToDate)
-    let portfolioValue = 0
+    let securitiesValue = 0
     let invested = 0
 
     for (const [assetId, txs] of grouped) {
@@ -165,15 +166,24 @@ export function reconstructHistory(
       if (priceOnDate === null) continue
 
       const pos = buildPosition(assetId, txs, priceOnDate, method)
-      portfolioValue += pos.currentValue
+      securitiesValue += pos.currentValue
       invested += pos.totalInvested
     }
 
     cumulativeInvested = Math.max(cumulativeInvested, invested)
 
+    // Add uninvested cash so total value = securities + cash.
+    // computeAvailableCash accounts for deposits, withdrawals, buy costs, sell
+    // proceeds, and dividends — cash_movements alone would overstate cash.
+    const cashBalance = computeAvailableCash(
+      cashMovements.filter((m) => m.date <= date),
+      txsUpToDate,
+      dividends.filter((d) => d.date <= date),
+    )
+
     result.push({
       date,
-      value: portfolioValue,
+      value: securitiesValue + Math.max(0, cashBalance),
       invested: cumulativeInvested,
       cashFlow: cashFlowByDate.get(date),
     })

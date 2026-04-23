@@ -140,10 +140,10 @@ export default async function DashboardPage() {
   const snapshot = buildPortfolioSnapshot(positions, [])
 
   // ── Reconstruct historical performance ───────────────────────
-  const history = reconstructHistory(allFinTxs, priceHistory, [], 'PRU')
+  const history = reconstructHistory(allFinTxs, priceHistory, allFinCash, allFinDivs, 'PRU')
 
   // ── Monthly aggregation ───────────────────────────────────────
-  const monthly = aggregateMonthly(history)
+  const monthly = aggregateMonthly(history, allFinCash)
 
   // ── Risk metrics ─────────────────────────────────────────────
   const twr = computeTWR(history)
