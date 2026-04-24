@@ -17,7 +17,7 @@ import { PortfolioChart } from '@/components/charts/PortfolioChart'
 import { AllocationChart } from '@/components/charts/AllocationChart'
 import { RefreshButton } from '@/components/dashboard/RefreshButton'
 import { DividendImportButton } from '@/components/dashboard/DividendImportButton'
-import { MonthlyRecap } from '@/components/dashboard/MonthlyRecap'
+import { MonthlyRecapWithFilter } from '@/components/dashboard/MonthlyRecapWithFilter'
 import {
   TrendingUp, TrendingDown, Wallet, DollarSign, BarChart3, Banknote,
 } from 'lucide-react'
@@ -57,9 +57,19 @@ export default async function DashboardPage() {
   const investmentPortfolios = portfolios.filter((p) => p.type !== 'ADM')
 
   // ── Collect all transactions + dividends + cash movements ────
+  type PortfolioSlice = {
+    id: string
+    label: string
+    type: string
+    finTxs: FinTransaction[]
+    finDivs: ReturnType<typeof toFinDividend>[]
+    finCash: FinCashMovement[]
+  }
+
   let allFinTxs: FinTransaction[] = []
   let allFinDivs: ReturnType<typeof toFinDividend>[] = []
   let allFinCash: FinCashMovement[] = []
+  const slices: PortfolioSlice[] = []
 
   for (const portfolio of investmentPortfolios) {
     const [txs, divs, cashMvs] = await Promise.all([
@@ -67,9 +77,13 @@ export default async function DashboardPage() {
       getDividendsByPortfolio(supabase, portfolio.id),
       getCashMovementsByPortfolio(supabase, portfolio.id),
     ])
-    allFinTxs  = allFinTxs.concat(txs.map(toFinTransaction))
-    allFinDivs = allFinDivs.concat(divs.map(toFinDividend))
-    allFinCash = allFinCash.concat(cashMvs.map(toFinCashMovement))
+    const finTxs  = txs.map(toFinTransaction)
+    const finDivs = divs.map(toFinDividend)
+    const finCash = cashMvs.map(toFinCashMovement)
+    slices.push({ id: portfolio.id, label: portfolio.name, type: portfolio.type, finTxs, finDivs, finCash })
+    allFinTxs  = allFinTxs.concat(finTxs)
+    allFinDivs = allFinDivs.concat(finDivs)
+    allFinCash = allFinCash.concat(finCash)
   }
 
   // ── Get unique asset IDs ──────────────────────────────────────
@@ -144,6 +158,13 @@ export default async function DashboardPage() {
 
   // ── Monthly aggregation ───────────────────────────────────────
   const monthly = aggregateMonthly(history, allFinCash)
+
+  // ── Per-portfolio monthly (for the filter tabs) ───────────────
+  const portfolioMonthly = slices.map((s) => {
+    const portHistory = reconstructHistory(s.finTxs, priceHistory, s.finCash, s.finDivs, 'PRU')
+    const portMonthly = aggregateMonthly(portHistory, s.finCash)
+    return { id: s.id, label: s.label, type: s.type, data: portMonthly }
+  })
 
   // ── Risk metrics ─────────────────────────────────────────────
   const twr = computeTWR(history)
@@ -260,7 +281,7 @@ export default async function DashboardPage() {
           <h2 className="font-semibold text-white text-sm">Monthly Performance</h2>
           <span className="text-xs text-gray-500">{monthly.length} months</span>
         </div>
-        <MonthlyRecap data={monthly} currency="EUR" />
+        <MonthlyRecapWithFilter allData={monthly} portfolios={portfolioMonthly} currency="EUR" />
       </div>
 
       {/* Positions */}
