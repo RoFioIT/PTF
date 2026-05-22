@@ -1,14 +1,26 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
 import { createAsset, resolveAssetByIdentifier } from '@/lib/db/assets'
 import type { AssetType, IdentifierType } from '@/types/database'
 
 const VALID_ASSET_TYPES: AssetType[] = ['stock', 'etf', 'crypto', 'bond', 'other']
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Auth check via the regular (anon) server client
+  const authClient = await createServerClient()
+  const { data: { user } } = await authClient.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Asset writes require service role — assets table is SELECT-only for authenticated users
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return NextResponse.json({ error: 'Server misconfiguration' }, { status: 500 })
+  }
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    { auth: { persistSession: false } }
+  )
 
   let body: Record<string, unknown>
   try {
