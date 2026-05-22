@@ -32,6 +32,18 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
     )
   }
 
+  // Precompute year-start values: last December value of the previous year, keyed by year string.
+  // data is sorted ascending (oldest first).
+  const yearStartValues = new Map<string, number>()
+  for (const row of data) {
+    const year = row.month.slice(0, 4)
+    if (!yearStartValues.has(year)) {
+      const prevYear = String(Number(year) - 1)
+      const lastPrevRow = [...data].reverse().find(r => r.month.startsWith(prevYear))
+      yearStartValues.set(year, lastPrevRow?.value ?? 0)
+    }
+  }
+
   // Show most recent first
   const rows = [...data].reverse()
 
@@ -91,7 +103,7 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              {['Month', 'Value', 'Invested', 'P&L', 'Value Δ', 'Deposits', 'TWR Mo%', 'TWR YTD%', 'MWR Mo%', 'MWR YTD%'].map((h) => (
+              {['Month', 'Value', 'Invested', 'P&L', 'Value Δ', 'YTD Δ', 'Deposits', 'TWR Mo%', 'TWR YTD%', 'MWR Mo%', 'MWR YTD%'].map((h) => (
                 <th
                   key={h}
                   className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -104,6 +116,8 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
           <tbody className="divide-y divide-[#1e1e2e]">
             {rows.map((row) => {
               const noData = row.monthReturn === 0 && row.invested === 0
+              const ytdStartVal = yearStartValues.get(row.month.slice(0, 4)) ?? 0
+              const ytdDelta = ytdStartVal > 0 ? row.value - ytdStartVal : null
               return (
                 <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{row.label}</td>
@@ -114,6 +128,9 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
                   </td>
                   <td className={`px-5 py-3 tabular-nums ${pctColor(row.monthReturn)}`}>
                     {noData ? '—' : fmtCcy(row.monthReturn, currency)}
+                  </td>
+                  <td className={`px-5 py-3 tabular-nums font-medium ${ytdDelta !== null ? pctColor(ytdDelta) : 'text-gray-600'}`}>
+                    {ytdDelta !== null && !noData ? fmtCcy(ytdDelta, currency) : '—'}
                   </td>
                   <td className="px-5 py-3 tabular-nums text-gray-400">
                     {row.depositsThisMonth !== 0 ? fmtCcy(row.depositsThisMonth, currency) : '—'}
