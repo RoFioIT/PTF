@@ -99,6 +99,7 @@ export async function POST() {
 
   const PROVIDERS = {
     GOOGLE_SYMBOL: yahoo,
+    TICKER: yahoo,        // assets created via ISIN lookup store a TICKER (e.g. MC.PA)
     BOURSORAMA: boursorama,
   } as const
 
@@ -132,7 +133,7 @@ export async function POST() {
       const assetCurrency: string = (row.assets as any)?.currency ?? 'EUR'
       const provider = PROVIDERS[identifierType]
 
-      const prices = identifierType === 'GOOGLE_SYMBOL'
+      const prices = (identifierType === 'GOOGLE_SYMBOL' || identifierType === 'TICKER')
         ? await (provider as YahooFinanceProvider).getHistoricalPrices(
             { type: identifierType as IdentifierType, value: symbol }, from, to, '1mo'
           )
