@@ -44,6 +44,16 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
     }
   }
 
+  // Precompute cumulative YTD deposits per month: sum of depositsThisMonth from Jan 1 to that month.
+  // Keyed by 'YYYY-MM'. Resets each calendar year.
+  const ytdDeposits = new Map<string, number>()
+  const depositAcc = new Map<string, number>()
+  for (const row of data) {
+    const year = row.month.slice(0, 4)
+    depositAcc.set(year, (depositAcc.get(year) ?? 0) + row.depositsThisMonth)
+    ytdDeposits.set(row.month, depositAcc.get(year)!)
+  }
+
   // Show most recent first
   const rows = [...data].reverse()
 
@@ -117,7 +127,7 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
             {rows.map((row) => {
               const noData = row.monthReturn === 0 && row.invested === 0
               const ytdStartVal = yearStartValues.get(row.month.slice(0, 4)) ?? 0
-              const ytdDelta = ytdStartVal > 0 ? row.value - ytdStartVal : null
+              const ytdDelta = ytdStartVal > 0 ? row.value - ytdStartVal - (ytdDeposits.get(row.month) ?? 0) : null
               return (
                 <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{row.label}</td>
