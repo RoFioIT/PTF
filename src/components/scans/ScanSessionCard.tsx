@@ -115,7 +115,7 @@ function EtfsTable({ instruments }: { instruments: ScanInstrument[] }) {
                 <td className="px-3 py-2.5 font-mono font-semibold text-indigo-300 whitespace-nowrap">{inst.ticker}</td>
                 <td className="px-3 py-2.5 font-medium text-white whitespace-nowrap">{inst.name}</td>
                 <td className="px-3 py-2.5 text-zinc-300 tabular-nums whitespace-nowrap">
-                  {inst.ter !== null ? `${(inst.ter * 100).toFixed(2)}%` : <span className="text-zinc-600">—</span>}
+                  {inst.ter !== null ? `${inst.ter.toFixed(2)}%` : <span className="text-zinc-600">—</span>}
                 </td>
                 <td className="px-3 py-2.5 whitespace-nowrap">{fmtPct(inst.perf_3m)}</td>
                 <td className="px-3 py-2.5 text-zinc-300 tabular-nums whitespace-nowrap">
