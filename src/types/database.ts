@@ -331,3 +331,45 @@ export type Database = {
     CompositeTypes: Record<string, never>
   }
 }
+
+// ── Scan Results ──────────────────────────────────────────────────────────────
+
+export type ScanSignal = 'BUY' | 'WATCH' | 'AVOID'
+export type ScanInstrumentType = 'stock' | 'etf'
+
+export interface ScanSession {
+  id: string
+  user_id: string
+  scanned_at: string
+  sector_focus: string
+  market_regime: string | null
+  vix_level: number | null
+  notes: string | null
+  created_at: string
+}
+
+export interface ScanInstrument {
+  id: string
+  session_id: string
+  ticker: string
+  name: string
+  instrument_type: ScanInstrumentType
+  market: string | null
+  sector_or_theme: string | null
+  price: number | null
+  price_currency: string
+  pe_forward: number | null
+  perf_3m: number | null
+  analyst_consensus: string | null
+  score: number | null
+  signal: ScanSignal
+  pea_eligible: boolean | null
+  ter: number | null
+  aum_eur_m: number | null
+  note: string | null
+  created_at: string
+}
+
+export interface ScanSessionWithInstruments extends ScanSession {
+  instruments: ScanInstrument[]
+}

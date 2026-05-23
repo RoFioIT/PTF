@@ -13,6 +13,7 @@ import {
   Landmark,
   PiggyBank,
   Home,
+  ScanLine,
   LogOut,
   MoreHorizontal,
   X,
@@ -30,6 +31,7 @@ const primaryNavItems = [
 
 const secondaryNavItems = [
   { href: '/dividends', label: 'Dividends', icon: DollarSign },
+  { href: '/scans', label: 'Scans', icon: ScanLine },
   { href: '/cash-accounts', label: 'Cash Accounts', icon: Landmark },
   { href: '/budget', label: 'Budget', icon: PiggyBank },
   { href: '/properties', label: 'Properties', icon: Home },
