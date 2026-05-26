@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm run lint)",
+      "Bash(npm run build)",
+      "Bash(supabase status)",
+      "Bash(supabase migration list)",
+      "Bash(supabase db diff *)",
+      "Bash(npm show *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(npm install *)",
+      "Bash(mkdir *)",
+      "Bash(docker exec *)",
+      "Bash(supabase db push)",
+      "Bash(supabase start)",
+      "Bash(supabase stop *)",
+      "Bash(node /Users/roberto/Documents/LocalProjet/PTF/scripts/ptf-ai-chk.mjs)"
+    ]
+  }
+}
