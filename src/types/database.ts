@@ -367,6 +367,8 @@ export interface ScanInstrument {
   ter: number | null
   aum_eur_m: number | null
   note: string | null
+  entry_price_low:  number | null
+  entry_price_high: number | null
   created_at: string
 }
 

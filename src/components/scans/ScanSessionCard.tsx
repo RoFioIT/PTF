@@ -58,6 +58,15 @@ function fmtPrice(price: number | null, currency: string) {
   return <span className="tabular-nums text-zinc-300">{sym}{price.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
 }
 
+function fmtEntryZone(low: number | null, high: number | null, currency: string) {
+  const sym = currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : '$'
+  const fmt = (v: number) => v.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  if (low === null && high === null) return <span className="text-zinc-600">—</span>
+  if (low === null)  return <span className="tabular-nums text-zinc-300">≤{sym}{fmt(high!)}</span>
+  if (high === null) return <span className="tabular-nums text-zinc-300">≥{sym}{fmt(low)}</span>
+  return <span className="tabular-nums text-zinc-300">{sym}{fmt(low)}–{fmt(high)}</span>
+}
+
 // ── Sub-tables ────────────────────────────────────────────────────────────────
 
 function StocksTable({ instruments }: { instruments: ScanInstrument[] }) {
@@ -68,7 +77,7 @@ function StocksTable({ instruments }: { instruments: ScanInstrument[] }) {
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              {['Ticker', 'Name', 'Mkt', 'P/E Fwd', '3M Perf', 'Score', 'PEA', 'Signal', 'Note'].map(h => (
+              {['Ticker', 'Name', 'Mkt', 'P/E Fwd', '3M Perf', 'Score', 'PEA', 'Signal', 'Entry', 'Note'].map(h => (
                 <th key={h} className="px-3 py-2 text-left font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -86,6 +95,7 @@ function StocksTable({ instruments }: { instruments: ScanInstrument[] }) {
                 <td className="px-3 py-2.5 whitespace-nowrap"><ScoreChip score={inst.score} /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap"><PeaChip eligible={inst.pea_eligible} /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap"><SignalBadge signal={inst.signal} /></td>
+                <td className="px-3 py-2.5 whitespace-nowrap text-xs">{fmtEntryZone(inst.entry_price_low, inst.entry_price_high, inst.price_currency)}</td>
                 <td className="px-3 py-2.5 text-zinc-500 max-w-xs truncate" title={inst.note ?? undefined}>{inst.note ?? '—'}</td>
               </tr>
             ))}
@@ -104,7 +114,7 @@ function EtfsTable({ instruments }: { instruments: ScanInstrument[] }) {
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-[#1e1e2e]">
-              {['Ticker', 'Name', 'TER', '3M Perf', 'AUM M€', 'Score', 'PEA', 'Signal', 'Note'].map(h => (
+              {['Ticker', 'Name', 'TER', '3M Perf', 'AUM M€', 'Score', 'PEA', 'Signal', 'Entry', 'Note'].map(h => (
                 <th key={h} className="px-3 py-2 text-left font-medium text-zinc-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
               ))}
             </tr>
@@ -124,6 +134,7 @@ function EtfsTable({ instruments }: { instruments: ScanInstrument[] }) {
                 <td className="px-3 py-2.5 whitespace-nowrap"><ScoreChip score={inst.score} /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap"><PeaChip eligible={inst.pea_eligible} /></td>
                 <td className="px-3 py-2.5 whitespace-nowrap"><SignalBadge signal={inst.signal} /></td>
+                <td className="px-3 py-2.5 whitespace-nowrap text-xs">{fmtEntryZone(inst.entry_price_low, inst.entry_price_high, inst.price_currency)}</td>
                 <td className="px-3 py-2.5 text-zinc-500 max-w-xs truncate" title={inst.note ?? undefined}>{inst.note ?? '—'}</td>
               </tr>
             ))}

@@ -150,6 +150,8 @@ const rows = instruments.map((inst) => ({
   ter: inst.ter ?? null,
   aum_eur_m: inst.aum_eur_m ?? null,
   note: inst.note ?? null,
+  entry_price_low:  inst.entry_price_low  ?? null,
+  entry_price_high: inst.entry_price_high ?? null,
 }))
 
 const { error: instErr } = await supabase.from('scan_instruments').insert(rows)
