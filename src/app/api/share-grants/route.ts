@@ -6,8 +6,11 @@ import {
   lapseShareGrant,
   deleteShareGrant,
 } from '@/lib/db/share_grants'
+import type { ShareType } from '@/types/database'
 
 export const dynamic = 'force-dynamic'
+
+const SHARE_TYPES: ShareType[] = ['AFSS', 'DFSS', 'DIVIDEND']
 
 // POST /api/share-grants — create a new grant
 export async function POST(request: Request) {
@@ -22,10 +25,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'portfolio_id, asset_id, share_type, grant_date, granted_quantity are required' }, { status: 400 })
   }
 
-  // Auto-compute vesting_date = grant_date + 3 years
-  const gd = new Date(grant_date)
-  gd.setFullYear(gd.getFullYear() + 3)
-  const vesting_date = gd.toISOString().slice(0, 10)
+  if (!SHARE_TYPES.includes(share_type)) {
+    return NextResponse.json({ error: `share_type must be one of: ${SHARE_TYPES.join(', ')}` }, { status: 400 })
+  }
+  const isDividend = share_type === 'DIVIDEND'
+
+  // AFSS/DFSS: vesting_date = grant_date + 3 years. DIVIDEND shares are owned immediately.
+  let vesting_date = grant_date
+  if (!isDividend) {
+    const gd = new Date(grant_date)
+    gd.setFullYear(gd.getFullYear() + 3)
+    vesting_date = gd.toISOString().slice(0, 10)
+  }
 
   try {
     const grant = await createShareGrant(supabase, {
@@ -36,7 +47,27 @@ export async function POST(request: Request) {
       vesting_date,
       granted_quantity: Number(granted_quantity),
       notes: notes ?? undefined,
+      ...(isDividend ? { status: 'vested' as const, vesting_pct: 100 } : {}),
     })
+
+    if (isDividend) {
+      const { error: txErr } = await supabase.from('transactions').insert({
+        portfolio_id,
+        asset_id,
+        type: 'BUY',
+        quantity: Number(granted_quantity),
+        price: 0,
+        fees: 0,
+        currency: 'GBP',
+        date: grant_date,
+        notes: 'Dividend shares',
+      })
+      if (txErr) {
+        // Roll back so we never keep a vested grant without its shares
+        await supabase.from('share_grants').delete().eq('id', grant.id)
+        return NextResponse.json({ error: `Dividend shares not added: ${txErr.message}` }, { status: 500 })
+      }
+    }
     return NextResponse.json({ grant })
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })

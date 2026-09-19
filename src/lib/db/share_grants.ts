@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { ShareGrant } from '@/types/database'
+import type { ShareGrant, ShareType } from '@/types/database'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Client = SupabaseClient<any>
@@ -7,11 +7,13 @@ type Client = SupabaseClient<any>
 export interface CreateShareGrantInput {
   portfolio_id: string
   asset_id: string
-  share_type: 'AFSS' | 'DFSS'
+  share_type: ShareType
   grant_date: string       // YYYY-MM-DD
   vesting_date: string     // YYYY-MM-DD (computed by API = grant_date + 3 years)
   granted_quantity: number
   notes?: string
+  status?: 'unvested' | 'vested'   // DIVIDEND grants are created already vested
+  vesting_pct?: number
 }
 
 export async function getShareGrants(

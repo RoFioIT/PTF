@@ -86,11 +86,13 @@ export interface CashMovement {
   created_at: string
 }
 
+export type ShareType = 'AFSS' | 'DFSS' | 'DIVIDEND'
+
 export interface ShareGrant {
   id: string
   portfolio_id: string
   asset_id: string
-  share_type: 'AFSS' | 'DFSS'
+  share_type: ShareType
   grant_date: string
   vesting_date: string
   granted_quantity: number

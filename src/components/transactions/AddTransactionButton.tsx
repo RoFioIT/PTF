@@ -139,7 +139,7 @@ export function AddTransactionButton({ portfolios }: Props) {
   async function handleLookup() {
     const isin = isinInput.trim().toUpperCase()
     if (!/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) {
-      setLookupError('ISIN must be 12 characters (e.g. FR0000131104)')
+      setLookupError(`ISIN must be 12 characters (e.g. FR0000131104) — you entered ${isin.length}`)
       return
     }
     setLookingUp(true)
@@ -183,6 +183,8 @@ export function AddTransactionButton({ portfolios }: Props) {
   }
 
   function skipLookup() {
+    const isin = isinInput.trim().toUpperCase()
+    if (/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) setCreateIsin(isin)
     setCreateStep('confirming')
     setLookupError(null)
   }
@@ -190,6 +192,10 @@ export function AddTransactionButton({ portfolios }: Props) {
   async function handleCreate() {
     if (!createName.trim()) { setCreateError('Name is required'); return }
     if (!createCurrency.trim()) { setCreateError('Currency is required'); return }
+    if (createIsin.trim() && !/^[A-Z]{2}[A-Z0-9]{10}$/.test(createIsin.trim())) {
+      setCreateError(`ISIN must be 12 characters — you entered ${createIsin.trim().length}`)
+      return
+    }
     setCreating(true)
     setCreateError(null)
     try {
@@ -340,12 +346,6 @@ export function AddTransactionButton({ portfolios }: Props) {
                 {createError && (
                   <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">{createError}</p>
                 )}
-                {createTicker && (
-                  <div className="flex items-center gap-2 text-xs text-gray-500 bg-[#1e1e2e] px-3 py-2 rounded-lg">
-                    <span>Resolved ticker:</span>
-                    <span className="font-mono text-indigo-400">{createTicker}</span>
-                  </div>
-                )}
                 <div>
                   <label className="block text-xs text-gray-500 mb-1.5">Name <span className="text-red-400">*</span></label>
                   <input type="text" value={createName} onChange={(e) => setCreateName(e.target.value)} className={inputCls} placeholder="e.g. LVMH Moët Hennessy" autoFocus={!createName} />
@@ -372,8 +372,18 @@ export function AddTransactionButton({ portfolios }: Props) {
                     <input type="text" value={createCountry} onChange={(e) => setCreateCountry(e.target.value)} className={inputCls} placeholder="e.g. France" />
                   </div>
                 </div>
-                {createIsin && (
-                  <p className="text-xs text-gray-500">ISIN: <span className="font-mono text-gray-400">{createIsin}</span></p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1.5">ISIN</label>
+                    <input type="text" value={createIsin} onChange={(e) => setCreateIsin(e.target.value.toUpperCase())} maxLength={12} className={inputCls + ' font-mono'} placeholder="LU3047998896" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1.5">Yahoo ticker</label>
+                    <input type="text" value={createTicker} onChange={(e) => setCreateTicker(e.target.value.toUpperCase())} className={inputCls + ' font-mono'} placeholder="GUARD.PA" />
+                  </div>
+                </div>
+                {!createTicker.trim() && (
+                  <p className="text-xs text-amber-400/80">Without a ticker, prices can&apos;t be fetched for this asset.</p>
                 )}
                 <div className="flex gap-2 justify-end pt-1">
                   <button type="button" onClick={resetCreateFlow} className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors">

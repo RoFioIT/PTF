@@ -52,6 +52,15 @@ const EXCHANGE_SUFFIX: Record<string, string> = {
  *   LON:CSPX     → CSPX.L
  *   BIT:RACE     → RACE.MI
  */
+/**
+ * Yahoo quotes London-listed securities in pence (currency "GBp" / "GBX").
+ * Normalise to pounds so prices, dividends and transactions share one unit.
+ */
+export function normalizeMinorCurrency(value: number, currency: string): { value: number; currency: string } {
+  if (currency === 'GBp' || currency === 'GBX') return { value: value / 100, currency: 'GBP' }
+  return { value, currency }
+}
+
 export function googleToYahoo(googleSymbol: string): string | null {
   const parts = googleSymbol.split(':')
   if (parts.length !== 2) return null
@@ -112,9 +121,12 @@ export class YahooFinanceProvider implements MarketDataProvider {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const quote: any = await yahooFinance.quote(ticker)
 
-      const price: number = quote?.regularMarketPrice ?? quote?.previousClose ?? 0
-      const currency: string = quote?.currency ?? 'USD'
-      const prevClose: number = quote?.regularMarketPreviousClose ?? quote?.previousClose ?? price
+      const rawCurrency: string = quote?.currency ?? 'USD'
+      const { value: price, currency } = normalizeMinorCurrency(
+        quote?.regularMarketPrice ?? quote?.previousClose ?? 0, rawCurrency)
+      const prevClose: number = normalizeMinorCurrency(
+        quote?.regularMarketPreviousClose ?? quote?.previousClose ?? price * (rawCurrency === currency ? 1 : 100),
+        rawCurrency).value
 
       return {
         price,
@@ -153,7 +165,7 @@ export class YahooFinanceProvider implements MarketDataProvider {
       })
 
       const quotes: any[] = result?.quotes ?? []
-      const currency: string = result?.meta?.currency ?? 'USD'
+      const rawCurrency: string = result?.meta?.currency ?? 'USD'
 
       const points: PricePoint[] = []
       for (const q of quotes) {
@@ -174,7 +186,8 @@ export class YahooFinanceProvider implements MarketDataProvider {
           date = new Date(q.date).toISOString().slice(0, 10)
         }
 
-        points.push({ date, close, currency })
+        const n = normalizeMinorCurrency(close, rawCurrency)
+        points.push({ date, close: n.value, currency: n.currency })
       }
 
       return points

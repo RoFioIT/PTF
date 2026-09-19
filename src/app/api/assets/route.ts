@@ -49,11 +49,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'currency is required' }, { status: 400 })
   }
 
+  if (isin && !/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin.toUpperCase())) {
+    return NextResponse.json({ error: 'ISIN must be 12 characters (2 letters + 10 alphanumerics)' }, { status: 400 })
+  }
+
   // Guard against duplicate ISIN
   if (isin) {
     const existing = await resolveAssetByIdentifier(supabase, 'ISIN', isin.toUpperCase())
     if (existing) {
       return NextResponse.json({ error: 'An asset with this ISIN already exists', asset_id: existing.id }, { status: 409 })
+    }
+  }
+
+  if (ticker) {
+    const existing = await resolveAssetByIdentifier(supabase, 'TICKER', ticker.toUpperCase())
+    if (existing) {
+      return NextResponse.json({ error: 'An asset with this ticker already exists', asset_id: existing.id }, { status: 409 })
     }
   }
 
@@ -73,7 +84,8 @@ export async function POST(request: Request) {
       },
       identifiers
     )
-    return NextResponse.json({ asset }, { status: 201 })
+    const warning = ticker ? undefined : 'No ticker provided — prices cannot be fetched for this asset until one is added.'
+    return NextResponse.json({ asset, warning }, { status: 201 })
   } catch (err) {
     return NextResponse.json({ error: (err as Error).message }, { status: 500 })
   }

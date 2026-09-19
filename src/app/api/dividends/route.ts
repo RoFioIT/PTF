@@ -17,7 +17,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { googleToYahoo } from '@/lib/market-data/yahoo-finance'
+import { googleToYahoo, normalizeMinorCurrency } from '@/lib/market-data/yahoo-finance'
 
 export const dynamic = 'force-dynamic'
 
@@ -45,7 +45,12 @@ async function fetchYahooDividends(
     Record<string, YahooDividendEvent> | undefined
 
   if (!dividends) return []
-  return Object.values(dividends)
+  // Yahoo reports London dividends in pence — convert to pounds
+  const currency: string = json?.chart?.result?.[0]?.meta?.currency ?? ''
+  return Object.values(dividends).map((d) => ({
+    ...d,
+    amount: normalizeMinorCurrency(d.amount, currency).value,
+  }))
 }
 
 /** Compute shares held for a set of transactions up to (and including) a given date */
@@ -168,7 +173,7 @@ export async function POST() {
             tax,
             currency: assetCurrency,
             date: exDate,
-            notes: `Imported from Yahoo Finance — ${sharesHeld.toFixed(4)} shares × €${event.amount}/share`,
+            notes: `Imported from Yahoo Finance — ${sharesHeld.toFixed(4)} shares × ${event.amount}/share (${assetCurrency})`,
           })
 
           if (insertErr) {

@@ -111,6 +111,7 @@ export default async function PortfolioPage({
   let admGbpToEur = fxRates.get('GBP') ?? 1
   let admAfssShares = 0
   let admDfssShares = 0
+  let admDividendShares = 0
   if (isADM && admAssetId) {
     // Fetch without currency filter — Yahoo Finance stores LSE prices in GBp (pence)
     const rawPrice = await getLatestPrice(supabase, admAssetId)
@@ -130,7 +131,8 @@ export default async function PortfolioPage({
       if (g.status === 'vested' && g.vesting_pct !== null) {
         const qty = Number(g.granted_quantity) * Number(g.vesting_pct) / 100
         if (g.share_type === 'AFSS') admAfssShares += qty
-        else admDfssShares += qty
+        else if (g.share_type === 'DFSS') admDfssShares += qty
+        else admDividendShares += qty
       }
     }
   }
@@ -313,7 +315,7 @@ export default async function PortfolioPage({
             )}
           </div>
 
-          {admAfssShares === 0 && admDfssShares === 0 ? (
+          {admAfssShares === 0 && admDfssShares === 0 && admDividendShares === 0 ? (
             <div className="px-6 py-10 text-center text-gray-600 text-sm">
               No vested shares yet — use the Vest button on a grant below.
             </div>
@@ -327,7 +329,7 @@ export default async function PortfolioPage({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e1e2e]">
-                {([['AFSS', admAfssShares], ['DFSS', admDfssShares]] as [string, number][])
+                {([['AFSS', admAfssShares], ['DFSS', admDfssShares], ['DIVIDEND', admDividendShares]] as [string, number][])
                   .filter(([, qty]) => qty > 0)
                   .map(([type, qty]) => {
                     const value = admPriceGBP !== null ? qty * admPriceGBP : null
@@ -338,8 +340,10 @@ export default async function PortfolioPage({
                       <tr key={type} className="hover:bg-white/[0.02] transition-colors">
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            type === 'AFSS' ? 'bg-indigo-400/15 text-indigo-400' : 'bg-amber-400/15 text-amber-400'
-                          }`}>{type}</span>
+                            type === 'AFSS' ? 'bg-indigo-400/15 text-indigo-400'
+                            : type === 'DFSS' ? 'bg-amber-400/15 text-amber-400'
+                            : 'bg-teal-400/15 text-teal-400'
+                          }`}>{type === 'DIVIDEND' ? 'Dividend' : type}</span>
                         </td>
                         <td className="px-6 py-4 text-sm text-white tabular-nums font-medium">
                           {qty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
@@ -357,16 +361,16 @@ export default async function PortfolioPage({
                     )
                   })}
                 {/* Total row */}
-                {admAfssShares + admDfssShares > 0 && (
+                {(admAfssShares + admDfssShares + admDividendShares) > 0 && (
                   <tr className="border-t border-[#2e2e3e] bg-white/[0.01]">
                     <td className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase">Total</td>
                     <td className="px-6 py-3 text-sm text-white tabular-nums font-semibold">
-                      {(admAfssShares + admDfssShares).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
+                      {((admAfssShares + admDfssShares + admDividendShares)).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
                     </td>
                     <td className="px-6 py-3" />
                     <td className="px-6 py-3 text-sm text-emerald-400 tabular-nums font-semibold">
                       {admPriceGBP !== null
-                        ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 }).format((admAfssShares + admDfssShares) * admPriceGBP)
+                        ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 }).format(((admAfssShares + admDfssShares + admDividendShares)) * admPriceGBP)
                         : '—'}
                     </td>
                   </tr>

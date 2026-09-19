@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, ChevronDown, ChevronUp, X } from 'lucide-react'
 import { clsx } from 'clsx'
-import type { ShareGrant } from '@/types/database'
+import type { ShareGrant, ShareType } from '@/types/database'
 
 interface Props {
   portfolioId: string
@@ -33,13 +33,16 @@ function fmtEUR(value: number) {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value)
 }
 
-function ShareTypeBadge({ type }: { type: 'AFSS' | 'DFSS' }) {
+const SHARE_TYPE_STYLES: Record<ShareType, string> = {
+  AFSS: 'bg-indigo-400/15 text-indigo-400',
+  DFSS: 'bg-amber-400/15 text-amber-400',
+  DIVIDEND: 'bg-teal-400/15 text-teal-400',
+}
+
+function ShareTypeBadge({ type }: { type: ShareType }) {
   return (
-    <span className={clsx(
-      'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium',
-      type === 'AFSS' ? 'bg-indigo-400/15 text-indigo-400' : 'bg-amber-400/15 text-amber-400'
-    )}>
-      {type}
+    <span className={clsx('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', SHARE_TYPE_STYLES[type])}>
+      {type === 'DIVIDEND' ? 'Dividend' : type}
     </span>
   )
 }
@@ -68,7 +71,7 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
   const [error, setError] = useState<string | null>(null)
 
   // Add grant form state
-  const [shareType, setShareType] = useState<'AFSS' | 'DFSS'>('AFSS')
+  const [shareType, setShareType] = useState<ShareType>('AFSS')
   const [grantDate, setGrantDate] = useState('')
   const [grantedQty, setGrantedQty] = useState('')
   const [grantNotes, setGrantNotes] = useState('')
@@ -272,15 +275,16 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                 <label className="block text-xs text-gray-500 mb-1">Type</label>
                 <select
                   value={shareType}
-                  onChange={(e) => setShareType(e.target.value as 'AFSS' | 'DFSS')}
+                  onChange={(e) => setShareType(e.target.value as ShareType)}
                   className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   <option value="AFSS">AFSS</option>
                   <option value="DFSS">DFSS</option>
+                  <option value="DIVIDEND">Dividend</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Grant date</label>
+                <label className="block text-xs text-gray-500 mb-1">{shareType === 'DIVIDEND' ? 'Date received' : 'Grant date'}</label>
                 <input
                   type="date"
                   required
@@ -290,7 +294,7 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Granted shares</label>
+                <label className="block text-xs text-gray-500 mb-1">{shareType === 'DIVIDEND' ? 'Shares received' : 'Granted shares'}</label>
                 <input
                   type="number"
                   required
@@ -313,6 +317,9 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                 />
               </div>
             </div>
+            {shareType === 'DIVIDEND' && (
+              <p className="text-xs text-gray-500">Dividend shares are added to your holding immediately — no vesting period.</p>
+            )}
             <div className="flex gap-2 justify-end">
               <button type="button" onClick={() => setShowAddForm(false)} className="text-sm text-gray-400 hover:text-white px-3 py-1.5 transition-colors">
                 Cancel
