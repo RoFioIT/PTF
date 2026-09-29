@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useRef } from 'react'
-import { X, Trash2, GitMerge, Search, Upload, CloudUpload, Copy, Check } from 'lucide-react'
+import { X, Trash2, GitMerge, Search, Upload, Download, CloudUpload, Copy, Check } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount } from '@/types/database'
 import { loadMapping, saveMapping, type MappingStore } from '@/lib/import/bankinMapping'
@@ -100,6 +100,40 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
       }
     }
     reader.readAsText(file)
+  }
+
+  // ── Export CSV ────────────────────────────────────────────────────
+  function csvCell(v: string): string {
+    return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v
+  }
+
+  function exportCSV() {
+    const rows = ['mapping_key,section,account,ptf_account,owner,status']
+    for (const key of Object.keys(store).sort()) {
+      const { section, name } = splitKey(key)
+      const entry = store[key]
+      const isSkip = entry.accountId === '__skip__'
+      const account = !isSkip ? activeAccounts.find((a) => a.id === entry.accountId) : undefined
+      const status = isSkip ? 'skipped' : account ? 'mapped' : 'missing'
+      rows.push([
+        csvCell(key),
+        csvCell(section),
+        csvCell(name),
+        csvCell(account?.name ?? ''),
+        csvCell(account?.owner ?? ''),
+        status,
+      ].join(','))
+    }
+
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `ptf-bankin-mapping-${new Date().toISOString().slice(0, 10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
   }
 
   // ── Sync to cloud ─────────────────────────────────────────────────
@@ -294,6 +328,15 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               title="Import mapping keys from a Bankin' CSV"
             >
               <Upload className="w-3.5 h-3.5" /> Import CSV
+            </button>
+
+            <button
+              onClick={exportCSV}
+              disabled={Object.keys(store).length === 0}
+              className="text-xs text-gray-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+              title="Export all mapping rules as a CSV"
+            >
+              <Download className="w-3.5 h-3.5" /> Export CSV
             </button>
 
             {Object.keys(store).length > 0 && (
