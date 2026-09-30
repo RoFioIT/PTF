@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
-import { X, Trash2, GitMerge, Search, Upload, Download, CloudUpload, Copy, Check } from 'lucide-react'
+import { useState, useMemo, useRef, useEffect } from 'react'
+import { X, Trash2, GitMerge, Search, Upload, Download, CloudUpload, Copy, Check, Plus } from 'lucide-react'
 import { clsx } from 'clsx'
 import type { CashAccount } from '@/types/database'
-import { loadMapping, saveMapping, type MappingStore } from '@/lib/import/bankinMapping'
+import { loadMapping, saveMapping, mappingKey, type MappingStore } from '@/lib/import/bankinMapping'
 import { createClient } from '@/lib/supabase/client'
 
 function groupByOwner(accounts: CashAccount[]): Map<string, CashAccount[]> {
@@ -37,9 +37,65 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
   const [syncMsg, setSyncMsg] = useState<{ text: string; ok: boolean } | null>(null)
   const [copied, setCopied] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [newSection, setNewSection] = useState('')
+  const [newName, setNewName] = useState('')
+  const [newAccountId, setNewAccountId] = useState('')
+  const [addError, setAddError] = useState<string | null>(null)
+
+  // Merge rules saved in the cloud that are missing locally (other browser / origin)
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/cash-accounts/mapping')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((cloud: Record<string, string | null> | null) => {
+        if (cancelled || !cloud) return
+        setStore((prev) => {
+          const next = { ...prev }
+          let changed = false
+          for (const [key, accountId] of Object.entries(cloud)) {
+            if (!next[key]) {
+              next[key] = { accountId: accountId ?? '__skip__' }
+              changed = true
+            }
+          }
+          if (!changed) return prev
+          saveMapping(next)
+          return next
+        })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [])
 
   const activeAccounts = accounts.filter((a) => a.is_active)
   const byOwner = groupByOwner(activeAccounts)
+
+  const mappedIds = new Set(Object.values(store).map((e) => e.accountId))
+  const unmappedAccounts = activeAccounts.filter((a) => !mappedIds.has(a.id))
+
+  function addRule() {
+    setAddError(null)
+    if (!newSection.trim() || !newName.trim()) {
+      setAddError('Enter the Bankin\' section and account name.')
+      return
+    }
+    if (!newAccountId) {
+      setAddError('Choose a PTF account.')
+      return
+    }
+    const key = mappingKey({ sourceSection: newSection, sourceName: newName })
+    if (store[key]) {
+      setAddError('A rule for this Bankin\' account already exists — change it in the list below.')
+      return
+    }
+    const next = { ...store, [key]: { accountId: newAccountId } }
+    setStore(next)
+    saveMapping(next)
+    setNewSection('')
+    setNewName('')
+    setNewAccountId('')
+    setSyncMsg({ text: 'Rule added — click Sync to cloud to save it for the bookmarklet', ok: true })
+  }
 
   const keys = useMemo(() => {
     const all = Object.keys(store).sort()
@@ -201,6 +257,67 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
           <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-white/5">
             <X className="w-4 h-4" />
           </button>
+        </div>
+
+        {/* Add rule */}
+        <div className="px-5 py-3 border-b border-[#1e1e2e] flex-shrink-0 space-y-2">
+          <p className="text-xs text-gray-500">Add a rule by hand</p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              value={newSection}
+              onChange={(e) => setNewSection(e.target.value)}
+              placeholder="Bankin' section (e.g. Revolut FR)"
+              className="flex-1 min-w-0 bg-[#0e0e1a] border border-[#2a2a3e] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+            />
+            <input
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="Bankin' account name"
+              className="flex-1 min-w-0 bg-[#0e0e1a] border border-[#2a2a3e] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={newAccountId}
+              onChange={(e) => setNewAccountId(e.target.value)}
+              className="flex-1 min-w-0 bg-[#1e1e2e] border border-[#2a2a3e] text-sm text-white rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="">Choose a PTF account…</option>
+              <option value="__skip__">⊘ Skip</option>
+              {[...byOwner.entries()].map(([owner, accs]) => (
+                <optgroup key={owner} label={owner}>
+                  {accs.map((acc) => (
+                    <option key={acc.id} value={acc.id}>{acc.name}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+            <button
+              onClick={addRule}
+              className="text-sm text-white bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition-colors font-medium flex items-center gap-1.5 flex-shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add rule
+            </button>
+          </div>
+          {addError && <p className="text-xs text-red-400">{addError}</p>}
+          {unmappedAccounts.length > 0 && (
+            <p className="text-xs text-gray-600">
+              No rule yet:{' '}
+              {unmappedAccounts.map((a, i) => (
+                <span key={a.id}>
+                  {i > 0 && ', '}
+                  <button
+                    onClick={() => setNewAccountId(a.id)}
+                    className="text-indigo-400 hover:text-indigo-300 underline-offset-2 hover:underline"
+                  >
+                    {a.name}
+                  </button>
+                </span>
+              ))}
+            </p>
+          )}
         </div>
 
         {/* Search */}
