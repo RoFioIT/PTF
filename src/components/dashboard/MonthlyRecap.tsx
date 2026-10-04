@@ -127,7 +127,8 @@ export function MonthlyRecap({ data, currency = 'EUR' }: MonthlyRecapProps) {
             {rows.map((row) => {
               const noData = row.monthReturn === 0 && row.invested === 0
               const ytdStartVal = yearStartValues.get(row.month.slice(0, 4)) ?? 0
-              const ytdDelta = ytdStartVal > 0 ? row.value - ytdStartVal - (ytdDeposits.get(row.month) ?? 0) : null
+              // A start value of 0 is valid: it means the first year of data (nothing held on 1 Jan)
+              const ytdDelta = noData ? null : row.value - ytdStartVal - (ytdDeposits.get(row.month) ?? 0)
               return (
                 <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{row.label}</td>
