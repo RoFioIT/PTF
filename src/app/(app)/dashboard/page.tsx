@@ -166,6 +166,27 @@ export default async function DashboardPage() {
     return { id: s.id, label: s.label, type: s.type, data: portMonthly }
   })
 
+  // ── Per-asset monthly (virtual single-asset portfolio) ────────
+  // Each BUY is treated as a deposit; sell proceeds and dividends stay in the
+  // asset's value, so TWR/MWR measure the asset's own total return.
+  const assetMonthly = assetIds
+    .map((id) => {
+      const prices = priceHistory.get(id)
+      if (!prices) return null
+      const txs = allFinTxs
+        .filter((t) => t.assetId === id)
+        .sort((a, b) => a.date.localeCompare(b.date))
+      if (txs.length === 0) return null
+      const divs = allFinDivs.filter((d) => d.assetId === id)
+      const cash: FinCashMovement[] = txs
+        .filter((t) => t.type === 'BUY')
+        .map((t) => ({ type: 'DEPOSIT', amount: t.quantity * t.price + t.fees, date: t.date }))
+      const h = reconstructHistory(txs, new Map([[id, prices]]), cash, divs, 'PRU')
+      return { id, label: assetNames.get(id) ?? id, data: aggregateMonthly(h, cash) }
+    })
+    .filter((a): a is { id: string; label: string; data: ReturnType<typeof aggregateMonthly> } => a !== null && a.data.length > 0)
+    .sort((a, b) => a.label.localeCompare(b.label))
+
   // ── Risk metrics ─────────────────────────────────────────────
   const twr = computeTWR(history)
   const maxDrawdown = computeMaxDrawdown(history)
@@ -281,7 +302,7 @@ export default async function DashboardPage() {
           <h2 className="font-semibold text-white text-sm">Monthly Performance</h2>
           <span className="text-xs text-gray-500">{monthly.length} months</span>
         </div>
-        <MonthlyRecapWithFilter allData={monthly} portfolios={portfolioMonthly} currency="EUR" />
+        <MonthlyRecapWithFilter allData={monthly} portfolios={portfolioMonthly} assets={assetMonthly} currency="EUR" />
       </div>
 
       {/* Positions */}
