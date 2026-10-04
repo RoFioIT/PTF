@@ -39,12 +39,12 @@ function PropertyCard({ p }: { p: EnrichedProperty }) {
     : 0
 
   return (
-    <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl p-5 flex flex-col gap-4">
+    <div className="bg-panel border border-line rounded-2xl p-5 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-white font-semibold leading-tight">{p.name}</p>
-          {p.address && <p className="text-gray-500 text-xs mt-0.5 truncate max-w-[200px]">{p.address}</p>}
+          <p className="text-ink font-semibold leading-tight">{p.name}</p>
+          {p.address && <p className="text-ink-3 text-xs mt-0.5 truncate max-w-[200px]">{p.address}</p>}
         </div>
         <Badge variant={p.type === 'home' ? 'purple' : 'info'}>
           {p.type === 'home' ? 'Home' : 'Investment'}
@@ -53,34 +53,34 @@ function PropertyCard({ p }: { p: EnrichedProperty }) {
 
       {/* Value & equity */}
       <div>
-        <p className="text-2xl font-bold text-white tabular-nums">{fmtShort(p.current_value)}</p>
-        <p className={`text-sm font-medium tabular-nums mt-0.5 ${p.netEquity >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        <p className="text-2xl font-bold text-ink tabular-nums">{fmtShort(p.current_value)}</p>
+        <p className={`text-sm font-medium tabular-nums mt-0.5 ${p.netEquity >= 0 ? 'text-gain' : 'text-loss'}`}>
           {p.netEquity >= 0 ? '+' : ''}{fmtShort(p.netEquity)} equity
         </p>
       </div>
 
       {/* Mortgage block */}
       {p.mortgage ? (
-        <div className="bg-[#0d0d14] rounded-xl p-3 space-y-2">
+        <div className="bg-panel rounded-xl p-3 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">{p.mortgage.bank_name}</span>
-            <span className="text-xs text-gray-400 tabular-nums">{fmtShort(p.remainingBalance)} left</span>
+            <span className="text-xs text-ink-3">{p.mortgage.bank_name}</span>
+            <span className="text-xs text-ink-3 tabular-nums">{fmtShort(p.remainingBalance)} left</span>
           </div>
           {hasPayments ? (
             <>
               {/* Progress bar */}
-              <div className="bg-[#1e1e2e] rounded-full h-1.5">
+              <div className="bg-surface rounded-full h-1.5">
                 <div
                   className="bg-indigo-500 h-1.5 rounded-full transition-all"
                   style={{ width: `${repaidPct}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-600">{repaidPct}% repaid</p>
+              <p className="text-xs text-ink-4">{repaidPct}% repaid</p>
             </>
           ) : (
             <Link
               href={`/properties/${p.id}`}
-              className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300"
+              className="flex items-center gap-1 text-xs text-warn hover:text-warn"
             >
               <AlertTriangle className="w-3 h-3" />
               Import amortization schedule
@@ -88,21 +88,21 @@ function PropertyCard({ p }: { p: EnrichedProperty }) {
           )}
         </div>
       ) : (
-        <p className="text-xs text-gray-600">No mortgage</p>
+        <p className="text-xs text-ink-4">No mortgage</p>
       )}
 
       {/* Footer actions */}
-      <div className="flex items-center gap-2 pt-1 border-t border-[#1e1e2e]">
+      <div className="flex items-center gap-2 pt-1 border-t border-line">
         <Link
           href={`/properties/${p.id}/edit`}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs text-ink-3 hover:text-ink transition-colors"
         >
           <Pencil className="w-3 h-3" /> Edit
         </Link>
-        <span className="text-gray-700">·</span>
+        <span className="text-ink-4">·</span>
         <Link
           href={`/properties/${p.id}`}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 text-xs text-ink-3 hover:text-ink transition-colors"
         >
           <ExternalLink className="w-3 h-3" /> Details
         </Link>
@@ -120,8 +120,8 @@ export function PropertiesView({ properties, summary }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Properties</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-xl md:text-2xl font-bold text-ink">Properties</h1>
+          <p className="text-ink-3 text-sm mt-1">
             {properties.length} {properties.length === 1 ? 'property' : 'properties'}
             {properties.filter((p) => p.mortgage).length > 0 &&
               ` · ${properties.filter((p) => p.mortgage).length} with mortgage`}
@@ -163,9 +163,9 @@ export function PropertiesView({ properties, summary }: Props) {
       {/* Empty state */}
       {properties.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <Building2 className="w-14 h-14 text-gray-700 mb-4" />
-          <p className="text-white font-semibold text-lg">No properties yet</p>
-          <p className="text-gray-500 text-sm mt-2 mb-6 max-w-xs">
+          <Building2 className="w-14 h-14 text-ink-4 mb-4" />
+          <p className="text-ink font-semibold text-lg">No properties yet</p>
+          <p className="text-ink-3 text-sm mt-2 mb-6 max-w-xs">
             Track your real estate assets, mortgages, and net equity in one place.
           </p>
           <Link
@@ -184,7 +184,7 @@ export function PropertiesView({ properties, summary }: Props) {
           if (group.length === 0) return null
           return (
             <div key={`${c}-${t}`} className="mb-8">
-              <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+              <h2 className="text-sm font-semibold text-ink-3 uppercase tracking-wider mb-4">
                 {COUNTRY_LABEL[c]} — {TYPE_LABEL[t]}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

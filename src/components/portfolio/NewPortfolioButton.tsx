@@ -57,35 +57,35 @@ export function NewPortfolioButton() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl w-full max-w-md mx-4 shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e1e2e]">
-              <h2 className="text-sm font-semibold text-white">New portfolio</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm">
+          <div className="bg-panel border border-line rounded-2xl w-full max-w-md mx-4 shadow-xl shadow-ink/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+              <h2 className="text-sm font-semibold text-ink">New portfolio</h2>
+              <button onClick={() => setOpen(false)} className="text-ink-3 hover:text-ink transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
               {error && (
-                <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>
+                <p className="text-loss text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>
               )}
 
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5">Name</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. PEA Fortuneo"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Type</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Type</label>
                   <select
                     value={type}
                     onChange={(e) => {
@@ -94,7 +94,7 @@ export function NewPortfolioButton() {
                       if (t === 'ADM') setCurrency('GBP')
                       else if (currency === 'GBP') setCurrency('EUR')
                     }}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="PEA">PEA</option>
                     <option value="CTO">CTO</option>
@@ -102,11 +102,11 @@ export function NewPortfolioButton() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Base currency</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Base currency</label>
                   <select
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="EUR">EUR</option>
                     <option value="USD">USD</option>
@@ -117,11 +117,11 @@ export function NewPortfolioButton() {
 
               {type !== 'ADM' && (
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Accounting method</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Accounting method</label>
                   <select
                     value={method}
                     onChange={(e) => setMethod(e.target.value as 'PRU' | 'FIFO')}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="PRU">PRU — Weighted average cost (French standard)</option>
                     <option value="FIFO">FIFO — First in, first out</option>
@@ -133,7 +133,7 @@ export function NewPortfolioButton() {
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors"
+                  className="text-sm text-ink-3 hover:text-ink px-4 py-2 transition-colors"
                 >
                   Cancel
                 </button>

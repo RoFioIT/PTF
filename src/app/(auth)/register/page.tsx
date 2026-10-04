@@ -36,55 +36,55 @@ export default function RegisterPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+      <div className="min-h-screen flex items-center justify-center bg-page">
         <div className="text-center">
           <div className="text-4xl mb-4">📬</div>
-          <h2 className="text-xl font-semibold text-white mb-2">Check your email</h2>
-          <p className="text-gray-400">We sent a confirmation link to {email}</p>
+          <h2 className="text-xl font-semibold text-ink mb-2">Check your email</h2>
+          <p className="text-ink-3">We sent a confirmation link to {email}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+    <div className="min-h-screen flex items-center justify-center bg-page">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">PTF</h1>
-          <p className="text-gray-400 mt-2">Portfolio Tracker</p>
+          <h1 className="text-3xl font-bold text-ink">PTF</h1>
+          <p className="text-ink-3 mt-2">Portfolio Tracker</p>
         </div>
 
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Create account</h2>
+        <div className="bg-panel border border-line rounded-xl p-8">
+          <h2 className="text-xl font-semibold text-ink mb-6">Create account</h2>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Email</label>
+              <label className="block text-sm text-ink-3 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-page border border-line rounded-lg px-4 py-2.5 text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Password</label>
+              <label className="block text-sm text-ink-3 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
-                className="w-full bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-page border border-line rounded-lg px-4 py-2.5 text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="min. 8 characters"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
+              <p className="text-loss text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
                 {error}
               </p>
             )}
@@ -98,9 +98,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-center text-gray-500 text-sm mt-6">
+          <p className="text-center text-ink-3 text-sm mt-6">
             Already have an account?{' '}
-            <a href="/login" className="text-indigo-400 hover:text-indigo-300">
+            <a href="/login" className="text-accent hover:text-accent">
               Sign in
             </a>
           </p>

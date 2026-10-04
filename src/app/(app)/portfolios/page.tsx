@@ -172,8 +172,8 @@ export default async function PortfoliosPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Portfolios</h1>
-          <p className="text-gray-400 text-sm mt-1">
+          <h1 className="text-xl md:text-2xl font-bold text-ink">Portfolios</h1>
+          <p className="text-ink-3 text-sm mt-1">
             {portfolios.length} portfolio{portfolios.length !== 1 ? 's' : ''} · All values in EUR
           </p>
         </div>
@@ -182,31 +182,31 @@ export default async function PortfoliosPage() {
 
       {/* Aggregate strip (only when multiple investment portfolios) */}
       {investment.length > 1 && (
-        <div className="flex items-center gap-6 mb-6 px-5 py-3 bg-[#0e0e1a] border border-[#1e1e2e] rounded-xl">
+        <div className="flex items-center gap-6 mb-6 px-5 py-3 bg-field border border-line rounded-xl">
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-gray-600 mb-0.5">Total invested value</p>
-            <p className="text-sm font-bold text-white tabular-nums">{fmt(totalValue)}</p>
+            <p className="text-[10px] uppercase tracking-wider text-ink-4 mb-0.5">Total invested value</p>
+            <p className="text-sm font-bold text-ink tabular-nums">{fmt(totalValue)}</p>
           </div>
-          <div className="w-px h-6 bg-[#1e1e2e]" />
+          <div className="w-px h-6 bg-surface" />
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-gray-600 mb-0.5">Total P&L</p>
-            <p className={`text-sm font-bold tabular-nums ${totalPnL >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+            <p className="text-[10px] uppercase tracking-wider text-ink-4 mb-0.5">Total P&L</p>
+            <p className={`text-sm font-bold tabular-nums ${totalPnL >= 0 ? 'text-gain' : 'text-loss'}`}>
               {fmt(totalPnL)}
             </p>
           </div>
-          <div className="w-px h-6 bg-[#1e1e2e]" />
+          <div className="w-px h-6 bg-surface" />
           <div>
-            <p className="text-[10px] uppercase tracking-wider text-gray-600 mb-0.5">Portfolios</p>
-            <p className="text-sm font-bold text-white">{investment.length}</p>
+            <p className="text-[10px] uppercase tracking-wider text-ink-4 mb-0.5">Portfolios</p>
+            <p className="text-sm font-bold text-ink">{investment.length}</p>
           </div>
         </div>
       )}
 
       {portfolios.length === 0 ? (
-        <div className="bg-[#12121a] border border-[#1e1e2e] border-dashed rounded-xl p-12 text-center">
-          <Briefcase className="w-10 h-10 text-gray-700 mx-auto mb-4" />
-          <h2 className="text-lg font-semibold text-white mb-2">No portfolios</h2>
-          <p className="text-gray-500 text-sm">Create a PEA or CTO portfolio to get started.</p>
+        <div className="bg-panel border border-line border-dashed rounded-xl p-12 text-center">
+          <Briefcase className="w-10 h-10 text-ink-4 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold text-ink mb-2">No portfolios</h2>
+          <p className="text-ink-3 text-sm">Create a PEA or CTO portfolio to get started.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

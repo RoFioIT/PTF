@@ -145,15 +145,15 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
 
   return (
     <>
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
+      <div className="bg-panel border border-line rounded-xl overflow-hidden">
         {rows.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-600 text-sm">
+          <div className="px-6 py-12 text-center text-ink-4 text-sm">
             No transactions yet.
           </div>
         ) : (
           <>
             {/* Mobile card list */}
-            <div className="md:hidden divide-y divide-[#1e1e2e]">
+            <div className="md:hidden divide-y divide-line">
               {rows.map((tx) => {
                 const isBuy = tx.type === 'BUY'
                 const total = Number(tx.quantity) * Number(tx.price)
@@ -162,29 +162,29 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${isBuy ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'}`}>
+                          <span className={`inline-flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded ${isBuy ? 'bg-emerald-400/10 text-gain' : 'bg-red-400/10 text-loss'}`}>
                             {isBuy ? <ArrowUpRight className="w-2.5 h-2.5" /> : <ArrowDownRight className="w-2.5 h-2.5" />}
                             {tx.type}
                           </span>
-                          <span className="text-xs text-gray-500">{fmtDate(tx.date)}</span>
+                          <span className="text-xs text-ink-3">{fmtDate(tx.date)}</span>
                         </div>
-                        <div className="text-sm font-medium text-white truncate">{tx.asset_name}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
+                        <div className="text-sm font-medium text-ink truncate">{tx.asset_name}</div>
+                        <div className="text-xs text-ink-3 mt-0.5">
                           {tx.portfolio_name} · {Number(tx.quantity).toFixed(4)} @ {fmt(Number(tx.price), tx.currency)}
                         </div>
                       </div>
                       <div className="flex items-center gap-3 flex-shrink-0">
                         <div className="text-right">
-                          <div className="text-sm font-semibold text-white tabular-nums">{fmt(total, tx.currency)}</div>
+                          <div className="text-sm font-semibold text-ink tabular-nums">{fmt(total, tx.currency)}</div>
                           {Number(tx.fees) > 0 && (
-                            <div className="text-xs text-gray-600 tabular-nums mt-0.5">fees {fmt(Number(tx.fees), tx.currency)}</div>
+                            <div className="text-xs text-ink-4 tabular-nums mt-0.5">fees {fmt(Number(tx.fees), tx.currency)}</div>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-gray-500 hover:text-indigo-400 hover:bg-indigo-400/10 transition-colors">
+                          <button onClick={() => openEdit(tx)} className="p-1.5 rounded-lg text-ink-3 hover:text-accent hover:bg-indigo-400/10 transition-colors">
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
-                          <button onClick={() => handleDelete(tx)} className="p-1.5 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-400/10 transition-colors">
+                          <button onClick={() => handleDelete(tx)} className="p-1.5 rounded-lg text-ink-3 hover:text-loss hover:bg-red-400/10 transition-colors">
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -199,44 +199,44 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#1e1e2e]">
+                  <tr className="border-b border-line">
                     {['Date', 'Type', 'Asset', 'Portfolio', 'Quantity', 'Price', 'Fees', 'Total', ''].map((h) => (
-                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1e1e2e]">
+                <tbody className="divide-y divide-line">
                   {rows.map((tx) => {
                     const isBuy = tx.type === 'BUY'
                     const total = Number(tx.quantity) * Number(tx.price)
                     return (
-                      <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors group">
-                        <td className="px-6 py-4 text-sm text-gray-400">{fmtDate(tx.date)}</td>
+                      <tr key={tx.id} className="hover:bg-ink/[0.02] transition-colors group">
+                        <td className="px-6 py-4 text-sm text-ink-3">{fmtDate(tx.date)}</td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${isBuy ? 'bg-emerald-400/10 text-emerald-400' : 'bg-red-400/10 text-red-400'}`}>
+                          <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full ${isBuy ? 'bg-emerald-400/10 text-gain' : 'bg-red-400/10 text-loss'}`}>
                             {isBuy ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                             {tx.type}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm font-medium text-white">{tx.asset_name}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-ink">{tx.asset_name}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-400">{tx.portfolio_name}</span>
+                            <span className="text-sm text-ink-3">{tx.portfolio_name}</span>
                             <Badge variant={tx.portfolio_type === 'PEA' ? 'purple' : 'info'}>{tx.portfolio_type}</Badge>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{Number(tx.quantity).toFixed(4)}</td>
-                        <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">{fmt(Number(tx.price), tx.currency)}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 tabular-nums">{fmt(Number(tx.fees), tx.currency)}</td>
-                        <td className="px-6 py-4 text-sm font-medium text-white tabular-nums">{fmt(total, tx.currency)}</td>
+                        <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">{Number(tx.quantity).toFixed(4)}</td>
+                        <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">{fmt(Number(tx.price), tx.currency)}</td>
+                        <td className="px-6 py-4 text-sm text-ink-3 tabular-nums">{fmt(Number(tx.fees), tx.currency)}</td>
+                        <td className="px-6 py-4 text-sm font-medium text-ink tabular-nums">{fmt(total, tx.currency)}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onClick={() => openEdit(tx)} className="text-gray-500 hover:text-indigo-400 transition-colors">
+                            <button onClick={() => openEdit(tx)} className="text-ink-3 hover:text-accent transition-colors">
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
-                            <button onClick={() => handleDelete(tx)} className="text-gray-500 hover:text-red-400 transition-colors">
+                            <button onClick={() => handleDelete(tx)} className="text-ink-3 hover:text-loss transition-colors">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -253,30 +253,30 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
 
       {/* Edit modal */}
       {editing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm">
+          <div className="bg-panel border border-line rounded-2xl w-full max-w-lg mx-4 shadow-xl shadow-ink/10">
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e1e2e]">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
               <div>
-                <h2 className="text-sm font-semibold text-white">Edit transaction</h2>
-                <p className="text-xs text-gray-500 mt-0.5">{editing.asset_name}</p>
+                <h2 className="text-sm font-semibold text-ink">Edit transaction</h2>
+                <p className="text-xs text-ink-3 mt-0.5">{editing.asset_name}</p>
               </div>
-              <button onClick={closeEdit} className="text-gray-500 hover:text-white transition-colors">
+              <button onClick={closeEdit} className="text-ink-3 hover:text-ink transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSave} className="px-6 py-5 space-y-4">
-              {error && <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>}
+              {error && <p className="text-loss text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>}
 
               {/* Portfolio */}
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5">Portfolio</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Portfolio</label>
                 <select
                   value={form.portfolio_id}
                   onChange={(e) => setForm((f) => ({ ...f, portfolio_id: e.target.value }))}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   {portfolios.map((p) => (
                     <option key={p.id} value={p.id}>{p.name} ({p.type})</option>
@@ -287,24 +287,24 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
               {/* Type + Date */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Type</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Type</label>
                   <select
                     value={form.type}
                     onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TransactionType }))}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     <option value="BUY">BUY</option>
                     <option value="SELL">SELL</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Date</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Date</label>
                   <input
                     type="date"
                     required
                     value={form.date}
                     onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -312,7 +312,7 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
               {/* Quantity + Price + Fees */}
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Quantity</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Quantity</label>
                   <input
                     type="number"
                     min="0"
@@ -320,11 +320,11 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
                     required
                     value={form.quantity}
                     onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Price ({editing.currency})</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Price ({editing.currency})</label>
                   <input
                     type="number"
                     min="0"
@@ -332,18 +332,18 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
                     required
                     value={form.price}
                     onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Fees ({editing.currency})</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Fees ({editing.currency})</label>
                   <input
                     type="number"
                     min="0"
                     step="any"
                     value={form.fees}
                     onChange={(e) => setForm((f) => ({ ...f, fees: e.target.value }))}
-                    className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
                 </div>
               </div>
@@ -353,7 +353,7 @@ export function TransactionsTable({ transactions: initial, portfolios }: Props) 
                 <button
                   type="button"
                   onClick={closeEdit}
-                  className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors"
+                  className="text-sm text-ink-3 hover:text-ink px-4 py-2 transition-colors"
                 >
                   Cancel
                 </button>

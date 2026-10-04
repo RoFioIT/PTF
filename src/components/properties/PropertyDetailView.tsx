@@ -64,20 +64,20 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
     <div className="p-4 md:p-8">
       {/* Back + actions */}
       <div className="flex items-center justify-between mb-6">
-        <Link href="/properties" className="flex items-center gap-1.5 text-gray-400 hover:text-white text-sm transition-colors">
+        <Link href="/properties" className="flex items-center gap-1.5 text-ink-3 hover:text-ink text-sm transition-colors">
           <ArrowLeft className="w-4 h-4" /> Properties
         </Link>
         <div className="flex items-center gap-2">
           <Link
             href={`/properties/${property.id}/edit`}
-            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white border border-[#2a2a3e] hover:border-indigo-500 px-3 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 text-sm text-ink-3 hover:text-ink border border-line-strong hover:border-indigo-500 px-3 py-2 rounded-lg transition-colors"
           >
             <Pencil className="w-3.5 h-3.5" /> Edit
           </Link>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="flex items-center gap-1.5 text-sm text-red-400 hover:text-red-300 border border-red-400/20 hover:border-red-400/50 px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
+            className="flex items-center gap-1.5 text-sm text-loss hover:text-loss border border-red-400/20 hover:border-red-400/50 px-3 py-2 rounded-lg transition-colors disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" /> Delete
           </button>
@@ -87,13 +87,13 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="text-xl md:text-2xl font-bold text-white">{property.name}</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-ink">{property.name}</h1>
           <Badge variant={property.type === 'home' ? 'purple' : 'info'}>
             {property.type === 'home' ? 'Résidence principale' : 'Investissement locatif'}
           </Badge>
           <Badge variant="default">{countryLabel}</Badge>
         </div>
-        {property.address && <p className="text-gray-500 text-sm mt-1">{property.address}</p>}
+        {property.address && <p className="text-ink-3 text-sm mt-1">{property.address}</p>}
       </div>
 
       {/* Summary MetricCards */}
@@ -120,36 +120,36 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
 
       {/* Mortgage summary card */}
       {property.mortgage && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 mb-6">
+        <div className="bg-panel border border-line rounded-xl p-5 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-white">Mortgage</h2>
+            <h2 className="text-sm font-semibold text-ink">Mortgage</h2>
             {payments.length > 0 && (
-              <span className="text-xs text-gray-500">{payments.length} payments imported</span>
+              <span className="text-xs text-ink-3">{payments.length} payments imported</span>
             )}
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Bank</p>
-              <p className="text-white font-medium">{property.mortgage.bank_name}</p>
+              <p className="text-xs text-ink-3 mb-0.5">Bank</p>
+              <p className="text-ink font-medium">{property.mortgage.bank_name}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Start date</p>
-              <p className="text-white font-medium">{property.mortgage.start_date}</p>
+              <p className="text-xs text-ink-3 mb-0.5">Start date</p>
+              <p className="text-ink font-medium">{property.mortgage.start_date}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-0.5">Initial amount</p>
-              <p className="text-white font-medium tabular-nums">{fmtShort.format(property.mortgage.initial_amount)}</p>
+              <p className="text-xs text-ink-3 mb-0.5">Initial amount</p>
+              <p className="text-ink font-medium tabular-nums">{fmtShort.format(property.mortgage.initial_amount)}</p>
             </div>
             {payments.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-0.5">Interest paid to date</p>
-                <p className="text-red-400 font-medium tabular-nums">{fmtShort.format(totalInterestPaid)}</p>
+                <p className="text-xs text-ink-3 mb-0.5">Interest paid to date</p>
+                <p className="text-loss font-medium tabular-nums">{fmtShort.format(totalInterestPaid)}</p>
               </div>
             )}
             {totalInsurancePaid > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-0.5">Insurance paid to date</p>
-                <p className="text-gray-300 font-medium tabular-nums">{fmtShort.format(totalInsurancePaid)}</p>
+                <p className="text-xs text-ink-3 mb-0.5">Insurance paid to date</p>
+                <p className="text-ink-2 font-medium tabular-nums">{fmtShort.format(totalInsurancePaid)}</p>
               </div>
             )}
           </div>
@@ -158,11 +158,11 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
 
       {/* Amortization table */}
       {property.mortgage && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-          <div className="px-5 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Amortization Schedule</h2>
+        <div className="bg-panel border border-line rounded-xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-line flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-ink">Amortization Schedule</h2>
             {payments.length > 0 && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-ink-3">
                 {payments.length} rows · {Math.ceil(payments.length / 12)} years
               </span>
             )}
@@ -170,7 +170,7 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
 
           {payments.length === 0 ? (
             <div className="p-6">
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-ink-3 mb-4">
                 No amortization data yet. Import your bank's schedule to track your mortgage progress.
               </p>
               <MortgageImport propertyId={property.id} mortgageId={property.mortgage.id} />
@@ -178,10 +178,10 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
           ) : (
             <>
               {/* Re-import option */}
-              <div className="px-5 py-3 border-b border-[#1e1e2e] flex items-center justify-between bg-[#0d0d14]">
-                <span className="text-xs text-gray-600">Showing page {page + 1} of {totalPages}</span>
+              <div className="px-5 py-3 border-b border-line flex items-center justify-between bg-panel">
+                <span className="text-xs text-ink-4">Showing page {page + 1} of {totalPages}</span>
                 <details className="group">
-                  <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-300 list-none">
+                  <summary className="text-xs text-ink-3 cursor-pointer hover:text-ink-2 list-none">
                     Re-import schedule ↓
                   </summary>
                   <div className="absolute z-10 mt-2 w-full max-w-2xl">
@@ -192,10 +192,10 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
 
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-[#0d0d14]">
+                  <thead className="bg-panel">
                     <tr>
                       {['#', 'Date', 'Payment', 'Principal', 'Interest', 'Insurance', 'Remaining Balance'].map((h) => (
-                        <th key={h} className="px-4 py-3 text-left text-xs text-gray-500 font-medium whitespace-nowrap">
+                        <th key={h} className="px-4 py-3 text-left text-xs text-ink-3 font-medium whitespace-nowrap">
                           {h}
                         </th>
                       ))}
@@ -208,7 +208,7 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
                       return (
                         <tr
                           key={p.id}
-                          className={`border-t border-[#1e1e2e] ${
+                          className={`border-t border-line ${
                             isCurrent
                               ? 'bg-indigo-600/10 border-l-2 border-l-indigo-500'
                               : p.payment_date <= today
@@ -216,16 +216,16 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
                               : ''
                           }`}
                         >
-                          <td className="px-4 py-3 text-gray-400 tabular-nums w-12">{p.month_number}</td>
-                          <td className="px-4 py-3 text-gray-300 whitespace-nowrap">
+                          <td className="px-4 py-3 text-ink-3 tabular-nums w-12">{p.month_number}</td>
+                          <td className="px-4 py-3 text-ink-2 whitespace-nowrap">
                             {p.payment_date}
-                            {isCurrent && <span className="ml-2 text-xs text-indigo-400 font-medium">← now</span>}
+                            {isCurrent && <span className="ml-2 text-xs text-accent font-medium">← now</span>}
                           </td>
-                          <td className="px-4 py-3 text-white tabular-nums whitespace-nowrap">{fmt.format(p.total_payment)}</td>
-                          <td className="px-4 py-3 text-emerald-400 tabular-nums whitespace-nowrap">{fmt.format(p.principal)}</td>
-                          <td className="px-4 py-3 text-gray-300 tabular-nums whitespace-nowrap">{fmt.format(p.interest)}</td>
-                          <td className="px-4 py-3 text-gray-400 tabular-nums whitespace-nowrap">{fmt.format(p.insurance)}</td>
-                          <td className="px-4 py-3 text-gray-200 tabular-nums whitespace-nowrap font-medium">{fmt.format(p.remaining_balance)}</td>
+                          <td className="px-4 py-3 text-ink tabular-nums whitespace-nowrap">{fmt.format(p.total_payment)}</td>
+                          <td className="px-4 py-3 text-gain tabular-nums whitespace-nowrap">{fmt.format(p.principal)}</td>
+                          <td className="px-4 py-3 text-ink-2 tabular-nums whitespace-nowrap">{fmt.format(p.interest)}</td>
+                          <td className="px-4 py-3 text-ink-3 tabular-nums whitespace-nowrap">{fmt.format(p.insurance)}</td>
+                          <td className="px-4 py-3 text-ink tabular-nums whitespace-nowrap font-medium">{fmt.format(p.remaining_balance)}</td>
                         </tr>
                       )
                     })}
@@ -235,11 +235,11 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div className="px-5 py-3 border-t border-[#1e1e2e] flex items-center justify-between">
+                <div className="px-5 py-3 border-t border-line flex items-center justify-between">
                   <button
                     onClick={() => setPage((p) => Math.max(0, p - 1))}
                     disabled={page === 0}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-white disabled:opacity-30 transition-colors"
+                    className="flex items-center gap-1 text-xs text-ink-3 hover:text-ink disabled:opacity-30 transition-colors"
                   >
                     <ChevronLeft className="w-4 h-4" /> Previous
                   </button>
@@ -251,7 +251,7 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
                           key={i}
                           onClick={() => setPage(p)}
                           className={`w-7 h-7 text-xs rounded-lg ${
-                            p === page ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:text-white'
+                            p === page ? 'bg-indigo-600 text-white' : 'text-ink-3 hover:text-white'
                           }`}
                         >
                           {p + 1}
@@ -262,7 +262,7 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
                   <button
                     onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                     disabled={page === totalPages - 1}
-                    className="flex items-center gap-1 text-xs text-gray-400 hover:text-white disabled:opacity-30 transition-colors"
+                    className="flex items-center gap-1 text-xs text-ink-3 hover:text-ink disabled:opacity-30 transition-colors"
                   >
                     Next <ChevronRight className="w-4 h-4" />
                   </button>
@@ -274,11 +274,11 @@ export function PropertyDetailView({ property, payments, remainingBalance, netEq
       )}
 
       {!property.mortgage && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-8 text-center">
-          <p className="text-gray-500 text-sm mb-3">No mortgage linked to this property.</p>
+        <div className="bg-panel border border-line rounded-xl p-8 text-center">
+          <p className="text-ink-3 text-sm mb-3">No mortgage linked to this property.</p>
           <Link
             href={`/properties/${property.id}/edit`}
-            className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="text-sm text-accent hover:text-accent transition-colors"
           >
             Add a mortgage →
           </Link>

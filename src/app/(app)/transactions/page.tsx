@@ -51,8 +51,8 @@ export default async function TransactionsPage() {
     <div className="p-4 md:p-8">
       <div className="flex items-center justify-between mb-6 md:mb-8">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-white">Transactions</h1>
-          <p className="text-gray-400 text-sm mt-1">{allTransactions.length} total</p>
+          <h1 className="text-xl md:text-2xl font-bold text-ink">Transactions</h1>
+          <p className="text-ink-3 text-sm mt-1">{allTransactions.length} total</p>
         </div>
         <AddTransactionButton portfolios={portfolioOptions} />
       </div>

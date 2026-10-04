@@ -281,36 +281,36 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-[#13131f] border border-[#2a2a3e] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl mx-0 sm:mx-4 flex flex-col max-h-[90vh]">
+      <div className="relative bg-panel border border-line-strong rounded-t-2xl sm:rounded-2xl shadow-xl shadow-ink/10 w-full sm:max-w-2xl mx-0 sm:mx-4 flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3e] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line-strong flex-shrink-0">
           <div>
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <Upload className="w-4 h-4 text-emerald-400" />
+            <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
+              <Upload className="w-4 h-4 text-gain" />
               Import from screenshot
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-ink-3 mt-0.5">
               {step === 'upload' && 'Upload one or more bank app screenshots'}
               {step === 'review' && `${rows.length} item${rows.length !== 1 ? 's' : ''} detected — map to accounts`}
               {step === 'saving' && 'Saving snapshots…'}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-ink-3 hover:text-ink-2 transition-colors p-1.5 rounded-lg hover:bg-ink/5">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Step indicator */}
-        <div className="flex items-center gap-1 px-5 py-2.5 border-b border-[#1e1e2e] flex-shrink-0">
+        <div className="flex items-center gap-1 px-5 py-2.5 border-b border-line flex-shrink-0">
           {(['upload', 'review'] as const).map((s, i) => (
             <div key={s} className="flex items-center gap-1">
-              {i > 0 && <ChevronRight className="w-3 h-3 text-gray-700" />}
+              {i > 0 && <ChevronRight className="w-3 h-3 text-ink-4" />}
               <span className={clsx(
                 'text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded',
-                step === s ? 'bg-emerald-600/20 text-emerald-400' : 'text-gray-600'
+                step === s ? 'bg-emerald-600/20 text-gain' : 'text-ink-4'
               )}>
                 {i + 1}. {s === 'upload' ? 'Upload' : 'Map & Import'}
               </span>
@@ -326,11 +326,11 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
             <div className="p-5 space-y-5">
               {/* Quarter selector */}
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5">Import for quarter</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Import for quarter</label>
                 <select
                   value={quarter}
                   onChange={(e) => setQuarter(e.target.value)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   {quarters.map((q) => (
                     <option key={q} value={q}>{q.replace('-Q', ' Q')}</option>
@@ -340,7 +340,7 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
 
               {/* Drop zone / file select */}
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5">Screenshots</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Screenshots</label>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -351,12 +351,12 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed border-[#2a2a3e] hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center"
+                  className="w-full flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed border-line-strong hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all text-center"
                 >
-                  <ImageIcon className="w-8 h-8 text-gray-600" />
+                  <ImageIcon className="w-8 h-8 text-ink-4" />
                   <div>
-                    <p className="text-sm font-medium text-gray-300">Tap to select screenshots</p>
-                    <p className="text-xs text-gray-600 mt-0.5">From Photos library or camera — multiple allowed</p>
+                    <p className="text-sm font-medium text-ink-2">Tap to select screenshots</p>
+                    <p className="text-xs text-ink-4 mt-0.5">From Photos library or camera — multiple allowed</p>
                   </div>
                 </button>
               </div>
@@ -364,12 +364,12 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
               {/* Thumbnail strip */}
               {files.length > 0 && (
                 <div>
-                  <p className="text-xs text-gray-500 mb-2">{files.length} image{files.length !== 1 ? 's' : ''} selected</p>
+                  <p className="text-xs text-ink-3 mb-2">{files.length} image{files.length !== 1 ? 's' : ''} selected</p>
                   <div className="flex gap-2 flex-wrap">
                     {previews.map((src, i) => (
                       <div key={i} className="relative group">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={src} alt={files[i]?.name} className="w-16 h-24 object-cover rounded-lg border border-[#2a2a3e]" />
+                        <img src={src} alt={files[i]?.name} className="w-16 h-24 object-cover rounded-lg border border-line-strong" />
                         <button
                           onClick={() => removeFile(i)}
                           className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -383,7 +383,7 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
               )}
 
               {processError && (
-                <div className="flex items-start gap-2 text-red-400 bg-red-400/10 rounded-lg px-3 py-2.5">
+                <div className="flex items-start gap-2 text-loss bg-red-400/10 rounded-lg px-3 py-2.5">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <p className="text-xs">{processError}</p>
                 </div>
@@ -393,22 +393,22 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
 
           {/* ── STEP 2: Review / Map ────────────────────────────── */}
           {step === 'review' && (
-            <div className="divide-y divide-[#1e1e2e]">
+            <div className="divide-y divide-line">
               {/* Quarter reminder */}
-              <div className="px-5 py-2.5 bg-[#0e0e1a] flex items-center gap-2">
-                <span className="text-xs text-gray-500">Quarter:</span>
-                <span className="text-xs font-semibold text-white">{quarter.replace('-Q', ' Q')}</span>
-                <span className="text-xs text-gray-600 ml-2">·</span>
+              <div className="px-5 py-2.5 bg-field flex items-center gap-2">
+                <span className="text-xs text-ink-3">Quarter:</span>
+                <span className="text-xs font-semibold text-ink">{quarter.replace('-Q', ' Q')}</span>
+                <span className="text-xs text-ink-4 ml-2">·</span>
                 <span className={clsx(
                   'text-xs font-medium',
-                  validRows.length === activeRows.length ? 'text-emerald-400' : 'text-amber-400'
+                  validRows.length === activeRows.length ? 'text-gain' : 'text-warn'
                 )}>
                   {validRows.length}/{rows.filter((r) => r.accountId !== '__skip__').length} mapped
                 </span>
                 <button
                   onClick={reloadMappings}
                   title="Reload saved mappings"
-                  className="ml-auto flex items-center gap-1 text-[10px] text-gray-500 hover:text-indigo-400 transition-colors px-2 py-1 rounded hover:bg-white/5"
+                  className="ml-auto flex items-center gap-1 text-[10px] text-ink-3 hover:text-accent transition-colors px-2 py-1 rounded hover:bg-ink/5"
                 >
                   <RotateCcw className="w-3 h-3" /> Reload saved
                 </button>
@@ -422,13 +422,13 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
                   {/* Source info */}
                   <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="min-w-0">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-0.5">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-ink-4 mb-0.5">
                         {row.extracted.sourceSection || 'Unknown source'}
                       </div>
-                      <div className="text-sm font-medium text-white truncate">{row.extracted.sourceName}</div>
+                      <div className="text-sm font-medium text-ink truncate">{row.extracted.sourceName}</div>
                     </div>
                     <div className="flex-shrink-0 text-right">
-                      <div className="text-base font-bold text-white tabular-nums">{fmt(row.extracted.amount)}</div>
+                      <div className="text-base font-bold text-ink tabular-nums">{fmt(row.extracted.amount)}</div>
                     </div>
                   </div>
 
@@ -437,12 +437,12 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
                     value={row.accountId}
                     onChange={(e) => updateRow(idx, { accountId: e.target.value })}
                     className={clsx(
-                      'w-full bg-[#1e1e2e] border text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500',
+                      'w-full bg-surface border text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500',
                       row.accountId === '__skip__'
-                        ? 'border-gray-700 text-gray-500'
+                        ? 'border-line-strong text-ink-3'
                         : row.accountId === '' || row.accountId === '__new__'
-                          ? 'border-amber-500/40 text-white'
-                          : 'border-emerald-500/40 text-white'
+                          ? 'border-amber-500/40 text-ink'
+                          : 'border-emerald-500/40 text-ink'
                     )}
                   >
                     <option value="">— Select account —</option>
@@ -461,37 +461,37 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
 
                   {/* Inline new account form */}
                   {row.accountId === '__new__' && (
-                    <div className="mt-3 p-3 bg-[#0e0e1a] rounded-xl border border-[#2a2a3e] space-y-2.5">
-                      <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">New account details</p>
+                    <div className="mt-3 p-3 bg-field rounded-xl border border-line-strong space-y-2.5">
+                      <p className="text-[10px] uppercase tracking-wider text-ink-3 font-semibold">New account details</p>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[10px] text-gray-600 mb-1">Owner</label>
+                          <label className="block text-[10px] text-ink-4 mb-1">Owner</label>
                           <select
                             value={row.newAccountDraft.owner}
                             onChange={(e) => updateDraft(idx, { owner: e.target.value })}
-                            className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            className="w-full bg-surface border border-line-strong text-ink text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                           >
                             {OWNERS.map((o) => <option key={o}>{o}</option>)}
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[10px] text-gray-600 mb-1">Category</label>
+                          <label className="block text-[10px] text-ink-4 mb-1">Category</label>
                           <select
                             value={row.newAccountDraft.category}
                             onChange={(e) => updateDraft(idx, { category: e.target.value })}
-                            className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            className="w-full bg-surface border border-line-strong text-ink text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                           >
                             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                           </select>
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] text-gray-600 mb-1">Account name</label>
+                        <label className="block text-[10px] text-ink-4 mb-1">Account name</label>
                         <input
                           type="text"
                           value={row.newAccountDraft.name}
                           onChange={(e) => updateDraft(idx, { name: e.target.value })}
-                          className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-full bg-surface border border-line-strong text-ink text-xs rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                           placeholder="Account display name"
                         />
                       </div>
@@ -501,8 +501,8 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
                   {/* Mapped indicator */}
                   {row.accountId !== '' && row.accountId !== '__skip__' && row.accountId !== '__new__' && (
                     <div className="mt-2 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                      <span className="text-xs text-emerald-400">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-gain" />
+                      <span className="text-xs text-gain">
                         {accounts.find((a) => a.id === row.accountId)?.name}
                       </span>
                     </div>
@@ -511,7 +511,7 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
               ))}
 
               {saveError && (
-                <div className="px-5 py-3 flex items-start gap-2 text-red-400 bg-red-400/10">
+                <div className="px-5 py-3 flex items-start gap-2 text-loss bg-red-400/10">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <p className="text-xs">{saveError}</p>
                 </div>
@@ -522,17 +522,17 @@ export function ImportSnapshotModal({ accounts, onDone, onClose }: Props) {
           {/* ── STEP: Saving ────────────────────────────────────── */}
           {step === 'saving' && (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
-              <p className="text-sm text-gray-400">Saving {validRows.length} snapshot{validRows.length !== 1 ? 's' : ''}…</p>
+              <Loader2 className="w-8 h-8 text-accent animate-spin" />
+              <p className="text-sm text-ink-3">Saving {validRows.length} snapshot{validRows.length !== 1 ? 's' : ''}…</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-4 border-t border-[#2a2a3e] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-t border-line-strong flex-shrink-0">
           <button
             onClick={step === 'review' ? () => setStep('upload') : onClose}
-            className="text-sm text-gray-400 hover:text-white px-4 py-2 rounded-lg hover:bg-white/5 transition-all"
+            className="text-sm text-ink-3 hover:text-ink px-4 py-2 rounded-lg hover:bg-ink/5 transition-all"
           >
             {step === 'review' ? '← Back' : 'Cancel'}
           </button>

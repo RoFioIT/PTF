@@ -128,10 +128,10 @@ export default async function AssetDetailPage({
     <div className="p-8">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-1">
-          <h1 className="text-2xl font-bold text-white">{asset.name}</h1>
+          <h1 className="text-2xl font-bold text-ink">{asset.name}</h1>
           <Badge variant="default">{asset.asset_type.toUpperCase()}</Badge>
         </div>
-        <p className="text-gray-400 text-sm">
+        <p className="text-ink-3 text-sm">
           {asset.currency}
           {asset.sector && ` · ${asset.sector}`}
           {asset.country && ` · ${asset.country}`}
@@ -139,14 +139,14 @@ export default async function AssetDetailPage({
       </div>
 
       {/* Price chart */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6 mb-6">
+      <div className="bg-panel border border-line rounded-xl p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
-          <h2 className="text-sm font-semibold text-white">Price History</h2>
+          <h2 className="text-sm font-semibold text-ink">Price History</h2>
           {latestPrice !== null && (
             <div className="text-right">
-              <p className="text-lg font-bold text-white">{fmtPrice(latestPrice)}</p>
+              <p className="text-lg font-bold text-ink">{fmtPrice(latestPrice)}</p>
               {changePct !== null && (
-                <p className={`text-xs font-medium ${changePct >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                <p className={`text-xs font-medium ${changePct >= 0 ? 'text-gain' : 'text-loss'}`}>
                   {changePct >= 0 ? '+' : ''}{changePct.toFixed(2)}% ({priceData.length} months)
                 </p>
               )}
@@ -157,16 +157,16 @@ export default async function AssetDetailPage({
       </div>
 
       {/* Identifiers */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6 mb-6">
-        <h2 className="text-sm font-semibold text-white mb-4">Identifiers</h2>
+      <div className="bg-panel border border-line rounded-xl p-6 mb-6">
+        <h2 className="text-sm font-semibold text-ink mb-4">Identifiers</h2>
         {asset.asset_identifiers.length === 0 ? (
-          <p className="text-gray-600 text-sm">No identifiers registered.</p>
+          <p className="text-ink-4 text-sm">No identifiers registered.</p>
         ) : (
           <div className="space-y-2">
             {asset.asset_identifiers.map((ident) => (
               <div key={ident.id} className="flex items-center gap-3">
                 <Badge variant={identifierBadgeVariant[ident.type]}>{ident.type}</Badge>
-                <code className="text-sm text-gray-300 font-mono">{ident.value}</code>
+                <code className="text-sm text-ink-2 font-mono">{ident.value}</code>
               </div>
             ))}
           </div>
@@ -174,53 +174,53 @@ export default async function AssetDetailPage({
       </div>
 
       {/* Transaction history */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">Transaction History</h2>
-          <span className="text-xs text-gray-500">{transactions.length} transaction{transactions.length !== 1 ? 's' : ''}</span>
+      <div className="bg-panel border border-line rounded-xl overflow-hidden mb-6">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-ink">Transaction History</h2>
+          <span className="text-xs text-ink-3">{transactions.length} transaction{transactions.length !== 1 ? 's' : ''}</span>
         </div>
         {transactions.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-600 text-sm">
+          <div className="px-6 py-12 text-center text-ink-4 text-sm">
             No transactions recorded for this asset.
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#1e1e2e]">
+              <tr className="border-b border-line">
                 {['Date', 'Portfolio', 'Type', 'Quantity', 'Price', 'Fees', 'Total'].map((h) => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e1e2e]">
+            <tbody className="divide-y divide-line">
               {transactions.map((tx) => {
                 const total = tx.type === 'BUY'
                   ? tx.quantity * tx.price + tx.fees
                   : tx.quantity * tx.price - tx.fees
                 return (
-                  <tr key={tx.id} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-3 text-sm text-gray-300 whitespace-nowrap">
+                  <tr key={tx.id} className="hover:bg-ink/[0.02] transition-colors">
+                    <td className="px-6 py-3 text-sm text-ink-2 whitespace-nowrap">
                       {new Date(tx.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
-                    <td className="px-6 py-3 text-sm text-gray-300">
+                    <td className="px-6 py-3 text-sm text-ink-2">
                       {tx.portfolio?.name ?? '—'}
                       {tx.portfolio?.type && (
-                        <span className="ml-1.5 text-xs text-gray-500">({tx.portfolio.type})</span>
+                        <span className="ml-1.5 text-xs text-ink-3">({tx.portfolio.type})</span>
                       )}
                     </td>
                     <td className="px-6 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        tx.type === 'BUY' ? 'bg-emerald-400/15 text-emerald-400' : 'bg-red-400/15 text-red-400'
+                        tx.type === 'BUY' ? 'bg-emerald-400/15 text-gain' : 'bg-red-400/15 text-loss'
                       }`}>
                         {tx.type}
                       </span>
                     </td>
-                    <td className="px-6 py-3 text-sm text-white tabular-nums">{Number(tx.quantity).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
-                    <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">{fmtPrice(Number(tx.price))}</td>
-                    <td className="px-6 py-3 text-sm text-gray-500 tabular-nums">
+                    <td className="px-6 py-3 text-sm text-ink tabular-nums">{Number(tx.quantity).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
+                    <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">{fmtPrice(Number(tx.price))}</td>
+                    <td className="px-6 py-3 text-sm text-ink-3 tabular-nums">
                       {tx.fees > 0 ? fmtPrice(Number(tx.fees)) : '—'}
                     </td>
-                    <td className="px-6 py-3 text-sm text-white tabular-nums font-medium">{fmtPrice(total)}</td>
+                    <td className="px-6 py-3 text-sm text-ink tabular-nums font-medium">{fmtPrice(total)}</td>
                   </tr>
                 )
               })}
@@ -230,46 +230,46 @@ export default async function AssetDetailPage({
       </div>
 
       {/* Month-end price history */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">Monthly Prices</h2>
-          <span className="text-xs text-gray-500">{monthRows.length} months · {asset.currency}</span>
+      <div className="bg-panel border border-line rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-ink">Monthly Prices</h2>
+          <span className="text-xs text-ink-3">{monthRows.length} months · {asset.currency}</span>
         </div>
 
         {monthRows.length === 0 ? (
-          <div className="px-6 py-10 text-center text-gray-600 text-sm">
+          <div className="px-6 py-10 text-center text-ink-4 text-sm">
             No prices imported yet — click Refresh prices on the dashboard.
           </div>
         ) : (
           <div className="max-h-[480px] overflow-y-auto">
             <table className="w-full">
-              <thead className="sticky top-0 bg-[#12121a] z-10">
-                <tr className="border-b border-[#1e1e2e]">
+              <thead className="sticky top-0 bg-panel z-10">
+                <tr className="border-b border-line">
                   {['Month', 'Close price', 'Month %', 'YTD %', 'Source'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">
                       {h}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1e1e2e]">
+              <tbody className="divide-y divide-line">
                 {[...monthRows].reverse().map((row) => (
-                  <tr key={row.month} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="px-6 py-3 text-sm font-medium text-white whitespace-nowrap">{row.label}</td>
-                    <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">{fmtPrice(row.price)}</td>
+                  <tr key={row.month} className="hover:bg-ink/[0.02] transition-colors">
+                    <td className="px-6 py-3 text-sm font-medium text-ink whitespace-nowrap">{row.label}</td>
+                    <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">{fmtPrice(row.price)}</td>
                     <td className={`px-6 py-3 text-sm tabular-nums font-medium ${
-                      row.monthPct === null ? 'text-gray-600' :
-                      row.monthPct >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      row.monthPct === null ? 'text-ink-4' :
+                      row.monthPct >= 0 ? 'text-gain' : 'text-loss'
                     }`}>
                       {row.monthPct === null ? '—' : `${row.monthPct >= 0 ? '+' : ''}${row.monthPct.toFixed(2)}%`}
                     </td>
                     <td className={`px-6 py-3 text-sm tabular-nums font-medium ${
-                      row.ytdPct === null ? 'text-gray-600' :
-                      row.ytdPct >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      row.ytdPct === null ? 'text-ink-4' :
+                      row.ytdPct >= 0 ? 'text-gain' : 'text-loss'
                     }`}>
                       {row.ytdPct === null ? '—' : `${row.ytdPct >= 0 ? '+' : ''}${row.ytdPct.toFixed(2)}%`}
                     </td>
-                    <td className="px-6 py-3 text-xs text-gray-500">{row.source ?? '—'}</td>
+                    <td className="px-6 py-3 text-xs text-ink-3">{row.source ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

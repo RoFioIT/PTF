@@ -239,50 +239,50 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-[#13131f] border border-[#2a2a3e] rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:max-w-2xl mx-0 sm:mx-4 flex flex-col max-h-[90vh]">
+      <div className="relative bg-panel border border-line-strong rounded-t-2xl sm:rounded-2xl shadow-xl shadow-ink/10 w-full sm:max-w-2xl mx-0 sm:mx-4 flex flex-col max-h-[90vh]">
 
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2a2a3e] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line-strong flex-shrink-0">
           <div>
-            <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-              <GitMerge className="w-4 h-4 text-indigo-400" />
+            <h2 className="text-sm font-semibold text-ink flex items-center gap-2">
+              <GitMerge className="w-4 h-4 text-accent" />
               Bankin&apos; account mapping
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-ink-3 mt-0.5">
               {Object.keys(store).length} rule{Object.keys(store).length !== 1 ? 's' : ''} saved — controls how bookmarklet data maps to PTF accounts
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-300 transition-colors p-1.5 rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="text-ink-3 hover:text-ink-2 transition-colors p-1.5 rounded-lg hover:bg-ink/5">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Add rule */}
-        <div className="px-5 py-3 border-b border-[#1e1e2e] flex-shrink-0 space-y-2">
-          <p className="text-xs text-gray-500">Add a rule by hand</p>
+        <div className="px-5 py-3 border-b border-line flex-shrink-0 space-y-2">
+          <p className="text-xs text-ink-3">Add a rule by hand</p>
           <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newSection}
               onChange={(e) => setNewSection(e.target.value)}
               placeholder="Bankin' section (e.g. Revolut FR)"
-              className="flex-1 min-w-0 bg-[#0e0e1a] border border-[#2a2a3e] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="flex-1 min-w-0 bg-field border border-line-strong rounded-lg px-3 py-2 text-sm text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
             />
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Bankin' account name"
-              className="flex-1 min-w-0 bg-[#0e0e1a] border border-[#2a2a3e] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="flex-1 min-w-0 bg-field border border-line-strong rounded-lg px-3 py-2 text-sm text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
           <div className="flex items-center gap-2">
             <select
               value={newAccountId}
               onChange={(e) => setNewAccountId(e.target.value)}
-              className="flex-1 min-w-0 bg-[#1e1e2e] border border-[#2a2a3e] text-sm text-white rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              className="flex-1 min-w-0 bg-surface border border-line-strong text-sm text-ink rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
               <option value="">Choose a PTF account…</option>
               <option value="__skip__">⊘ Skip</option>
@@ -301,16 +301,16 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               <Plus className="w-3.5 h-3.5" /> Add rule
             </button>
           </div>
-          {addError && <p className="text-xs text-red-400">{addError}</p>}
+          {addError && <p className="text-xs text-loss">{addError}</p>}
           {unmappedAccounts.length > 0 && (
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-ink-4">
               No rule yet:{' '}
               {unmappedAccounts.map((a, i) => (
                 <span key={a.id}>
                   {i > 0 && ', '}
                   <button
                     onClick={() => setNewAccountId(a.id)}
-                    className="text-indigo-400 hover:text-indigo-300 underline-offset-2 hover:underline"
+                    className="text-accent hover:text-accent underline-offset-2 hover:underline"
                   >
                     {a.name}
                   </button>
@@ -322,15 +322,15 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
 
         {/* Search */}
         {Object.keys(store).length > 0 && (
-          <div className="px-5 py-3 border-b border-[#1e1e2e] flex-shrink-0">
+          <div className="px-5 py-3 border-b border-line flex-shrink-0">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-3" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Filter by section or account name…"
-                className="w-full bg-[#0e0e1a] border border-[#2a2a3e] rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-field border border-line-strong rounded-lg pl-8 pr-3 py-2 text-sm text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
           </div>
@@ -340,18 +340,18 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
         <div className="flex-1 overflow-y-auto">
           {keys.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3 text-center px-8">
-              <GitMerge className="w-10 h-10 text-gray-700" />
-              <p className="text-sm font-medium text-gray-400">
+              <GitMerge className="w-10 h-10 text-ink-4" />
+              <p className="text-sm font-medium text-ink-3">
                 {Object.keys(store).length === 0 ? 'No mappings saved yet' : 'No results for your search'}
               </p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-ink-4">
                 {Object.keys(store).length === 0
                   ? 'Import a Bankin\' CSV below to create mapping rules automatically.'
                   : 'Try a different search term.'}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-[#1a1a2a]">
+            <div className="divide-y divide-line">
               {keys.map((key) => {
                 const { section, name } = splitKey(key)
                 const entry = store[key]
@@ -361,24 +361,24 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
                 return (
                   <div key={key} className="px-5 py-3.5 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
-                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-gray-600 bg-[#1e1e2e] px-1.5 py-0.5 rounded mb-1">
+                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-ink-4 bg-surface px-1.5 py-0.5 rounded mb-1">
                         {section || '—'}
                       </span>
-                      <p className="text-sm text-white truncate capitalize">{name}</p>
+                      <p className="text-sm text-ink truncate capitalize">{name}</p>
                     </div>
 
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-gray-700 text-xs">→</span>
+                      <span className="text-ink-4 text-xs">→</span>
                       <select
                         value={entry.accountId}
                         onChange={(e) => setAccountId(key, e.target.value)}
                         className={clsx(
-                          'bg-[#1e1e2e] border text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 max-w-[180px]',
+                          'bg-surface border text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 max-w-[180px]',
                           isSkip
-                            ? 'border-gray-700 text-gray-500'
+                            ? 'border-line-strong text-ink-3'
                             : isMissing
-                              ? 'border-red-500/40 text-red-400'
-                              : 'border-emerald-500/30 text-white'
+                              ? 'border-red-500/40 text-loss'
+                              : 'border-emerald-500/30 text-ink'
                         )}
                       >
                         <option value="__skip__">⊘ Skip</option>
@@ -392,14 +392,14 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
                       </select>
 
                       {isMissing && (
-                        <span className="text-[10px] text-red-400 bg-red-400/10 px-1.5 py-0.5 rounded" title={`Saved ID: ${entry.accountId}`}>
+                        <span className="text-[10px] text-loss bg-red-400/10 px-1.5 py-0.5 rounded" title={`Saved ID: ${entry.accountId}`}>
                           missing
                         </span>
                       )}
 
                       <button
                         onClick={() => deleteKey(key)}
-                        className="text-gray-600 hover:text-red-400 transition-colors p-1 rounded hover:bg-red-400/10"
+                        className="text-ink-4 hover:text-loss transition-colors p-1 rounded hover:bg-red-400/10"
                         title="Remove this mapping"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -417,15 +417,15 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
           <div className={clsx(
             'mx-5 mb-0 mt-0 px-3 py-2 rounded-lg text-xs flex-shrink-0 border',
             importError || syncMsg?.ok === false
-              ? 'bg-red-400/10 text-red-400 border-red-400/20'
-              : 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20'
+              ? 'bg-red-400/10 text-loss border-red-400/20'
+              : 'bg-emerald-400/10 text-gain border-emerald-400/20'
           )}>
             {syncMsg?.text ?? importError ?? importSuccess}
           </div>
         )}
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-[#2a2a3e] flex-shrink-0 space-y-3">
+        <div className="px-5 py-4 border-t border-line-strong flex-shrink-0 space-y-3">
           {/* Top row: import + clear */}
           <div className="flex items-center gap-2">
             <input
@@ -441,7 +441,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
             />
             <button
               onClick={() => fileRef.current?.click()}
-              className="text-xs text-gray-500 hover:text-indigo-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+              className="text-xs text-ink-3 hover:text-accent transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
               title="Import mapping keys from a Bankin' CSV"
             >
               <Upload className="w-3.5 h-3.5" /> Import CSV
@@ -450,7 +450,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
             <button
               onClick={exportCSV}
               disabled={Object.keys(store).length === 0}
-              className="text-xs text-gray-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+              className="text-xs text-ink-3 hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
               title="Export all mapping rules as a CSV"
             >
               <Download className="w-3.5 h-3.5" /> Export CSV
@@ -459,16 +459,16 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
             {Object.keys(store).length > 0 && (
               confirmClear ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-red-400">Delete all {Object.keys(store).length} mappings?</span>
-                  <button onClick={clearAll} className="text-xs text-red-400 hover:text-red-300 font-semibold px-2 py-1 rounded hover:bg-red-400/10 transition-colors">
+                  <span className="text-xs text-loss">Delete all {Object.keys(store).length} mappings?</span>
+                  <button onClick={clearAll} className="text-xs text-loss hover:text-loss font-semibold px-2 py-1 rounded hover:bg-red-400/10 transition-colors">
                     Yes, clear all
                   </button>
-                  <button onClick={() => setConfirmClear(false)} className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-white/5 transition-colors">
+                  <button onClick={() => setConfirmClear(false)} className="text-xs text-ink-3 hover:text-ink-2 px-2 py-1 rounded hover:bg-ink/5 transition-colors">
                     Cancel
                   </button>
                 </div>
               ) : (
-                <button onClick={() => setConfirmClear(true)} className="text-xs text-gray-600 hover:text-red-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-red-400/10">
+                <button onClick={() => setConfirmClear(true)} className="text-xs text-ink-4 hover:text-loss transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-red-400/10">
                   <Trash2 className="w-3.5 h-3.5" /> Clear all
                 </button>
               )
@@ -482,7 +482,7 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               <button
                 onClick={syncToCloud}
                 disabled={syncing || Object.keys(store).length === 0}
-                className="text-xs text-gray-500 hover:text-indigo-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
+                className="text-xs text-ink-3 hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-indigo-400/10"
                 title="Push all mapping rules to the database so the bookmarklet can sync directly"
               >
                 <CloudUpload className="w-3.5 h-3.5" />
@@ -492,10 +492,10 @@ export function BankinMappingModal({ accounts, onClose }: Props) {
               {/* Copy sync config */}
               <button
                 onClick={copySyncConfig}
-                className="text-xs text-gray-500 hover:text-amber-400 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-amber-400/10"
+                className="text-xs text-ink-3 hover:text-warn transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-amber-400/10"
                 title="Copy your PTF sync config — paste it into the bookmarklet on first use"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-gain" /> : <Copy className="w-3.5 h-3.5" />}
                 {copied ? 'Copied!' : 'Copy sync config'}
               </button>
             </div>

@@ -21,29 +21,29 @@ export function MetricCard({
   return (
     <div
       className={clsx(
-        'bg-[#12121a] border border-[#1e1e2e] rounded-xl p-3.5 md:p-5 flex flex-col gap-2 md:gap-3',
+        'bg-panel border border-line rounded-xl p-3.5 md:p-5 flex flex-col gap-2 md:gap-3',
         className
       )}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+        <span className="text-xs text-ink-3 uppercase tracking-wider font-medium">
           {label}
         </span>
         {icon && (
-          <span className="text-gray-600">{icon}</span>
+          <span className="text-ink-4">{icon}</span>
         )}
       </div>
 
       <div>
-        <div className="text-xl md:text-2xl font-bold text-white tabular-nums">{value}</div>
+        <div className="text-xl md:text-2xl font-bold text-ink tabular-nums">{value}</div>
         {subvalue && (
           <div
             className={clsx(
               'text-sm mt-1 font-medium',
-              trend === 'up' && 'text-emerald-400',
-              trend === 'down' && 'text-red-400',
-              trend === 'neutral' && 'text-gray-400',
-              !trend && 'text-gray-400'
+              trend === 'up' && 'text-gain',
+              trend === 'down' && 'text-loss',
+              trend === 'neutral' && 'text-ink-3',
+              !trend && 'text-ink-3'
             )}
           >
             {subvalue}

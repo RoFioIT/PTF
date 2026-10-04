@@ -78,15 +78,15 @@ export default async function AnalyticsPage() {
   return (
     <div className="p-4 md:p-8">
       <div className="mb-6 md:mb-8">
-        <h1 className="text-xl md:text-2xl font-bold text-white">Analytics</h1>
-        <p className="text-gray-400 text-sm mt-1">
+        <h1 className="text-xl md:text-2xl font-bold text-ink">Analytics</h1>
+        <p className="text-ink-3 text-sm mt-1">
           Advanced risk metrics and performance analysis
         </p>
       </div>
 
       {/* Risk Metrics */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-semibold text-ink-3 uppercase tracking-wider mb-4">
           Risk Metrics
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -120,7 +120,7 @@ export default async function AnalyticsPage() {
 
       {/* Dividend Analytics */}
       <div className="mb-6">
-        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+        <h2 className="text-sm font-semibold text-ink-3 uppercase tracking-wider mb-4">
           Dividend Analytics
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
@@ -144,29 +144,29 @@ export default async function AnalyticsPage() {
       </div>
 
       {/* Allocation breakdown */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e]">
-          <h2 className="font-semibold text-white text-sm">Allocation Breakdown</h2>
+      <div className="bg-panel border border-line rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-line">
+          <h2 className="font-semibold text-ink text-sm">Allocation Breakdown</h2>
         </div>
 
         {snapshot.allocations.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-600 text-sm">
+          <div className="px-6 py-12 text-center text-ink-4 text-sm">
             No positions to display. Add transactions to see allocation.
           </div>
         ) : (
           <div className="p-6 space-y-3">
             {snapshot.allocations.map((alloc) => (
               <div key={alloc.assetId} className="flex items-center gap-4">
-                <div className="w-32 text-xs text-gray-400 truncate">
+                <div className="w-32 text-xs text-ink-3 truncate">
                   {alloc.assetId.slice(0, 8)}…
                 </div>
-                <div className="flex-1 bg-[#1e1e2e] rounded-full h-2">
+                <div className="flex-1 bg-surface rounded-full h-2">
                   <div
                     className="bg-indigo-500 h-2 rounded-full transition-all"
                     style={{ width: `${alloc.allocationPct}%` }}
                   />
                 </div>
-                <div className="text-sm text-gray-300 tabular-nums w-16 text-right">
+                <div className="text-sm text-ink-2 tabular-nums w-16 text-right">
                   {alloc.allocationPct.toFixed(1)}%
                 </div>
               </div>
@@ -178,10 +178,10 @@ export default async function AnalyticsPage() {
       {/* Market data notice */}
       {historicalDataPoints.length === 0 && (
         <div className="mt-6 bg-amber-400/5 border border-amber-400/20 rounded-xl px-6 py-4 flex items-start gap-3">
-          <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+          <AlertTriangle className="w-4 h-4 text-warn mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-sm text-amber-300 font-medium">Historical price data required</p>
-            <p className="text-xs text-amber-400/70 mt-1">
+            <p className="text-sm text-warn font-medium">Historical price data required</p>
+            <p className="text-xs text-warn/70 mt-1">
               TWR, drawdown, and volatility metrics are computed from historical price data.
               Wire in a market data provider and populate the{' '}
               <code className="bg-amber-400/10 px-1 rounded">asset_prices</code> table to enable

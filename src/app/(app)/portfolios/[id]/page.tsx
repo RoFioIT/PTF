@@ -153,12 +153,12 @@ export default async function PortfolioPage({
       <div className="flex items-center gap-4 mb-8">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl font-bold text-white">{portfolio.name}</h1>
+            <h1 className="text-2xl font-bold text-ink">{portfolio.name}</h1>
             <Badge variant={portfolio.type === 'PEA' ? 'purple' : 'info'}>
               {portfolio.type}
             </Badge>
           </div>
-          <p className="text-gray-400 text-sm">
+          <p className="text-ink-3 text-sm">
             {portfolio.base_currency} · {portfolio.accounting_method} method ·{' '}
             {snapshot.positions.filter((p) => p.totalShares > 0).length} positions
           </p>
@@ -209,30 +209,30 @@ export default async function PortfolioPage({
       </div>
 
       {/* Positions — hidden for ADM portfolios (vested shares shown in ShareGrantsPanel) */}
-      {!isADM && <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="font-semibold text-white text-sm">Positions</h2>
+      {!isADM && <div className="bg-panel border border-line rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="font-semibold text-ink text-sm">Positions</h2>
           <a
             href={`/transactions?portfolio=${id}`}
-            className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="text-xs text-accent hover:text-accent transition-colors"
           >
             Add transaction →
           </a>
         </div>
 
         {snapshot.positions.filter((p) => p.totalShares > 0).length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-600 text-sm">
+          <div className="px-6 py-12 text-center text-ink-4 text-sm">
             No positions yet. Add a BUY transaction to start tracking.
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#1e1e2e]">
+              <tr className="border-b border-line">
                 {['Asset', 'Shares', 'Avg Cost', 'Invested', 'Value', 'Unreal. P&L', 'Real. P&L', 'Alloc %'].map(
                   (h) => (
                     <th
                       key={h}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider"
                     >
                       {h}
                     </th>
@@ -240,35 +240,35 @@ export default async function PortfolioPage({
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e1e2e]">
+            <tbody className="divide-y divide-line">
               {snapshot.positions
                 .filter((p) => p.totalShares > 0)
                 .sort((a, b) => b.totalInvested - a.totalInvested)
                 .map((pos) => (
-                  <tr key={pos.assetId} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={pos.assetId} className="hover:bg-ink/[0.02] transition-colors">
                     <td className="px-6 py-4">
                       <a
                         href={`/assets/${pos.assetId}`}
-                        className="text-sm font-medium text-white hover:text-indigo-400 transition-colors"
+                        className="text-sm font-medium text-ink hover:text-accent transition-colors"
                       >
                         {assetNames.get(pos.assetId) ?? pos.assetId.slice(0, 8)}
                       </a>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
+                    <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">
                       {pos.totalShares.toFixed(4)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
+                    <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">
                       {fmt(pos.avgCostBasis, portfolio.base_currency)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
+                    <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">
                       {fmt(pos.totalInvested, portfolio.base_currency)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
+                    <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">
                       {pos.currentPrice > 0 ? fmt(pos.currentValue, portfolio.base_currency) : '—'}
                     </td>
                     <td
                       className={`px-6 py-4 text-sm tabular-nums font-medium ${
-                        pos.unrealizedPnL >= 0 ? 'text-emerald-400' : 'text-red-400'
+                        pos.unrealizedPnL >= 0 ? 'text-gain' : 'text-loss'
                       }`}
                     >
                       {pos.currentPrice > 0
@@ -277,12 +277,12 @@ export default async function PortfolioPage({
                     </td>
                     <td
                       className={`px-6 py-4 text-sm tabular-nums font-medium ${
-                        pos.realizedPnL >= 0 ? 'text-emerald-400' : 'text-red-400'
+                        pos.realizedPnL >= 0 ? 'text-gain' : 'text-loss'
                       }`}
                     >
                       {fmt(pos.realizedPnL, portfolio.base_currency)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-400 tabular-nums">
+                    <td className="px-6 py-4 text-sm text-ink-3 tabular-nums">
                       {pos.allocationPct?.toFixed(1)}%
                     </td>
                   </tr>
@@ -303,12 +303,12 @@ export default async function PortfolioPage({
 
       {/* ADM: vested holdings summary */}
       {isADM && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden mt-6">
-          <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-            <h2 className="font-semibold text-white text-sm">Vested Holdings</h2>
+        <div className="bg-panel border border-line rounded-xl overflow-hidden mt-6">
+          <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+            <h2 className="font-semibold text-ink text-sm">Vested Holdings</h2>
             {admPriceGBP !== null && (
-              <span className="text-xs text-gray-500">
-                Current price: <span className="text-white font-medium">
+              <span className="text-xs text-ink-3">
+                Current price: <span className="text-ink font-medium">
                   {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 }).format(admPriceGBP)}
                 </span>
               </span>
@@ -316,19 +316,19 @@ export default async function PortfolioPage({
           </div>
 
           {admAfssShares === 0 && admDfssShares === 0 && admDividendShares === 0 ? (
-            <div className="px-6 py-10 text-center text-gray-600 text-sm">
+            <div className="px-6 py-10 text-center text-ink-4 text-sm">
               No vested shares yet — use the Vest button on a grant below.
             </div>
           ) : (
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#1e1e2e]">
+                <tr className="border-b border-line">
                   {['Type', 'Shares held', 'Price (GBP)', 'Value (GBP)', 'Value (EUR)'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1e1e2e]">
+              <tbody className="divide-y divide-line">
                 {([['AFSS', admAfssShares], ['DFSS', admDfssShares], ['DIVIDEND', admDividendShares]] as [string, number][])
                   .filter(([, qty]) => qty > 0)
                   .map(([type, qty]) => {
@@ -337,24 +337,24 @@ export default async function PortfolioPage({
                     const fmtEUR = (v: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(v)
                     const valueEur = value !== null ? value * admGbpToEur : null
                     return (
-                      <tr key={type} className="hover:bg-white/[0.02] transition-colors">
+                      <tr key={type} className="hover:bg-ink/[0.02] transition-colors">
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                            type === 'AFSS' ? 'bg-indigo-400/15 text-indigo-400'
-                            : type === 'DFSS' ? 'bg-amber-400/15 text-amber-400'
-                            : 'bg-teal-400/15 text-teal-400'
+                            type === 'AFSS' ? 'bg-indigo-400/15 text-accent'
+                            : type === 'DFSS' ? 'bg-amber-400/15 text-warn'
+                            : 'bg-teal-400/15 text-teal-600'
                           }`}>{type === 'DIVIDEND' ? 'Dividend' : type}</span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-white tabular-nums font-medium">
+                        <td className="px-6 py-4 text-sm text-ink tabular-nums font-medium">
                           {qty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-300 tabular-nums">
+                        <td className="px-6 py-4 text-sm text-ink-2 tabular-nums">
                           {admPriceGBP !== null ? fmtGBP(admPriceGBP) : '—'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-emerald-400 tabular-nums font-medium">
+                        <td className="px-6 py-4 text-sm text-gain tabular-nums font-medium">
                           {value !== null ? fmtGBP(value) : '—'}
                         </td>
-                        <td className="px-6 py-4 text-sm text-emerald-400 tabular-nums font-medium">
+                        <td className="px-6 py-4 text-sm text-gain tabular-nums font-medium">
                           {valueEur !== null ? fmtEUR(valueEur) : '—'}
                         </td>
                       </tr>
@@ -362,13 +362,13 @@ export default async function PortfolioPage({
                   })}
                 {/* Total row */}
                 {(admAfssShares + admDfssShares + admDividendShares) > 0 && (
-                  <tr className="border-t border-[#2e2e3e] bg-white/[0.01]">
-                    <td className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase">Total</td>
-                    <td className="px-6 py-3 text-sm text-white tabular-nums font-semibold">
+                  <tr className="border-t border-line-strong bg-ink/[0.01]">
+                    <td className="px-6 py-3 text-xs font-semibold text-ink-3 uppercase">Total</td>
+                    <td className="px-6 py-3 text-sm text-ink tabular-nums font-semibold">
                       {((admAfssShares + admDfssShares + admDividendShares)).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
                     </td>
                     <td className="px-6 py-3" />
-                    <td className="px-6 py-3 text-sm text-emerald-400 tabular-nums font-semibold">
+                    <td className="px-6 py-3 text-sm text-gain tabular-nums font-semibold">
                       {admPriceGBP !== null
                         ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'GBP', minimumFractionDigits: 2 }).format(((admAfssShares + admDfssShares + admDividendShares)) * admPriceGBP)
                         : '—'}

@@ -41,10 +41,10 @@ export function DividendImportButton() {
         disabled={state === 'loading'}
         className={clsx(
           'flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all',
-          state === 'idle'    && 'bg-[#1e1e2e] hover:bg-[#2a2a3e] text-gray-300',
-          state === 'loading' && 'bg-[#1e1e2e] text-gray-500 cursor-not-allowed',
-          state === 'success' && 'bg-emerald-400/10 text-emerald-400',
-          state === 'error'   && 'bg-red-400/10 text-red-400',
+          state === 'idle'    && 'bg-surface hover:bg-line-strong text-ink-2',
+          state === 'loading' && 'bg-surface text-ink-3 cursor-not-allowed',
+          state === 'success' && 'bg-emerald-400/10 text-gain',
+          state === 'error'   && 'bg-red-400/10 text-loss',
         )}
       >
         <Download className={clsx('w-4 h-4', state === 'loading' && 'animate-pulse')} />
@@ -54,8 +54,8 @@ export function DividendImportButton() {
         {state === 'error'   && (result ? `${result.failed} failed` : 'Error')}
       </button>
 
-      {state === 'success' && <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />}
-      {state === 'error'   && <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+      {state === 'success' && <CheckCircle className="w-4 h-4 text-gain flex-shrink-0" />}
+      {state === 'error'   && <AlertCircle className="w-4 h-4 text-loss flex-shrink-0" />}
     </div>
   )
 }

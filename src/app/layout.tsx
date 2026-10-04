@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
+import { Instrument_Sans } from 'next/font/google'
 import './globals.css'
+
+const instrument = Instrument_Sans({ subsets: ['latin'], variable: '--font-instrument', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'PTF — Portfolio Tracker',
@@ -13,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body>{children}</body>
+      <body className={instrument.variable}>{children}</body>
     </html>
   )
 }

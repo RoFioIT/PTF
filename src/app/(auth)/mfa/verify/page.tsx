@@ -58,25 +58,25 @@ export default function MfaVerifyPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+    <div className="min-h-screen flex items-center justify-center bg-page">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">PTF</h1>
-          <p className="text-gray-400 mt-2">Portfolio Tracker</p>
+          <h1 className="text-3xl font-bold text-ink">PTF</h1>
+          <p className="text-ink-3 mt-2">Portfolio Tracker</p>
         </div>
 
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-8">
-          <h2 className="text-xl font-semibold text-white mb-2">Two-factor authentication</h2>
-          <p className="text-gray-400 text-sm mb-6">
+        <div className="bg-panel border border-line rounded-xl p-8">
+          <h2 className="text-xl font-semibold text-ink mb-2">Two-factor authentication</h2>
+          <p className="text-ink-3 text-sm mb-6">
             Enter the 6-digit code from your Google Authenticator app.
           </p>
 
           {preparing ? (
-            <p className="text-gray-400 text-sm text-center py-4">Loading…</p>
+            <p className="text-ink-3 text-sm text-center py-4">Loading…</p>
           ) : (
             <form onSubmit={handleVerify} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1.5">Authenticator code</label>
+                <label className="block text-sm text-ink-3 mb-1.5">Authenticator code</label>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -86,12 +86,12 @@ export default function MfaVerifyPage() {
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   placeholder="000000"
                   required
-                  className="w-full bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-white text-center text-xl tracking-widest placeholder-gray-700 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-page border border-line rounded-lg px-4 py-2.5 text-ink text-center text-xl tracking-widest placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
               {error && (
-                <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
+                <p className="text-loss text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
                   {error}
                 </p>
               )}

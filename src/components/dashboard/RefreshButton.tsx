@@ -73,10 +73,10 @@ export function RefreshButton() {
           disabled={state === 'loading'}
           className={clsx(
             'flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg transition-all',
-            state === 'idle'     && 'bg-[#1e1e2e] hover:bg-[#2a2a3e] text-gray-300',
-            state === 'loading'  && 'bg-[#1e1e2e] text-gray-500 cursor-not-allowed',
-            state === 'success'  && 'bg-emerald-400/10 text-emerald-400',
-            state === 'error'    && 'bg-red-400/10 text-red-400',
+            state === 'idle'     && 'bg-surface hover:bg-line-strong text-ink-2',
+            state === 'loading'  && 'bg-surface text-ink-3 cursor-not-allowed',
+            state === 'success'  && 'bg-emerald-400/10 text-gain',
+            state === 'error'    && 'bg-red-400/10 text-loss',
           )}
         >
           <RefreshCw className={clsx('w-4 h-4', state === 'loading' && 'animate-spin')} />
@@ -93,10 +93,10 @@ export function RefreshButton() {
           )}
         </button>
 
-        {state === 'success' && <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />}
+        {state === 'success' && <CheckCircle className="w-4 h-4 text-gain flex-shrink-0" />}
         {state === 'error'   && (
           <button onClick={() => setShowModal(true)}>
-            <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+            <AlertCircle className="w-4 h-4 text-loss flex-shrink-0" />
           </button>
         )}
       </div>
@@ -106,41 +106,41 @@ export function RefreshButton() {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
             onClick={() => setShowModal(false)}
           />
 
           {/* Dialog */}
-          <div className="relative bg-[#1a1a2e] border border-red-500/30 rounded-xl shadow-2xl w-full max-w-lg mx-4 p-6">
+          <div className="relative bg-surface border border-red-500/30 rounded-xl shadow-xl shadow-ink/10 w-full max-w-lg mx-4 p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                <h2 className="text-sm font-semibold text-white">Refresh Error</h2>
+                <AlertCircle className="w-5 h-5 text-loss flex-shrink-0" />
+                <h2 className="text-sm font-semibold text-ink">Refresh Error</h2>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-gray-500 hover:text-gray-300 transition-colors"
+                className="text-ink-3 hover:text-ink-2 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {result && (
-              <div className="flex gap-4 mb-4 text-xs text-gray-400">
-                <span>Fetched: <span className="text-white">{result.fetched}</span></span>
-                <span>Failed: <span className="text-red-400">{result.failed}</span></span>
-                <span>Price points: <span className="text-white">{result.totalPricePoints}</span></span>
+              <div className="flex gap-4 mb-4 text-xs text-ink-3">
+                <span>Fetched: <span className="text-ink">{result.fetched}</span></span>
+                <span>Failed: <span className="text-loss">{result.failed}</span></span>
+                <span>Price points: <span className="text-ink">{result.totalPricePoints}</span></span>
               </div>
             )}
 
-            <pre className="bg-[#12121a] border border-[#1e1e2e] rounded-lg p-4 text-xs text-red-300 whitespace-pre-wrap break-words max-h-64 overflow-y-auto font-mono">
+            <pre className="bg-panel border border-line rounded-lg p-4 text-xs text-loss whitespace-pre-wrap break-words max-h-64 overflow-y-auto font-mono">
               {errorMsg}
             </pre>
 
             <div className="mt-4 flex justify-end">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm font-medium bg-[#1e1e2e] hover:bg-[#2a2a3e] text-gray-300 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-medium bg-surface hover:bg-line-strong text-ink-2 rounded-lg transition-colors"
               >
                 Close
               </button>

@@ -173,7 +173,7 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
   const fmt = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 })
 
   return (
-    <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-6">
+    <div className="bg-panel border border-line rounded-xl p-6">
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-6">
         {([1, 2, 3] as const).map((s) => (
@@ -181,22 +181,22 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
             <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
               step > s ? 'bg-emerald-500 text-white' :
               step === s ? 'bg-indigo-600 text-white' :
-              'bg-[#1e1e2e] text-gray-500'
+              'bg-surface text-ink-3'
             }`}>
               {step > s ? <Check className="w-4 h-4" /> : s}
             </div>
-            <span className={`text-xs ${step === s ? 'text-white' : 'text-gray-600'}`}>
+            <span className={`text-xs ${step === s ? 'text-ink' : 'text-ink-4'}`}>
               {s === 1 ? 'Upload' : s === 2 ? 'Map columns' : 'Preview & import'}
             </span>
-            {s < 3 && <ArrowRight className="w-3 h-3 text-gray-700" />}
+            {s < 3 && <ArrowRight className="w-3 h-3 text-ink-4" />}
           </div>
         ))}
       </div>
 
       {error && (
         <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-4">
-          <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-red-400">{error}</p>
+          <AlertTriangle className="w-4 h-4 text-loss mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-loss">{error}</p>
         </div>
       )}
 
@@ -205,13 +205,13 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
-          className="border-2 border-dashed border-[#2a2a3e] rounded-xl p-10 flex flex-col items-center gap-4 cursor-pointer hover:border-indigo-600/50 transition-colors"
+          className="border-2 border-dashed border-line-strong rounded-xl p-10 flex flex-col items-center gap-4 cursor-pointer hover:border-indigo-600/50 transition-colors"
           onClick={() => document.getElementById('file-input')?.click()}
         >
-          <Upload className="w-10 h-10 text-gray-600" />
+          <Upload className="w-10 h-10 text-ink-4" />
           <div className="text-center">
-            <p className="text-white font-medium">Drop your amortization file here</p>
-            <p className="text-gray-500 text-sm mt-1">Supports .xls, .xlsx, .csv</p>
+            <p className="text-ink font-medium">Drop your amortization file here</p>
+            <p className="text-ink-3 text-sm mt-1">Supports .xls, .xlsx, .csv</p>
           </div>
           <input
             id="file-input"
@@ -227,13 +227,13 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
       {step === 2 && (
         <div className="space-y-5">
           <div>
-            <p className="text-sm text-gray-400 mb-3">
-              Detected <span className="text-white font-medium">{rawRows.length}</span> rows.
+            <p className="text-sm text-ink-3 mb-3">
+              Detected <span className="text-ink font-medium">{rawRows.length}</span> rows.
               Map each required field to a column from your file.
             </p>
 
             <div className="mb-4 flex items-center gap-3">
-              <label className="text-xs text-gray-400">Date format:</label>
+              <label className="text-xs text-ink-3">Date format:</label>
               {(['DD/MM/YYYY', 'YYYY-MM-DD'] as const).map((f) => (
                 <button
                   key={f}
@@ -241,7 +241,7 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
                   className={`text-xs px-3 py-1 rounded-lg border ${
                     dateFormat === f
                       ? 'bg-indigo-600 border-indigo-600 text-white'
-                      : 'border-[#2a2a3e] text-gray-400 hover:border-indigo-600/50'
+                      : 'border-line-strong text-ink-3 hover:border-indigo-600/50'
                   }`}
                 >
                   {f}
@@ -252,13 +252,13 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {REQUIRED_FIELDS.map(({ key, label, required }) => (
                 <div key={key} className="flex flex-col gap-1">
-                  <label className="text-xs text-gray-400">
-                    {label} {required && <span className="text-red-400">*</span>}
+                  <label className="text-xs text-ink-3">
+                    {label} {required && <span className="text-loss">*</span>}
                   </label>
                   <select
                     value={mapping[key] ?? ''}
                     onChange={(e) => setMapping((m) => ({ ...m, [key]: e.target.value }))}
-                    className="bg-[#0d0d14] border border-[#2a2a3e] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+                    className="bg-panel border border-line-strong rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-indigo-500"
                   >
                     <option value="">— not mapped —</option>
                     {headers.map((h) => (
@@ -272,13 +272,13 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
 
           {/* Preview first 3 raw rows */}
           <div>
-            <p className="text-xs text-gray-500 mb-2">First 3 rows from your file:</p>
+            <p className="text-xs text-ink-3 mb-2">First 3 rows from your file:</p>
             <div className="overflow-x-auto">
-              <table className="text-xs text-gray-400 border-collapse">
+              <table className="text-xs text-ink-3 border-collapse">
                 <thead>
                   <tr>
                     {headers.map((h) => (
-                      <th key={h} className="px-2 py-1 border border-[#2a2a3e] bg-[#0d0d14] whitespace-nowrap">{h}</th>
+                      <th key={h} className="px-2 py-1 border border-line-strong bg-panel whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -286,7 +286,7 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
                   {rawRows.slice(0, 3).map((row, i) => (
                     <tr key={i}>
                       {(row as unknown[]).map((cell, j) => (
-                        <td key={j} className="px-2 py-1 border border-[#1e1e2e] whitespace-nowrap">{String(cell ?? '')}</td>
+                        <td key={j} className="px-2 py-1 border border-line whitespace-nowrap">{String(cell ?? '')}</td>
                       ))}
                     </tr>
                   ))}
@@ -307,17 +307,17 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
       {/* Step 3 — Preview + confirm */}
       {step === 3 && (
         <div className="space-y-5">
-          <p className="text-sm text-gray-400">
-            Ready to import <span className="text-white font-semibold">{preview.length}</span> payments.
+          <p className="text-sm text-ink-3">
+            Ready to import <span className="text-ink font-semibold">{preview.length}</span> payments.
             Showing first 5 and last 5 rows.
           </p>
 
-          <div className="overflow-x-auto rounded-lg border border-[#1e1e2e]">
+          <div className="overflow-x-auto rounded-lg border border-line">
             <table className="w-full text-xs">
-              <thead className="bg-[#0d0d14]">
+              <thead className="bg-panel">
                 <tr>
                   {['#', 'Date', 'Total', 'Principal', 'Interest', 'Insurance', 'Remaining'].map((h) => (
-                    <th key={h} className="px-3 py-2 text-left text-gray-500 font-medium whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-3 py-2 text-left text-ink-3 font-medium whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -325,18 +325,18 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
                 {[...preview.slice(0, 5), ...(preview.length > 10 ? [null] : []), ...preview.slice(-5)].map((row, i) => {
                   if (row === null) return (
                     <tr key="ellipsis">
-                      <td colSpan={7} className="px-3 py-2 text-center text-gray-600">⋯ {preview.length - 10} more rows ⋯</td>
+                      <td colSpan={7} className="px-3 py-2 text-center text-ink-4">⋯ {preview.length - 10} more rows ⋯</td>
                     </tr>
                   )
                   return (
-                    <tr key={i} className="border-t border-[#1e1e2e] hover:bg-[#0d0d14]">
-                      <td className="px-3 py-2 text-gray-300 tabular-nums">{row.month_number}</td>
-                      <td className="px-3 py-2 text-gray-300 whitespace-nowrap">{row.payment_date}</td>
-                      <td className="px-3 py-2 text-white tabular-nums whitespace-nowrap">{fmt.format(row.total_payment)}</td>
-                      <td className="px-3 py-2 text-emerald-400 tabular-nums whitespace-nowrap">{fmt.format(row.principal)}</td>
-                      <td className="px-3 py-2 text-gray-300 tabular-nums whitespace-nowrap">{fmt.format(row.interest)}</td>
-                      <td className="px-3 py-2 text-gray-400 tabular-nums whitespace-nowrap">{fmt.format(row.insurance)}</td>
-                      <td className="px-3 py-2 text-gray-300 tabular-nums whitespace-nowrap">{fmt.format(row.remaining_balance)}</td>
+                    <tr key={i} className="border-t border-line hover:bg-panel">
+                      <td className="px-3 py-2 text-ink-2 tabular-nums">{row.month_number}</td>
+                      <td className="px-3 py-2 text-ink-2 whitespace-nowrap">{row.payment_date}</td>
+                      <td className="px-3 py-2 text-ink tabular-nums whitespace-nowrap">{fmt.format(row.total_payment)}</td>
+                      <td className="px-3 py-2 text-gain tabular-nums whitespace-nowrap">{fmt.format(row.principal)}</td>
+                      <td className="px-3 py-2 text-ink-2 tabular-nums whitespace-nowrap">{fmt.format(row.interest)}</td>
+                      <td className="px-3 py-2 text-ink-3 tabular-nums whitespace-nowrap">{fmt.format(row.insurance)}</td>
+                      <td className="px-3 py-2 text-ink-2 tabular-nums whitespace-nowrap">{fmt.format(row.remaining_balance)}</td>
                     </tr>
                   )
                 })}
@@ -347,7 +347,7 @@ export function MortgageImport({ propertyId, mortgageId }: Props) {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setStep(2)}
-              className="border border-[#2a2a3e] text-gray-400 hover:text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+              className="border border-line-strong text-ink-3 hover:text-ink text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
             >
               ← Back
             </button>

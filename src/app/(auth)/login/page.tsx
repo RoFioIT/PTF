@@ -41,43 +41,43 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f]">
+    <div className="min-h-screen flex items-center justify-center bg-page">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white">PTF</h1>
-          <p className="text-gray-400 mt-2">Portfolio Tracker</p>
+          <h1 className="text-3xl font-bold text-ink">PTF</h1>
+          <p className="text-ink-3 mt-2">Portfolio Tracker</p>
         </div>
 
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Sign in</h2>
+        <div className="bg-panel border border-line rounded-xl p-8">
+          <h2 className="text-xl font-semibold text-ink mb-6">Sign in</h2>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Email</label>
+              <label className="block text-sm text-ink-3 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-page border border-line rounded-lg px-4 py-2.5 text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-400 mb-1.5">Password</label>
+              <label className="block text-sm text-ink-3 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-[#0a0a0f] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full bg-page border border-line rounded-lg px-4 py-2.5 text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 transition-colors"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
+              <p className="text-loss text-sm bg-red-400/10 border border-red-400/20 rounded-lg px-4 py-2.5">
                 {error}
               </p>
             )}
@@ -91,9 +91,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="text-center text-gray-500 text-sm mt-6">
+          <p className="text-center text-ink-3 text-sm mt-6">
             No account?{' '}
-            <a href="/register" className="text-indigo-400 hover:text-indigo-300">
+            <a href="/register" className="text-accent hover:text-accent">
               Create one
             </a>
           </p>

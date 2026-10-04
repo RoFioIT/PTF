@@ -90,12 +90,12 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
   }
 
   return (
-    <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
+    <div className="bg-panel border border-line rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-line flex items-center justify-between">
         <div>
-          <h2 className="font-semibold text-white text-sm">Cash</h2>
-          <p className={`text-lg font-bold mt-0.5 ${availableCash >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+          <h2 className="font-semibold text-ink text-sm">Cash</h2>
+          <p className={`text-lg font-bold mt-0.5 ${availableCash >= 0 ? 'text-gain' : 'text-loss'}`}>
             {fmt(availableCash, currency)}
           </p>
         </div>
@@ -110,15 +110,15 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
 
       {/* Add form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="px-6 py-4 border-b border-[#1e1e2e] bg-[#0f0f17] space-y-3">
-          {error && <p className="text-red-400 text-xs">{error}</p>}
+        <form onSubmit={handleSubmit} className="px-6 py-4 border-b border-line bg-field space-y-3">
+          {error && <p className="text-loss text-xs">{error}</p>}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Type</label>
+              <label className="block text-xs text-ink-3 mb-1">Type</label>
               <select
                 value={type}
                 onChange={e => setType(e.target.value as CashMovementType)}
-                className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               >
                 {(Object.keys(TYPE_LABELS) as CashMovementType[]).map(t => (
                   <option key={t} value={t}>{TYPE_LABELS[t]}</option>
@@ -126,7 +126,7 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
               </select>
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Amount ({currency})</label>
+              <label className="block text-xs text-ink-3 mb-1">Amount ({currency})</label>
               <input
                 type="number"
                 min="0.01"
@@ -135,27 +135,27 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
                 value={amount}
                 onChange={e => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Date</label>
+              <label className="block text-xs text-ink-3 mb-1">Date</label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-xs text-gray-500 mb-1">Notes</label>
+              <label className="block text-xs text-ink-3 mb-1">Notes</label>
               <input
                 type="text"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Optional"
-                className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="text-xs text-gray-400 hover:text-white px-3 py-1.5 transition-colors"
+              className="text-xs text-ink-3 hover:text-ink px-3 py-1.5 transition-colors"
             >
               Cancel
             </button>
@@ -180,35 +180,35 @@ export function CashMovementPanel({ portfolioId, currency, initialMovements, ava
 
       {/* Movements list */}
       {movements.length === 0 ? (
-        <div className="px-6 py-8 text-center text-gray-600 text-sm">
+        <div className="px-6 py-8 text-center text-ink-4 text-sm">
           No cash movements yet. Add a deposit to start tracking.
         </div>
       ) : (
         <table className="w-full">
           <thead>
-            <tr className="border-b border-[#1e1e2e]">
+            <tr className="border-b border-line">
               {['Date', 'Type', 'Amount', 'Notes', ''].map(h => (
-                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1e1e2e]">
+          <tbody className="divide-y divide-line">
             {[...movements].reverse().map(mv => (
-              <tr key={mv.id} className="hover:bg-white/[0.02] transition-colors">
-                <td className="px-6 py-3 text-sm text-gray-400 tabular-nums">{mv.date}</td>
-                <td className="px-6 py-3 text-sm text-white">{TYPE_LABELS[mv.type]}</td>
+              <tr key={mv.id} className="hover:bg-ink/[0.02] transition-colors">
+                <td className="px-6 py-3 text-sm text-ink-3 tabular-nums">{mv.date}</td>
+                <td className="px-6 py-3 text-sm text-ink">{TYPE_LABELS[mv.type]}</td>
                 <td className={`px-6 py-3 text-sm font-medium tabular-nums ${
-                  TYPE_SIGN[mv.type] === '+' ? 'text-emerald-400' : 'text-red-400'
+                  TYPE_SIGN[mv.type] === '+' ? 'text-gain' : 'text-loss'
                 }`}>
                   {TYPE_SIGN[mv.type]}{fmt(Number(mv.amount), mv.currency)}
                 </td>
-                <td className="px-6 py-3 text-sm text-gray-500">{mv.notes ?? '—'}</td>
+                <td className="px-6 py-3 text-sm text-ink-3">{mv.notes ?? '—'}</td>
                 <td className="px-6 py-3">
                   <button
                     onClick={() => handleDelete(mv.id, mv)}
-                    className="text-gray-600 hover:text-red-400 transition-colors"
+                    className="text-ink-4 hover:text-loss transition-colors"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>

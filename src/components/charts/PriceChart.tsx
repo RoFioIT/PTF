@@ -39,7 +39,7 @@ function formatDate(dateStr: string) {
 export function PriceChart({ data, currency = 'EUR' }: PriceChartProps) {
   if (data.length === 0) {
     return (
-      <div className="h-48 flex items-center justify-center text-gray-600 text-sm">
+      <div className="h-48 flex items-center justify-center text-ink-4 text-sm">
         No price history — click Refresh prices on the dashboard first.
       </div>
     )
@@ -64,11 +64,11 @@ export function PriceChart({ data, currency = 'EUR' }: PriceChartProps) {
           </linearGradient>
         </defs>
 
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e3e8f0" />
         <XAxis
           dataKey="date"
           tickFormatter={formatDate}
-          tick={{ fill: '#6b7280', fontSize: 11 }}
+          tick={{ fill: '#64748b', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           interval="preserveStartEnd"
@@ -76,17 +76,17 @@ export function PriceChart({ data, currency = 'EUR' }: PriceChartProps) {
         <YAxis
           domain={[min - padding, max + padding]}
           tickFormatter={(v) => formatPrice(v, currency)}
-          tick={{ fill: '#6b7280', fontSize: 11 }}
+          tick={{ fill: '#64748b', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={90}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#12121a',
-            border: '1px solid #1e1e2e',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e3e8f0',
             borderRadius: '8px',
-            color: '#e8e8f0',
+            color: '#0f1b33',
           }}
           formatter={(value) => [formatPrice(Number(value), currency), 'Price']}
           labelFormatter={(label) =>

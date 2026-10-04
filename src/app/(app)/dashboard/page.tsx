@@ -41,10 +41,10 @@ export default async function DashboardPage() {
   if (portfolios.length === 0) {
     return (
       <div className="p-8">
-        <h1 className="text-2xl font-bold text-white mb-2">Dashboard</h1>
-        <div className="bg-[#12121a] border border-[#1e1e2e] border-dashed rounded-xl p-12 text-center">
+        <h1 className="text-2xl font-bold text-ink mb-2">Dashboard</h1>
+        <div className="bg-panel border border-line border-dashed rounded-xl p-12 text-center">
           <div className="text-4xl mb-4">📊</div>
-          <h2 className="text-lg font-semibold text-white mb-2">No portfolios yet</h2>
+          <h2 className="text-lg font-semibold text-ink mb-2">No portfolios yet</h2>
           <a href="/portfolios" className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors mt-4">
             Create portfolio
           </a>
@@ -211,8 +211,8 @@ export default async function DashboardPage() {
       <div className="mb-6 md:mb-8">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold text-white">Dashboard</h1>
-            <p className="text-gray-400 text-sm mt-1">
+            <h1 className="text-xl md:text-2xl font-bold text-ink">Dashboard</h1>
+            <p className="text-ink-3 text-sm mt-1">
               {investmentPortfolios.length} portfolio{investmentPortfolios.length > 1 ? 's' : ''} ·{' '}
               {openPositions.length} open positions
             </p>
@@ -277,17 +277,17 @@ export default async function DashboardPage() {
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
         {/* Performance chart — 2/3 width */}
-        <div className="lg:col-span-2 bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 md:p-6">
+        <div className="lg:col-span-2 bg-panel border border-line rounded-xl p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-white text-sm">Portfolio Performance</h2>
-            <span className="text-xs text-gray-500">{history.length} data points</span>
+            <h2 className="font-semibold text-ink text-sm">Portfolio Performance</h2>
+            <span className="text-xs text-ink-3">{history.length} data points</span>
           </div>
           <PortfolioChart data={history} currency="EUR" />
         </div>
 
         {/* Allocation pie — 1/3 width */}
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-4 md:p-6">
-          <h2 className="font-semibold text-white text-sm mb-4">Allocation</h2>
+        <div className="bg-panel border border-line rounded-xl p-4 md:p-6">
+          <h2 className="font-semibold text-ink text-sm mb-4">Allocation</h2>
           <AllocationChart
             allocations={snapshot.allocations}
             assetNames={assetNames}
@@ -297,23 +297,23 @@ export default async function DashboardPage() {
       </div>
 
       {/* Monthly Performance Recap */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden mb-6">
-        <div className="px-4 md:px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="font-semibold text-white text-sm">Monthly Performance</h2>
-          <span className="text-xs text-gray-500">{monthly.length} months</span>
+      <div className="bg-panel border border-line rounded-xl overflow-hidden mb-6">
+        <div className="px-4 md:px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="font-semibold text-ink text-sm">Monthly Performance</h2>
+          <span className="text-xs text-ink-3">{monthly.length} months</span>
         </div>
         <MonthlyRecapWithFilter allData={monthly} portfolios={portfolioMonthly} assets={assetMonthly} currency="EUR" />
       </div>
 
       {/* Positions */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-4 md:px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
-          <h2 className="font-semibold text-white text-sm">Open Positions</h2>
-          <a href="/portfolios" className="text-xs text-indigo-400 hover:text-indigo-300">View all →</a>
+      <div className="bg-panel border border-line rounded-xl overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b border-line flex items-center justify-between">
+          <h2 className="font-semibold text-ink text-sm">Open Positions</h2>
+          <a href="/portfolios" className="text-xs text-accent hover:text-accent">View all →</a>
         </div>
 
         {/* Mobile card list */}
-        <div className="md:hidden divide-y divide-[#1e1e2e]">
+        <div className="md:hidden divide-y divide-line">
           {openPositions.map((pos) => {
             const name = assetNames.get(pos.assetId) ?? pos.assetId.slice(0, 8)
             const pnlPos = pos.totalPnL >= 0
@@ -322,20 +322,20 @@ export default async function DashboardPage() {
               <a
                 key={pos.assetId}
                 href={`/assets/${pos.assetId}`}
-                className="flex items-center justify-between px-4 py-3.5 hover:bg-white/[0.02] active:bg-white/[0.04] transition-colors"
+                className="flex items-center justify-between px-4 py-3.5 hover:bg-ink/[0.02] active:bg-ink/[0.04] transition-colors"
               >
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-white truncate">{name}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">
+                  <div className="text-sm font-medium text-ink truncate">{name}</div>
+                  <div className="text-xs text-ink-3 mt-0.5">
                     {pos.totalShares.toFixed(3)} shares
                     {pos.allocationPct != null && ` · ${pos.allocationPct.toFixed(1)}%`}
                   </div>
                 </div>
                 <div className="text-right ml-4 flex-shrink-0">
-                  <div className="text-sm font-semibold text-white tabular-nums">
+                  <div className="text-sm font-semibold text-ink tabular-nums">
                     {hasPrice ? fmt(pos.currentValue) : '—'}
                   </div>
-                  <div className={`text-xs font-medium mt-0.5 tabular-nums ${pnlPos ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <div className={`text-xs font-medium mt-0.5 tabular-nums ${pnlPos ? 'text-gain' : 'text-loss'}`}>
                     {hasPrice ? fmtPct(pos.performancePct) : '—'}
                   </div>
                 </div>
@@ -348,36 +348,36 @@ export default async function DashboardPage() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[#1e1e2e]">
+              <tr className="border-b border-line">
                 {['Asset', 'Shares', 'PRU', 'Price', 'Invested', 'Value', 'P&L', '%', 'Alloc'].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e1e2e]">
+            <tbody className="divide-y divide-line">
               {openPositions.map((pos) => {
                 const name = assetNames.get(pos.assetId) ?? pos.assetId.slice(0, 8)
                 const pnlPos = pos.totalPnL >= 0
                 const hasPrice = pos.currentPrice > 0
                 return (
-                  <tr key={pos.assetId} className="hover:bg-white/[0.02] transition-colors">
+                  <tr key={pos.assetId} className="hover:bg-ink/[0.02] transition-colors">
                     <td className="px-5 py-3">
-                      <a href={`/assets/${pos.assetId}`} className="text-sm font-medium text-white hover:text-indigo-400 transition-colors truncate max-w-[180px] block">
+                      <a href={`/assets/${pos.assetId}`} className="text-sm font-medium text-ink hover:text-accent transition-colors truncate max-w-[180px] block">
                         {name}
                       </a>
                     </td>
-                    <td className="px-5 py-3 text-sm text-gray-300 tabular-nums">{pos.totalShares.toFixed(3)}</td>
-                    <td className="px-5 py-3 text-sm text-gray-300 tabular-nums">{fmt(pos.avgCostBasis)}</td>
-                    <td className="px-5 py-3 text-sm text-gray-300 tabular-nums">{hasPrice ? fmt(pos.currentPrice) : '—'}</td>
-                    <td className="px-5 py-3 text-sm text-gray-300 tabular-nums">{fmt(pos.totalInvested)}</td>
-                    <td className="px-5 py-3 text-sm text-gray-300 tabular-nums">{hasPrice ? fmt(pos.currentValue) : '—'}</td>
-                    <td className={`px-5 py-3 text-sm tabular-nums font-medium ${pnlPos ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <td className="px-5 py-3 text-sm text-ink-2 tabular-nums">{pos.totalShares.toFixed(3)}</td>
+                    <td className="px-5 py-3 text-sm text-ink-2 tabular-nums">{fmt(pos.avgCostBasis)}</td>
+                    <td className="px-5 py-3 text-sm text-ink-2 tabular-nums">{hasPrice ? fmt(pos.currentPrice) : '—'}</td>
+                    <td className="px-5 py-3 text-sm text-ink-2 tabular-nums">{fmt(pos.totalInvested)}</td>
+                    <td className="px-5 py-3 text-sm text-ink-2 tabular-nums">{hasPrice ? fmt(pos.currentValue) : '—'}</td>
+                    <td className={`px-5 py-3 text-sm tabular-nums font-medium ${pnlPos ? 'text-gain' : 'text-loss'}`}>
                       {hasPrice ? fmt(pos.totalPnL) : '—'}
                     </td>
-                    <td className={`px-5 py-3 text-sm tabular-nums font-medium ${pnlPos ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <td className={`px-5 py-3 text-sm tabular-nums font-medium ${pnlPos ? 'text-gain' : 'text-loss'}`}>
                       {hasPrice ? fmtPct(pos.performancePct) : '—'}
                     </td>
-                    <td className="px-5 py-3 text-sm text-gray-400 tabular-nums">
+                    <td className="px-5 py-3 text-sm text-ink-3 tabular-nums">
                       {pos.allocationPct?.toFixed(1)}%
                     </td>
                   </tr>

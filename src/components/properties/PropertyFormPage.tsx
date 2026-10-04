@@ -136,31 +136,31 @@ export function PropertyFormPage({ mode, property }: Props) {
     }
   }
 
-  const inputCls = 'bg-[#0d0d14] border border-[#2a2a3e] rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 w-full'
-  const labelCls = 'text-xs font-medium text-gray-400 mb-1 block'
+  const inputCls = 'bg-panel border border-line-strong rounded-lg px-3 py-2.5 text-sm text-ink placeholder-ink-4 focus:outline-none focus:border-indigo-500 w-full'
+  const labelCls = 'text-xs font-medium text-ink-3 mb-1 block'
 
   return (
     <div className="p-4 md:p-8 max-w-2xl">
       <div className="mb-6">
-        <h1 className="text-xl font-bold text-white">
+        <h1 className="text-xl font-bold text-ink">
           {isEdit ? 'Edit property' : 'Add property'}
         </h1>
-        <p className="text-gray-500 text-sm mt-1">
+        <p className="text-ink-3 text-sm mt-1">
           {isEdit ? 'Update your property details.' : 'Add a new real estate asset to your portfolio.'}
         </p>
       </div>
 
       {error && (
         <div className="flex items-start gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 mb-5">
-          <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-red-400">{error}</p>
+          <AlertTriangle className="w-4 h-4 text-loss mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-loss">{error}</p>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* ── Property section ── */}
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 space-y-4">
-          <h2 className="text-sm font-semibold text-white">Property</h2>
+        <div className="bg-panel border border-line rounded-xl p-5 space-y-4">
+          <h2 className="text-sm font-semibold text-ink">Property</h2>
 
           <div>
             <label className={labelCls}>Name *</label>
@@ -212,17 +212,17 @@ export function PropertyFormPage({ mode, property }: Props) {
         </div>
 
         {/* ── Mortgage section ── */}
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl p-5 space-y-4">
+        <div className="bg-panel border border-line rounded-xl p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-white">Mortgage</h2>
+            <h2 className="text-sm font-semibold text-ink">Mortgage</h2>
             <label className="flex items-center gap-2 cursor-pointer">
               <div
                 onClick={() => setHasMortgage((v) => !v)}
-                className={`relative w-9 h-5 rounded-full transition-colors ${hasMortgage ? 'bg-indigo-600' : 'bg-[#2a2a3e]'}`}
+                className={`relative w-9 h-5 rounded-full transition-colors ${hasMortgage ? 'bg-indigo-600' : 'bg-line-strong'}`}
               >
                 <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${hasMortgage ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </div>
-              <span className="text-xs text-gray-400">This property has a mortgage</span>
+              <span className="text-xs text-ink-3">This property has a mortgage</span>
             </label>
           </div>
 
@@ -243,7 +243,7 @@ export function PropertyFormPage({ mode, property }: Props) {
                 <label className={labelCls}>Initial loan amount (€) *</label>
                 <input type="number" min="0" step="1000" value={initialAmount} onChange={(e) => setInitialAmount(e.target.value)} placeholder="250000" className={inputCls} />
                 {monthlyPaymentPreview && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-ink-3 mt-1">
                     Import your bank's amortization schedule on the property detail page after saving.
                   </p>
                 )}
@@ -257,7 +257,7 @@ export function PropertyFormPage({ mode, property }: Props) {
           )}
 
           {!hasMortgage && (
-            <p className="text-xs text-gray-600">Toggle on to add mortgage details. You can import the full amortization schedule after saving.</p>
+            <p className="text-xs text-ink-4">Toggle on to add mortgage details. You can import the full amortization schedule after saving.</p>
           )}
         </div>
 
@@ -266,7 +266,7 @@ export function PropertyFormPage({ mode, property }: Props) {
           <button
             type="button"
             onClick={() => router.push('/properties')}
-            className="border border-[#2a2a3e] text-gray-400 hover:text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+            className="border border-line-strong text-ink-3 hover:text-ink text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
           >
             Cancel
           </button>

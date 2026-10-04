@@ -36,7 +36,7 @@ export function AllocationChart({
 }: AllocationChartProps) {
   if (allocations.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-600 text-sm">
+      <div className="h-64 flex items-center justify-center text-ink-4 text-sm">
         No positions yet
       </div>
     )
@@ -68,10 +68,10 @@ export function AllocationChart({
         </Pie>
         <Tooltip
           contentStyle={{
-            backgroundColor: '#12121a',
-            border: '1px solid #1e1e2e',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e3e8f0',
             borderRadius: '8px',
-            color: '#e8e8f0',
+            color: '#0f1b33',
           }}
           formatter={(value, _name, props) => [
             `${formatCurrency(Number(value ?? 0), currency)} (${(props.payload as { pct: number }).pct.toFixed(1)}%)`,
@@ -80,7 +80,7 @@ export function AllocationChart({
         />
         <Legend
           formatter={(value) => (
-            <span style={{ color: '#9ca3af', fontSize: 12 }}>{value}</span>
+            <span style={{ color: '#64748b', fontSize: 12 }}>{value}</span>
           )}
         />
       </PieChart>

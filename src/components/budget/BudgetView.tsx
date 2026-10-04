@@ -16,8 +16,8 @@ import {
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 const CAT_COLORS: Record<string, { bg: string; text: string; border: string; dot: string }> = {
-  income:   { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
-  savings:  { bg: 'bg-sky-500/10',     text: 'text-sky-400',     border: 'border-sky-500/30',     dot: 'bg-sky-400'     },
+  income:   { bg: 'bg-emerald-500/10', text: 'text-gain', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
+  savings:  { bg: 'bg-sky-500/10',     text: 'text-sky-600',     border: 'border-sky-500/30',     dot: 'bg-sky-400'     },
   expense:  { bg: 'bg-slate-500/10',   text: 'text-slate-300',   border: 'border-slate-500/20',   dot: 'bg-slate-400'   },
 }
 
@@ -237,8 +237,8 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
             type="number"
             step="0.01"
             className={clsx(
-              'w-full text-right px-2 py-1 rounded text-sm bg-[#0d0d14] border',
-              hasPending ? 'border-indigo-500 text-white' : 'border-[#2a2a3e] text-gray-200',
+              'w-full text-right px-2 py-1 rounded text-sm bg-panel border',
+              hasPending ? 'border-indigo-500 text-ink' : 'border-line-strong text-ink',
               'focus:outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400/30'
             )}
             defaultValue={val === 0 ? '' : val}
@@ -248,10 +248,10 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
       )
     }
 
-    const colored = val < 0 ? 'text-red-400' : val > 0 ? 'text-gray-200' : 'text-gray-600'
+    const colored = val < 0 ? 'text-loss' : val > 0 ? 'text-ink' : 'text-ink-4'
     return (
       <td key={month} className={clsx('px-3 py-2 text-right text-sm tabular-nums', colored)}>
-        {val === 0 ? <span className="text-gray-700">—</span> : fmt(val)}
+        {val === 0 ? <span className="text-ink-4">—</span> : fmt(val)}
       </td>
     )
   }
@@ -313,21 +313,21 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
     return (
       <tr
         key={`item-${item.id}-${field}`}
-        className={clsx('border-b border-[#1a1a2e] hover:bg-white/[0.02] group', bgClass)}
+        className={clsx('border-b border-line hover:bg-ink/[0.02] group', bgClass)}
       >
-        <td className={clsx('sticky left-0 z-10 px-3 py-2 text-sm bg-[#0d0d14] group-hover:bg-[#111120]', bgClass)}>
+        <td className={clsx('sticky left-0 z-10 px-3 py-2 text-sm bg-panel group-hover:bg-field', bgClass)}>
           <div className="flex items-center gap-2">
             <span className="w-4" />
-            <span className={clsx('text-gray-300', label && 'text-gray-500 text-xs')}>{label ?? item.name}</span>
+            <span className={clsx('text-ink-2', label && 'text-ink-3 text-xs')}>{label ?? item.name}</span>
           </div>
         </td>
         {renderMonthCells(item.id, field, field)}
         {/* Annual total */}
-        <td className="px-3 py-2 text-right text-sm tabular-nums font-medium text-gray-200 border-l border-[#1e1e2e]">
-          {annual === 0 ? <span className="text-gray-700">—</span> : fmt(annual)}
+        <td className="px-3 py-2 text-right text-sm tabular-nums font-medium text-ink border-l border-line">
+          {annual === 0 ? <span className="text-ink-4">—</span> : fmt(annual)}
         </td>
         {/* Avg */}
-        <td className="px-3 py-2 text-right text-sm tabular-nums text-gray-500">
+        <td className="px-3 py-2 text-right text-sm tabular-nums text-ink-3">
           {annual === 0 ? '' : fmt(annual / 12)}
         </td>
       </tr>
@@ -338,10 +338,10 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
     const budgetAnnual = itemAnnual(item.id, 'budget')
     const actualAnnual = itemAnnual(item.id, 'actual')
     return (
-      <tr key={`item-${item.id}-both`} className="border-b border-[#1a1a2e] hover:bg-white/[0.02] group">
-        <td className="sticky left-0 z-10 px-3 py-2 text-sm bg-[#0d0d14] group-hover:bg-[#111120]">
+      <tr key={`item-${item.id}-both`} className="border-b border-line hover:bg-ink/[0.02] group">
+        <td className="sticky left-0 z-10 px-3 py-2 text-sm bg-panel group-hover:bg-field">
           <div className="pl-6">
-            <div className="text-gray-300">{item.name}</div>
+            <div className="text-ink-2">{item.name}</div>
           </div>
         </td>
         {MONTHS.map((_, i) => {
@@ -350,22 +350,22 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
           const diff = a - b
           return (
             <td key={i} className="px-2 py-1.5 text-right align-top">
-              <div className="text-sm tabular-nums text-gray-200">{b === 0 ? <span className="text-gray-700">—</span> : fmt(b)}</div>
-              <div className={clsx('text-xs tabular-nums', a === 0 ? 'text-gray-700' : diff > 0 ? 'text-emerald-400' : diff < 0 ? 'text-red-400' : 'text-gray-500')}>
+              <div className="text-sm tabular-nums text-ink">{b === 0 ? <span className="text-ink-4">—</span> : fmt(b)}</div>
+              <div className={clsx('text-xs tabular-nums', a === 0 ? 'text-ink-4' : diff > 0 ? 'text-gain' : diff < 0 ? 'text-loss' : 'text-ink-3')}>
                 {a === 0 ? '—' : fmt(a)}
               </div>
             </td>
           )
         })}
-        <td className="px-3 py-1.5 text-right border-l border-[#1e1e2e]">
-          <div className="text-sm tabular-nums text-gray-200 font-medium">{budgetAnnual === 0 ? '—' : fmt(budgetAnnual)}</div>
-          <div className={clsx('text-xs tabular-nums', actualAnnual === 0 ? 'text-gray-700' : 'text-emerald-400')}>
+        <td className="px-3 py-1.5 text-right border-l border-line">
+          <div className="text-sm tabular-nums text-ink font-medium">{budgetAnnual === 0 ? '—' : fmt(budgetAnnual)}</div>
+          <div className={clsx('text-xs tabular-nums', actualAnnual === 0 ? 'text-ink-4' : 'text-gain')}>
             {actualAnnual === 0 ? '—' : fmt(actualAnnual)}
           </div>
         </td>
         <td className="px-3 py-1.5 text-right">
-          <div className="text-xs tabular-nums text-gray-500">{budgetAnnual === 0 ? '' : fmt(budgetAnnual / 12)}</div>
-          <div className="text-xs tabular-nums text-gray-600">{actualAnnual === 0 ? '' : fmt(actualAnnual / 12)}</div>
+          <div className="text-xs tabular-nums text-ink-3">{budgetAnnual === 0 ? '' : fmt(budgetAnnual / 12)}</div>
+          <div className="text-xs tabular-nums text-ink-4">{actualAnnual === 0 ? '' : fmt(actualAnnual / 12)}</div>
         </td>
       </tr>
     )
@@ -375,24 +375,24 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
     const f = mode === 'actual' ? 'actual' : 'budget'
     return (
       <tr className="border-t-2 border-indigo-500/40 bg-indigo-500/5">
-        <td className="sticky left-0 z-10 px-3 py-3 font-bold text-sm bg-indigo-500/5 text-indigo-300">
+        <td className="sticky left-0 z-10 px-3 py-3 font-bold text-sm bg-indigo-500/5 text-accent">
           <div className="pl-6">NET (Income − Expenses)</div>
         </td>
         {MONTHS.map((_, i) => {
           const net = monthIncome(i + 1, f) - monthExpenses(i + 1, f)
           return (
             <td key={i} className={clsx('px-3 py-3 text-right text-sm tabular-nums font-semibold',
-              net >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+              net >= 0 ? 'text-gain' : 'text-loss')}>
               {fmt(net)}
             </td>
           )
         })}
-        <td className={clsx('px-3 py-3 text-right text-sm tabular-nums font-bold border-l border-[#1e1e2e]',
-          annualNet >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+        <td className={clsx('px-3 py-3 text-right text-sm tabular-nums font-bold border-l border-line',
+          annualNet >= 0 ? 'text-gain' : 'text-loss')}>
           {fmt(annualNet)}
         </td>
         <td className={clsx('px-3 py-3 text-right text-sm tabular-nums',
-          annualNet >= 0 ? 'text-emerald-400' : 'text-red-400')}>
+          annualNet >= 0 ? 'text-gain' : 'text-loss')}>
           {fmt(annualNet / 12)}
         </td>
       </tr>
@@ -403,24 +403,24 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
   const field = mode === 'actual' ? 'actual' : 'budget'
 
   return (
-    <div className="min-h-screen bg-[#080810] text-white flex flex-col">
+    <div className="min-h-screen bg-field text-ink flex flex-col">
       {/* ── Page header ── */}
-      <div className="px-6 py-5 border-b border-[#1e1e2e] flex items-center justify-between flex-wrap gap-3">
+      <div className="px-6 py-5 border-b border-line flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-xl font-bold text-white">Budget Tracker</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Monthly income & expense planning</p>
+          <h1 className="text-xl font-bold text-ink">Budget Tracker</h1>
+          <p className="text-sm text-ink-3 mt-0.5">Monthly income & expense planning</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Mode tabs */}
-          <div className="flex bg-[#111120] rounded-lg p-0.5 border border-[#1e1e2e]">
+          <div className="flex bg-field rounded-lg p-0.5 border border-line">
             {(['budget', 'actual', 'both'] as ViewMode[]).map(m => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={clsx(
                   'px-3 py-1.5 rounded-md text-sm font-medium transition-all capitalize',
-                  mode === m ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:text-gray-200'
+                  mode === m ? 'bg-indigo-600 text-white' : 'text-ink-3 hover:text-ink'
                 )}
               >{m}</button>
             ))}
@@ -431,17 +431,17 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
             <select
               value={year}
               onChange={e => changeYear(Number(e.target.value))}
-              className="appearance-none bg-[#111120] border border-[#1e1e2e] text-gray-200 text-sm px-4 py-2 pr-8 rounded-lg cursor-pointer focus:outline-none focus:border-indigo-500"
+              className="appearance-none bg-field border border-line text-ink text-sm px-4 py-2 pr-8 rounded-lg cursor-pointer focus:outline-none focus:border-indigo-500"
             >
               {years.map(y => <option key={y} value={y}>{y}</option>)}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-3 pointer-events-none" />
           </div>
 
           {/* Copy year */}
           <button
             onClick={() => setShowCopy(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#1e1e2e] bg-[#111120] text-gray-400 hover:text-gray-200 text-sm transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line bg-field text-ink-3 hover:text-ink text-sm transition-all"
           >
             <Copy className="w-4 h-4" /> Copy Year
           </button>
@@ -458,7 +458,7 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
             <div className="flex items-center gap-2">
               <button
                 onClick={cancelEdit}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-[#1e1e2e] text-gray-400 hover:text-gray-200 text-sm transition-all"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-line text-ink-3 hover:text-ink text-sm transition-all"
               >
                 <X className="w-4 h-4" /> Cancel
               </button>
@@ -480,31 +480,31 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
           {[
             {
               label: 'Annual Income', value: annualIncome,
-              icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10',
+              icon: TrendingUp, color: 'text-gain', bg: 'bg-emerald-500/10',
               sub: `${fmt(annualIncome / 12)}/mo`,
             },
             {
               label: 'Annual Expenses', value: annualExpenses,
-              icon: TrendingDown, color: 'text-red-400', bg: 'bg-red-500/10',
+              icon: TrendingDown, color: 'text-loss', bg: 'bg-red-500/10',
               sub: `${fmt(annualExpenses / 12)}/mo`,
             },
             {
               label: 'Net Savings', value: annualNet,
-              icon: Wallet, color: annualNet >= 0 ? 'text-indigo-400' : 'text-orange-400',
+              icon: Wallet, color: annualNet >= 0 ? 'text-accent' : 'text-orange-600',
               bg: annualNet >= 0 ? 'bg-indigo-500/10' : 'bg-orange-500/10',
               sub: `${fmt(annualNet / 12)}/mo`,
             },
             {
               label: 'Savings Rate', value: null,
-              icon: Minus, color: savingsRate >= 20 ? 'text-emerald-400' : savingsRate >= 10 ? 'text-amber-400' : 'text-red-400',
+              icon: Minus, color: savingsRate >= 20 ? 'text-gain' : savingsRate >= 10 ? 'text-warn' : 'text-loss',
               bg: 'bg-slate-500/10',
               display: `${savingsRate.toFixed(1)}%`,
               sub: pct(annualNet, annualIncome),
             },
           ].map(({ label, value, icon: Icon, color, bg, sub, display }) => (
-            <div key={label} className="bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
+            <div key={label} className="bg-panel border border-line rounded-xl p-4">
               <div className="flex items-start justify-between">
-                <p className="text-xs text-gray-500 uppercase tracking-wider">{label}</p>
+                <p className="text-xs text-ink-3 uppercase tracking-wider">{label}</p>
                 <div className={clsx('w-8 h-8 rounded-lg flex items-center justify-center', bg)}>
                   <Icon className={clsx('w-4 h-4', color)} />
                 </div>
@@ -512,29 +512,29 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
               <p className={clsx('text-2xl font-bold mt-2 tabular-nums', color)}>
                 {display ?? (value != null ? `€${fmt(value)}` : '—')}
               </p>
-              <p className="text-xs text-gray-600 mt-1">{sub}</p>
+              <p className="text-xs text-ink-4 mt-1">{sub}</p>
             </div>
           ))}
         </div>
 
         {/* ── Monthly chart ── */}
-        <div className="mx-6 mb-4 bg-[#0d0d14] border border-[#1e1e2e] rounded-xl p-4">
+        <div className="mx-6 mb-4 bg-panel border border-line rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium text-gray-300">Monthly Overview — {year}</h2>
-            <span className="text-xs text-gray-500 capitalize">{mode} view</span>
+            <h2 className="text-sm font-medium text-ink-2">Monthly Overview — {year}</h2>
+            <span className="text-xs text-ink-3 capitalize">{mode} view</span>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={chartData} barGap={2} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" vertical={false} />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} tickLine={false}
+              <CartesianGrid strokeDasharray="3 3" stroke="#e3e8f0" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false}
                 tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : String(v)} width={40} />
               <Tooltip
-                contentStyle={{ background: '#111120', border: '1px solid #1e1e2e', borderRadius: 8, fontSize: 12 }}
-                labelStyle={{ color: '#e5e7eb', fontWeight: 600 }}
+                contentStyle={{ background: '#ffffff', border: '1px solid #e3e8f0', borderRadius: 8, fontSize: 12 }}
+                labelStyle={{ color: '#0f1b33', fontWeight: 600 }}
                 formatter={(val: unknown) => `€${fmt(Number(val ?? 0))}`}
               />
-              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: '#9ca3af' }} />
+              <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: '#64748b' }} />
               <Bar dataKey="Income" fill="#10b981" radius={[3,3,0,0]} />
               <Bar dataKey="Expenses" fill="#ef4444" radius={[3,3,0,0]} />
               <Bar dataKey="Net" radius={[3,3,0,0]}>
@@ -547,10 +547,10 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
         </div>
 
         {/* ── Spreadsheet table ── */}
-        <div className="mx-6 mb-6 bg-[#0d0d14] border border-[#1e1e2e] rounded-xl overflow-hidden">
+        <div className="mx-6 mb-6 bg-panel border border-line rounded-xl overflow-hidden">
           {/* Mode legend for "both" */}
           {mode === 'both' && (
-            <div className="px-4 py-2 border-b border-[#1e1e2e] flex items-center gap-4 text-xs text-gray-500">
+            <div className="px-4 py-2 border-b border-line flex items-center gap-4 text-xs text-ink-3">
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-gray-400" />Budget (top)</span>
               <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-emerald-400" />Actual (bottom — green = on track)</span>
             </div>
@@ -559,19 +559,19 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
             <table className="w-full border-collapse text-sm" style={{ minWidth: '1200px' }}>
               {/* Column headers */}
               <thead>
-                <tr className="bg-[#0d0d14] border-b border-[#1e1e2e] sticky top-0 z-20">
-                  <th className="sticky left-0 z-30 bg-[#0d0d14] px-3 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[220px]">
+                <tr className="bg-panel border-b border-line sticky top-0 z-20">
+                  <th className="sticky left-0 z-30 bg-panel px-3 py-3 text-left text-xs font-semibold text-ink-3 uppercase tracking-wider min-w-[220px]">
                     Category / Item
                   </th>
                   {MONTHS.map(m => (
-                    <th key={m} className="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[85px]">
+                    <th key={m} className="px-3 py-3 text-right text-xs font-semibold text-ink-3 uppercase tracking-wider min-w-[85px]">
                       {m}
                     </th>
                   ))}
-                  <th className="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[100px] border-l border-[#1e1e2e]">
+                  <th className="px-3 py-3 text-right text-xs font-semibold text-ink-3 uppercase tracking-wider min-w-[100px] border-l border-line">
                     Total
                   </th>
-                  <th className="px-3 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[80px]">
+                  <th className="px-3 py-3 text-right text-xs font-semibold text-ink-3 uppercase tracking-wider min-w-[80px]">
                     Avg/mo
                   </th>
                 </tr>
@@ -595,7 +595,7 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
                       {/* Add item row */}
                       {!isCollapsed && (
                         showAddItem === cat.id ? (
-                          <tr className="border-b border-[#1a1a2e] bg-indigo-500/5">
+                          <tr className="border-b border-line bg-indigo-500/5">
                             <td className="sticky left-0 z-10 px-3 py-2 bg-indigo-500/5" colSpan={15}>
                               <div className="flex items-center gap-2 pl-6">
                                 <input
@@ -608,20 +608,20 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
                                     if (e.key === 'Escape') setShowAddItem(null)
                                   }}
                                   placeholder="New item name…"
-                                  className="bg-[#0d0d14] border border-indigo-500/50 rounded px-2 py-1 text-sm text-white focus:outline-none focus:border-indigo-400 w-48"
+                                  className="bg-panel border border-indigo-500/50 rounded px-2 py-1 text-sm text-ink focus:outline-none focus:border-indigo-400 w-48"
                                 />
-                                <button onClick={() => handleAddItem(cat.id)} className="text-xs text-emerald-400 hover:text-emerald-300">Add</button>
-                                <button onClick={() => { setShowAddItem(null); setNewItemName('') }} className="text-xs text-gray-500 hover:text-gray-300">Cancel</button>
+                                <button onClick={() => handleAddItem(cat.id)} className="text-xs text-gain hover:text-gain">Add</button>
+                                <button onClick={() => { setShowAddItem(null); setNewItemName('') }} className="text-xs text-ink-3 hover:text-ink-2">Cancel</button>
                               </div>
                             </td>
                           </tr>
                         ) : (
                           <tr
                             key={`add-${cat.id}`}
-                            className="border-b border-[#1a1a2e]"
+                            className="border-b border-line"
                           >
                             <td
-                              className="sticky left-0 z-10 px-3 py-1.5 bg-[#0d0d14] cursor-pointer text-xs text-gray-700 hover:text-indigo-400 transition-colors"
+                              className="sticky left-0 z-10 px-3 py-1.5 bg-panel cursor-pointer text-xs text-ink-4 hover:text-accent transition-colors"
                               colSpan={15}
                               onClick={() => { setShowAddItem(cat.id); setNewItemName('') }}
                             >
@@ -646,28 +646,28 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
 
       {/* ── Copy Year Modal ── */}
       {showCopy && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#111120] border border-[#1e1e2e] rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h2 className="text-lg font-bold text-white mb-4">Copy Year Data</h2>
+        <div className="fixed inset-0 bg-ink/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-field border border-line rounded-2xl p-6 w-full max-w-md shadow-xl shadow-ink/10">
+            <h2 className="text-lg font-bold text-ink mb-4">Copy Year Data</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Copy FROM year</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Copy FROM year</label>
                 <select
                   value={copyFrom}
                   onChange={e => setCopyFrom(Number(e.target.value))}
-                  className="w-full bg-[#0d0d14] border border-[#1e1e2e] text-gray-200 text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-panel border border-line text-ink text-sm px-3 py-2 rounded-lg focus:outline-none focus:border-indigo-500"
                 >
                   {years.filter(y => y !== year).map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">Copy TO year</label>
-                <div className="bg-[#0d0d14] border border-[#1e1e2e] text-gray-300 text-sm px-3 py-2 rounded-lg">
+                <label className="block text-xs text-ink-3 mb-1.5">Copy TO year</label>
+                <div className="bg-panel border border-line text-ink-2 text-sm px-3 py-2 rounded-lg">
                   {year}
                 </div>
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5">What to copy</label>
+                <label className="block text-xs text-ink-3 mb-1.5">What to copy</label>
                 <div className="flex gap-2">
                   {(['budget', 'actual', 'both'] as const).map(w => (
                     <button
@@ -677,20 +677,20 @@ export function BudgetView({ initialCategories, initialItems, initialEntries, av
                         'flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-all border',
                         copyWhat === w
                           ? 'bg-indigo-600 border-indigo-500 text-white'
-                          : 'bg-[#0d0d14] border-[#1e1e2e] text-gray-400 hover:text-gray-200'
+                          : 'bg-panel border-line text-ink-3 hover:text-ink'
                       )}
                     >{w}</button>
                   ))}
                 </div>
               </div>
-              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-xs text-amber-400">
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 text-xs text-warn">
                 This will overwrite existing {copyWhat} data for {year}. This cannot be undone.
               </div>
             </div>
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => setShowCopy(false)}
-                className="flex-1 py-2.5 rounded-lg border border-[#1e1e2e] text-gray-400 hover:text-gray-200 text-sm transition-all"
+                className="flex-1 py-2.5 rounded-lg border border-line text-ink-3 hover:text-ink text-sm transition-all"
               >Cancel</button>
               <button
                 onClick={handleCopy}

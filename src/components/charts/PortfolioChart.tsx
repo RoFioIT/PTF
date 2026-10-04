@@ -35,7 +35,7 @@ function formatDate(dateStr: string) {
 export function PortfolioChart({ data, currency = 'EUR' }: PortfolioChartProps) {
   if (data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-600 text-sm">
+      <div className="h-64 flex items-center justify-center text-ink-4 text-sm">
         No historical data available
       </div>
     )
@@ -61,28 +61,28 @@ export function PortfolioChart({ data, currency = 'EUR' }: PortfolioChartProps) 
           </linearGradient>
         </defs>
 
-        <CartesianGrid strokeDasharray="3 3" stroke="#1e1e2e" />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e3e8f0" />
         <XAxis
           dataKey="date"
           tickFormatter={formatDate}
-          tick={{ fill: '#6b7280', fontSize: 11 }}
+          tick={{ fill: '#64748b', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
           tickFormatter={(v) => formatCurrency(v, currency)}
-          tick={{ fill: '#6b7280', fontSize: 11 }}
+          tick={{ fill: '#64748b', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           width={80}
         />
         <Tooltip
           contentStyle={{
-            backgroundColor: '#12121a',
-            border: '1px solid #1e1e2e',
+            backgroundColor: '#ffffff',
+            border: '1px solid #e3e8f0',
             borderRadius: '8px',
-            color: '#e8e8f0',
+            color: '#0f1b33',
           }}
           formatter={(value, name) => [
             formatCurrency(Number(value ?? 0), currency),

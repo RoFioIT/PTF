@@ -34,9 +34,9 @@ function fmtEUR(value: number) {
 }
 
 const SHARE_TYPE_STYLES: Record<ShareType, string> = {
-  AFSS: 'bg-indigo-400/15 text-indigo-400',
-  DFSS: 'bg-amber-400/15 text-amber-400',
-  DIVIDEND: 'bg-teal-400/15 text-teal-400',
+  AFSS: 'bg-indigo-400/15 text-accent',
+  DFSS: 'bg-amber-400/15 text-warn',
+  DIVIDEND: 'bg-teal-400/15 text-teal-600',
 }
 
 function ShareTypeBadge({ type }: { type: ShareType }) {
@@ -49,9 +49,9 @@ function ShareTypeBadge({ type }: { type: ShareType }) {
 
 function StatusBadge({ status }: { status: ShareGrant['status'] }) {
   const styles: Record<string, string> = {
-    unvested: 'bg-gray-400/15 text-gray-400',
-    vested: 'bg-emerald-400/15 text-emerald-400',
-    lapsed: 'bg-red-400/15 text-red-400',
+    unvested: 'bg-gray-400/15 text-ink-3',
+    vested: 'bg-emerald-400/15 text-gain',
+    lapsed: 'bg-red-400/15 text-loss',
   }
   return (
     <span className={clsx('inline-flex items-center px-2 py-0.5 rounded text-xs font-medium', styles[status])}>
@@ -181,34 +181,34 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
     const gbp = potentialGBP(qty)
     const eur = potentialEUR(qty)
     return (
-      <tr key={g.id} className="hover:bg-white/[0.02] transition-colors">
+      <tr key={g.id} className="hover:bg-ink/[0.02] transition-colors">
         <td className="px-6 py-3"><ShareTypeBadge type={g.share_type} /></td>
-        <td className="px-6 py-3 text-sm text-gray-300 whitespace-nowrap">{fmtDate(g.grant_date)}</td>
-        <td className="px-6 py-3 text-sm text-gray-300 whitespace-nowrap">{fmtDate(g.vesting_date)}</td>
-        <td className="px-6 py-3 text-sm text-white tabular-nums">{qty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
+        <td className="px-6 py-3 text-sm text-ink-2 whitespace-nowrap">{fmtDate(g.grant_date)}</td>
+        <td className="px-6 py-3 text-sm text-ink-2 whitespace-nowrap">{fmtDate(g.vesting_date)}</td>
+        <td className="px-6 py-3 text-sm text-ink tabular-nums">{qty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
         <td className="px-6 py-3 text-sm tabular-nums">
-          <span className={days <= 0 ? 'text-emerald-400 font-medium' : days <= 90 ? 'text-amber-400' : 'text-gray-400'}>
+          <span className={days <= 0 ? 'text-gain font-medium' : days <= 90 ? 'text-warn' : 'text-ink-3'}>
             {days <= 0 ? 'Ready to vest' : `${days} days`}
           </span>
         </td>
-        <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">
+        <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">
           {gbp != null ? fmtGBP(gbp) : '—'}
         </td>
-        <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">
+        <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">
           {eur != null ? fmtEUR(eur) : '—'}
         </td>
         <td className="px-6 py-3">
           <div className="flex items-center gap-2">
             <button
               onClick={() => { setVestModal(g); setVestingPct(''); setError(null) }}
-              className="text-xs text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+              className="text-xs text-accent hover:text-accent font-medium transition-colors"
             >
               Vest
             </button>
-            <span className="text-gray-600">·</span>
+            <span className="text-ink-4">·</span>
             <button
               onClick={() => handleLapse(g)}
-              className="text-xs text-red-400 hover:text-red-300 transition-colors"
+              className="text-xs text-loss hover:text-loss transition-colors"
             >
               Lapse
             </button>
@@ -223,18 +223,18 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
     const gbp = potentialGBP(qty)
     const eur = potentialEUR(qty)
     return (
-      <tr className="bg-white/[0.03] border-t border-[#1e1e2e]">
-        <td colSpan={3} className="px-6 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <tr className="bg-ink/[0.03] border-t border-line">
+        <td colSpan={3} className="px-6 py-2 text-xs font-semibold text-ink-3 uppercase tracking-wider">
           {label} subtotal
         </td>
-        <td className="px-6 py-2 text-sm font-semibold text-white tabular-nums">
+        <td className="px-6 py-2 text-sm font-semibold text-ink tabular-nums">
           {qty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
         </td>
         <td className="px-6 py-2" />
-        <td className="px-6 py-2 text-sm font-semibold text-indigo-300 tabular-nums">
+        <td className="px-6 py-2 text-sm font-semibold text-accent tabular-nums">
           {gbp != null ? fmtGBP(gbp) : '—'}
         </td>
-        <td className="px-6 py-2 text-sm font-semibold text-indigo-300 tabular-nums">
+        <td className="px-6 py-2 text-sm font-semibold text-accent tabular-nums">
           {eur != null ? fmtEUR(eur) : '—'}
         </td>
         <td className="px-6 py-2" />
@@ -249,17 +249,17 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
   return (
     <div className="mt-6 space-y-6">
       {/* ── Unvested grants ─────────────────────────────────── */}
-      <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#1e1e2e] flex items-center justify-between">
+      <div className="bg-panel border border-line rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-white text-sm">Unvested Grants</h2>
+            <h2 className="font-semibold text-ink text-sm">Unvested Grants</h2>
             {priceGBP != null && (
-              <p className="text-xs text-gray-500 mt-0.5">Potential value at 75% vesting · ADM {fmtGBP(priceGBP)}/share</p>
+              <p className="text-xs text-ink-3 mt-0.5">Potential value at 75% vesting · ADM {fmtGBP(priceGBP)}/share</p>
             )}
           </div>
           <button
             onClick={() => { setShowAddForm((v) => !v); setError(null) }}
-            className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-accent hover:text-accent transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Add grant
@@ -268,15 +268,15 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
 
         {/* Add grant form */}
         {showAddForm && (
-          <form onSubmit={handleAddGrant} className="px-6 py-4 border-b border-[#1e1e2e] bg-[#0e0e1a] space-y-3">
-            {error && <p className="text-red-400 text-xs">{error}</p>}
+          <form onSubmit={handleAddGrant} className="px-6 py-4 border-b border-line bg-field space-y-3">
+            {error && <p className="text-loss text-xs">{error}</p>}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Type</label>
+                <label className="block text-xs text-ink-3 mb-1">Type</label>
                 <select
                   value={shareType}
                   onChange={(e) => setShareType(e.target.value as ShareType)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 >
                   <option value="AFSS">AFSS</option>
                   <option value="DFSS">DFSS</option>
@@ -284,17 +284,17 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                 </select>
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">{shareType === 'DIVIDEND' ? 'Date received' : 'Grant date'}</label>
+                <label className="block text-xs text-ink-3 mb-1">{shareType === 'DIVIDEND' ? 'Date received' : 'Grant date'}</label>
                 <input
                   type="date"
                   required
                   value={grantDate}
                   onChange={(e) => setGrantDate(e.target.value)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">{shareType === 'DIVIDEND' ? 'Shares received' : 'Granted shares'}</label>
+                <label className="block text-xs text-ink-3 mb-1">{shareType === 'DIVIDEND' ? 'Shares received' : 'Granted shares'}</label>
                 <input
                   type="number"
                   required
@@ -303,25 +303,25 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                   placeholder="e.g. 500"
                   value={grantedQty}
                   onChange={(e) => setGrantedQty(e.target.value)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-500 mb-1">Notes</label>
+                <label className="block text-xs text-ink-3 mb-1">Notes</label>
                 <input
                   type="text"
                   placeholder="Optional"
                   value={grantNotes}
                   onChange={(e) => setGrantNotes(e.target.value)}
-                  className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 />
               </div>
             </div>
             {shareType === 'DIVIDEND' && (
-              <p className="text-xs text-gray-500">Dividend shares are added to your holding immediately — no vesting period.</p>
+              <p className="text-xs text-ink-3">Dividend shares are added to your holding immediately — no vesting period.</p>
             )}
             <div className="flex gap-2 justify-end">
-              <button type="button" onClick={() => setShowAddForm(false)} className="text-sm text-gray-400 hover:text-white px-3 py-1.5 transition-colors">
+              <button type="button" onClick={() => setShowAddForm(false)} className="text-sm text-ink-3 hover:text-ink px-3 py-1.5 transition-colors">
                 Cancel
               </button>
               <button type="submit" disabled={saving} className="text-sm bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-4 py-1.5 rounded-lg transition-colors">
@@ -332,20 +332,20 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
         )}
 
         {sortedUnvested.length === 0 ? (
-          <div className="px-6 py-10 text-center text-gray-600 text-sm">
+          <div className="px-6 py-10 text-center text-ink-4 text-sm">
             No unvested grants — click Add grant to record a new award.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[#1e1e2e]">
+                <tr className="border-b border-line">
                   {['Type', 'Grant Date', 'Vesting Date', 'Granted', 'Days to vest', 'Potential GBP (75%)', 'Potential EUR (75%)', 'Actions'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1e1e2e]">
+              <tbody className="divide-y divide-line">
                 {/* AFSS group */}
                 {afssGrants.length > 0 && (
                   <>
@@ -362,18 +362,18 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                 )}
                 {/* Grand total */}
                 {afssGrants.length > 0 && dfssGrants.length > 0 && (
-                  <tr className="bg-white/[0.05] border-t-2 border-[#2e2e3e]">
-                    <td colSpan={3} className="px-6 py-2.5 text-xs font-bold text-gray-300 uppercase tracking-wider">
+                  <tr className="bg-ink/[0.05] border-t-2 border-line-strong">
+                    <td colSpan={3} className="px-6 py-2.5 text-xs font-bold text-ink-2 uppercase tracking-wider">
                       Total
                     </td>
-                    <td className="px-6 py-2.5 text-sm font-bold text-white tabular-nums">
+                    <td className="px-6 py-2.5 text-sm font-bold text-ink tabular-nums">
                       {totalQty.toLocaleString('fr-FR', { maximumFractionDigits: 4 })}
                     </td>
                     <td className="px-6 py-2.5" />
-                    <td className="px-6 py-2.5 text-sm font-bold text-indigo-300 tabular-nums">
+                    <td className="px-6 py-2.5 text-sm font-bold text-accent tabular-nums">
                       {totalGBP != null ? fmtGBP(totalGBP) : '—'}
                     </td>
-                    <td className="px-6 py-2.5 text-sm font-bold text-indigo-300 tabular-nums">
+                    <td className="px-6 py-2.5 text-sm font-bold text-accent tabular-nums">
                       {totalEUR != null ? fmtEUR(totalEUR) : '—'}
                     </td>
                     <td className="px-6 py-2.5" />
@@ -387,40 +387,40 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
 
       {/* ── Historical log ───────────────────────────────────── */}
       {historical.length > 0 && (
-        <div className="bg-[#12121a] border border-[#1e1e2e] rounded-xl overflow-hidden">
+        <div className="bg-panel border border-line rounded-xl overflow-hidden">
           <button
             onClick={() => setShowHistory((v) => !v)}
-            className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+            className="w-full px-6 py-4 flex items-center justify-between hover:bg-ink/[0.02] transition-colors"
           >
-            <h2 className="font-semibold text-white text-sm">Vested / Lapsed Grants</h2>
-            <div className="flex items-center gap-2 text-gray-500">
+            <h2 className="font-semibold text-ink text-sm">Vested / Lapsed Grants</h2>
+            <div className="flex items-center gap-2 text-ink-3">
               <span className="text-xs">{historical.length} grants</span>
               {showHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </div>
           </button>
 
           {showHistory && (
-            <table className="w-full border-t border-[#1e1e2e]">
+            <table className="w-full border-t border-line">
               <thead>
-                <tr className="border-b border-[#1e1e2e]">
+                <tr className="border-b border-line">
                   {['Type', 'Grant Date', 'Vesting Date', 'Granted', 'Vesting %', 'Shares received', 'Status'].map((h) => (
-                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium text-ink-3 uppercase tracking-wider">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1e1e2e]">
+              <tbody className="divide-y divide-line">
                 {[...historical].reverse().map((g) => {
                   const received = g.vesting_pct !== null
                     ? Number(g.granted_quantity) * Number(g.vesting_pct) / 100
                     : null
                   return (
-                    <tr key={g.id} className="hover:bg-white/[0.02] transition-colors">
+                    <tr key={g.id} className="hover:bg-ink/[0.02] transition-colors">
                       <td className="px-6 py-3"><ShareTypeBadge type={g.share_type} /></td>
-                      <td className="px-6 py-3 text-sm text-gray-300">{fmtDate(g.grant_date)}</td>
-                      <td className="px-6 py-3 text-sm text-gray-300">{fmtDate(g.vesting_date)}</td>
-                      <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">{Number(g.granted_quantity).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
-                      <td className="px-6 py-3 text-sm text-gray-300 tabular-nums">{g.vesting_pct !== null ? `${g.vesting_pct}%` : '—'}</td>
-                      <td className="px-6 py-3 text-sm text-white tabular-nums">{received !== null ? received.toLocaleString('fr-FR', { maximumFractionDigits: 4 }) : '—'}</td>
+                      <td className="px-6 py-3 text-sm text-ink-2">{fmtDate(g.grant_date)}</td>
+                      <td className="px-6 py-3 text-sm text-ink-2">{fmtDate(g.vesting_date)}</td>
+                      <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">{Number(g.granted_quantity).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</td>
+                      <td className="px-6 py-3 text-sm text-ink-2 tabular-nums">{g.vesting_pct !== null ? `${g.vesting_pct}%` : '—'}</td>
+                      <td className="px-6 py-3 text-sm text-ink tabular-nums">{received !== null ? received.toLocaleString('fr-FR', { maximumFractionDigits: 4 }) : '—'}</td>
                       <td className="px-6 py-3"><StatusBadge status={g.status} /></td>
                     </tr>
                   )
@@ -434,26 +434,26 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
       {/* ── Vest modal ──────────────────────────────────────── */}
       {vestModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setVestModal(null)} />
-          <div className="relative bg-[#1a1a2e] border border-[#1e1e2e] rounded-xl shadow-2xl w-full max-w-md mx-4 p-6">
+          <div className="absolute inset-0 bg-ink/40 backdrop-blur-sm" onClick={() => setVestModal(null)} />
+          <div className="relative bg-surface border border-line rounded-xl shadow-xl shadow-ink/10 w-full max-w-md mx-4 p-6">
             <div className="flex items-start justify-between mb-5">
               <div>
-                <h2 className="text-sm font-semibold text-white">Vest grant</h2>
-                <p className="text-xs text-gray-500 mt-0.5">
+                <h2 className="text-sm font-semibold text-ink">Vest grant</h2>
+                <p className="text-xs text-ink-3 mt-0.5">
                   <ShareTypeBadge type={vestModal.share_type} />
                   <span className="ml-2">{Number(vestModal.granted_quantity).toLocaleString('fr-FR')} shares · granted {fmtDate(vestModal.grant_date)}</span>
                 </p>
               </div>
-              <button onClick={() => setVestModal(null)} className="text-gray-500 hover:text-gray-300 transition-colors">
+              <button onClick={() => setVestModal(null)} className="text-ink-3 hover:text-ink-2 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {error && <p className="text-red-400 text-xs mb-4 bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>}
+            {error && <p className="text-loss text-xs mb-4 bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>}
 
             <form onSubmit={handleVest} className="space-y-4">
               <div>
-                <label className="block text-xs text-gray-500 mb-1.5">Vesting % (performance outcome)</label>
+                <label className="block text-xs text-ink-3 mb-1.5">Vesting % (performance outcome)</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -464,22 +464,22 @@ export function ShareGrantsPanel({ portfolioId, assetId, grants: initialGrants, 
                     placeholder="e.g. 85"
                     value={vestingPct}
                     onChange={(e) => setVestingPct(e.target.value)}
-                    className="flex-1 bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="flex-1 bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   />
-                  <span className="text-gray-400 text-sm">%</span>
+                  <span className="text-ink-3 text-sm">%</span>
                 </div>
               </div>
 
               {vestedQtyPreview !== null && (
-                <div className="bg-[#12121a] border border-[#1e1e2e] rounded-lg px-4 py-3">
-                  <p className="text-xs text-gray-500">Shares to receive</p>
-                  <p className="text-lg font-bold text-emerald-400 tabular-nums">{Number(vestedQtyPreview).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">Will be added as a BUY transaction at £0 cost</p>
+                <div className="bg-panel border border-line rounded-lg px-4 py-3">
+                  <p className="text-xs text-ink-3">Shares to receive</p>
+                  <p className="text-lg font-bold text-gain tabular-nums">{Number(vestedQtyPreview).toLocaleString('fr-FR', { maximumFractionDigits: 4 })}</p>
+                  <p className="text-xs text-ink-4 mt-0.5">Will be added as a BUY transaction at £0 cost</p>
                 </div>
               )}
 
               <div className="flex gap-2 justify-end pt-1">
-                <button type="button" onClick={() => setVestModal(null)} className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors">
+                <button type="button" onClick={() => setVestModal(null)} className="text-sm text-ink-3 hover:text-ink px-4 py-2 transition-colors">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving} className="text-sm bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-5 py-2 rounded-lg transition-colors">

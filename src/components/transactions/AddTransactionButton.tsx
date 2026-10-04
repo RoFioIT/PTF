@@ -259,7 +259,7 @@ export function AddTransactionButton({ portfolios }: Props) {
     }
   }
 
-  const inputCls = 'w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500'
+  const inputCls = 'w-full bg-surface border border-line-strong text-ink text-sm rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500'
   const selectCls = inputCls
 
   return (
@@ -273,26 +273,26 @@ export function AddTransactionButton({ portfolios }: Props) {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-[#12121a] border border-[#1e1e2e] rounded-2xl w-full max-w-lg mx-4 shadow-2xl">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#1e1e2e]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 backdrop-blur-sm">
+          <div className="bg-panel border border-line rounded-2xl w-full max-w-lg mx-4 shadow-xl shadow-ink/10">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
               {createStep !== 'idle' ? (
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={createStep === 'isin-entry' ? resetCreateFlow : () => setCreateStep('isin-entry')}
-                    className="text-gray-500 hover:text-white transition-colors"
+                    className="text-ink-3 hover:text-ink transition-colors"
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </button>
-                  <h2 className="text-sm font-semibold text-white">
+                  <h2 className="text-sm font-semibold text-ink">
                     {createStep === 'isin-entry' ? 'Add new asset' : 'Confirm asset details'}
                   </h2>
                 </div>
               ) : (
-                <h2 className="text-sm font-semibold text-white">Add transaction</h2>
+                <h2 className="text-sm font-semibold text-ink">Add transaction</h2>
               )}
-              <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+              <button onClick={() => setOpen(false)} className="text-ink-3 hover:text-ink transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -300,11 +300,11 @@ export function AddTransactionButton({ portfolios }: Props) {
             {/* ── Create asset: ISIN entry ── */}
             {createStep === 'isin-entry' && (
               <div className="px-6 py-5 space-y-4">
-                <p className="text-xs text-gray-400">
+                <p className="text-xs text-ink-3">
                   Enter the ISIN code to auto-fill asset details from Yahoo Finance.
                 </p>
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">ISIN code</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">ISIN code</label>
                   <input
                     type="text"
                     placeholder="e.g. FR0000131104"
@@ -316,7 +316,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                     autoFocus
                   />
                   {lookupError && (
-                    <p className="text-amber-400 text-xs mt-1.5">{lookupError}</p>
+                    <p className="text-warn text-xs mt-1.5">{lookupError}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-3">
@@ -332,7 +332,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                   <button
                     type="button"
                     onClick={skipLookup}
-                    className="text-sm text-gray-400 hover:text-white transition-colors"
+                    className="text-sm text-ink-3 hover:text-ink transition-colors"
                   >
                     Enter manually
                   </button>
@@ -344,49 +344,49 @@ export function AddTransactionButton({ portfolios }: Props) {
             {createStep === 'confirming' && (
               <div className="px-6 py-5 space-y-4">
                 {createError && (
-                  <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">{createError}</p>
+                  <p className="text-loss text-xs bg-red-400/10 px-3 py-2 rounded-lg">{createError}</p>
                 )}
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1.5">Name <span className="text-red-400">*</span></label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Name <span className="text-loss">*</span></label>
                   <input type="text" value={createName} onChange={(e) => setCreateName(e.target.value)} className={inputCls} placeholder="e.g. LVMH Moët Hennessy" autoFocus={!createName} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Type</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Type</label>
                     <select value={createType} onChange={(e) => setCreateType(e.target.value as AssetType)} className={selectCls}>
                       {ASSET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Currency <span className="text-red-400">*</span></label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Currency <span className="text-loss">*</span></label>
                     <input type="text" value={createCurrency} onChange={(e) => setCreateCurrency(e.target.value.toUpperCase())} maxLength={3} className={inputCls + ' font-mono'} placeholder="EUR" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Sector</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Sector</label>
                     <input type="text" value={createSector} onChange={(e) => setCreateSector(e.target.value)} className={inputCls} placeholder="e.g. Consumer Goods" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Country</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Country</label>
                     <input type="text" value={createCountry} onChange={(e) => setCreateCountry(e.target.value)} className={inputCls} placeholder="e.g. France" />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">ISIN</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">ISIN</label>
                     <input type="text" value={createIsin} onChange={(e) => setCreateIsin(e.target.value.toUpperCase())} maxLength={12} className={inputCls + ' font-mono'} placeholder="LU3047998896" />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Yahoo ticker</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Yahoo ticker</label>
                     <input type="text" value={createTicker} onChange={(e) => setCreateTicker(e.target.value.toUpperCase())} className={inputCls + ' font-mono'} placeholder="GUARD.PA" />
                   </div>
                 </div>
                 {!createTicker.trim() && (
-                  <p className="text-xs text-amber-400/80">Without a ticker, prices can&apos;t be fetched for this asset.</p>
+                  <p className="text-xs text-warn/80">Without a ticker, prices can&apos;t be fetched for this asset.</p>
                 )}
                 <div className="flex gap-2 justify-end pt-1">
-                  <button type="button" onClick={resetCreateFlow} className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors">
+                  <button type="button" onClick={resetCreateFlow} className="text-sm text-ink-3 hover:text-ink px-4 py-2 transition-colors">
                     Cancel
                   </button>
                   <button
@@ -406,33 +406,33 @@ export function AddTransactionButton({ portfolios }: Props) {
             {createStep === 'idle' && (
               <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
                 {error && (
-                  <p className="text-red-400 text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>
+                  <p className="text-loss text-xs bg-red-400/10 px-3 py-2 rounded-lg">{error}</p>
                 )}
 
                 {/* Asset search */}
                 <div className="relative">
-                  <label className="block text-xs text-gray-500 mb-1.5">Asset</label>
+                  <label className="block text-xs text-ink-3 mb-1.5">Asset</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 pointer-events-none" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-ink-3 pointer-events-none" />
                     <input
                       type="text"
                       placeholder="Search by name…"
                       value={assetQuery}
                       onChange={(e) => { setAssetQuery(e.target.value); setSelectedAsset(null) }}
-                      className="w-full bg-[#1e1e2e] border border-[#2e2e3e] text-white text-sm rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-surface border border-line-strong text-ink text-sm rounded-lg pl-9 pr-3 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                     />
                   </div>
                   {(assetResults.length > 0 || (assetQuery.length >= 2 && !searching)) && (
-                    <ul className="absolute z-10 w-full mt-1 bg-[#1e1e2e] border border-[#2e2e3e] rounded-lg overflow-hidden shadow-xl">
+                    <ul className="absolute z-10 w-full mt-1 bg-surface border border-line-strong rounded-lg overflow-hidden shadow-xl">
                       {assetResults.map((a) => (
                         <li key={a.id}>
                           <button
                             type="button"
                             onClick={() => selectAsset(a)}
-                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-white/5 transition-colors"
+                            className="w-full text-left px-4 py-2.5 text-sm hover:bg-ink/5 transition-colors"
                           >
-                            <span className="text-white">{a.name}</span>
-                            <span className="text-gray-500 text-xs ml-2">{a.asset_type} · {a.currency}</span>
+                            <span className="text-ink">{a.name}</span>
+                            <span className="text-ink-3 text-xs ml-2">{a.asset_type} · {a.currency}</span>
                           </button>
                         </li>
                       ))}
@@ -440,7 +440,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                         <button
                           type="button"
                           onClick={enterCreateFlow}
-                          className="w-full text-left px-4 py-2.5 text-sm text-indigo-400 hover:bg-white/5 transition-colors border-t border-[#2e2e3e] flex items-center gap-1.5"
+                          className="w-full text-left px-4 py-2.5 text-sm text-accent hover:bg-ink/5 transition-colors border-t border-line-strong flex items-center gap-1.5"
                         >
                           <Plus className="w-3.5 h-3.5" />
                           Create new asset
@@ -449,17 +449,17 @@ export function AddTransactionButton({ portfolios }: Props) {
                     </ul>
                   )}
                   {searching && (
-                    <p className="text-xs text-gray-500 mt-1">Searching…</p>
+                    <p className="text-xs text-ink-3 mt-1">Searching…</p>
                   )}
                   {selectedAsset && (
-                    <p className="text-xs text-emerald-400 mt-1">✓ {selectedAsset.name} ({selectedAsset.currency})</p>
+                    <p className="text-xs text-gain mt-1">✓ {selectedAsset.name} ({selectedAsset.currency})</p>
                   )}
                 </div>
 
                 {/* Portfolio + Type */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Portfolio</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Portfolio</label>
                     <select
                       value={portfolioId}
                       onChange={(e) => setPortfolioId(e.target.value)}
@@ -471,7 +471,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Type</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Type</label>
                     <select
                       value={type}
                       onChange={(e) => setType(e.target.value as TransactionType)}
@@ -486,7 +486,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                 {/* Quantity + Price + Fees */}
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Quantity</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Quantity</label>
                     <input
                       type="number" min="0" step="any" required
                       value={quantity}
@@ -496,7 +496,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Price</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Price</label>
                     <input
                       type="number" min="0" step="any" required
                       value={price}
@@ -506,7 +506,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Fees</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Fees</label>
                     <input
                       type="number" min="0" step="any"
                       value={fees}
@@ -520,7 +520,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                 {/* Date + Notes */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Date</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Date</label>
                     <input
                       type="date" required
                       value={date}
@@ -529,7 +529,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 mb-1.5">Notes</label>
+                    <label className="block text-xs text-ink-3 mb-1.5">Notes</label>
                     <input
                       type="text"
                       value={notes}
@@ -544,7 +544,7 @@ export function AddTransactionButton({ portfolios }: Props) {
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="text-sm text-gray-400 hover:text-white px-4 py-2 transition-colors"
+                    className="text-sm text-ink-3 hover:text-ink px-4 py-2 transition-colors"
                   >
                     Cancel
                   </button>
